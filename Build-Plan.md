@@ -77,14 +77,14 @@ Each gate:
 ---
 
 ### Gate 3: Image Pipeline & Scanning Flow
-- [ ] Implement `src/lib/image.js` (EXIF-aware orientation, offscreen canvas downscaling to $\le 512$px, 100px thumbnail compression).
-- [ ] Implement `src/lib/classify.js` (probability sorting, 0.60 confidence gate, and background class filter).
-- [ ] Implement `src/components/AnalyzingView.jsx` (viewfinder, white corner brackets, glowing scan line animation, 500ms minimum display).
-- [ ] Implement `src/components/ResultCard.jsx` (Confident result with disposal steps & SDG fact; Not-Sure result with scanning tips).
-- [ ] Implement `src/components/CategoryIcon.jsx` (Lucide icon mapping for all categories).
-- [ ] Wire native camera input (`capture="environment"`) and gallery picker in `App.jsx`.
-- [ ] Hook up browser history navigation (`pushState` / `popstate`) for Result back button behavior.
-* **Pass Criteria:** Full flow functional from image upload to analysis animation and result presentation.
+- [x] Implement `src/lib/image.js` (EXIF-aware orientation, offscreen canvas downscaling to $\le 512$px, 100px thumbnail compression).
+- [x] Implement `src/lib/classify.js` (probability sorting, 0.60 confidence gate, and background class filter).
+- [x] Implement `src/components/AnalyzingView.jsx` (viewfinder, white corner brackets, glowing scan line animation, 500ms minimum display).
+- [x] Implement `src/components/ResultCard.jsx` (Confident result with disposal steps & SDG fact; Not-Sure result with scanning tips).
+- [x] Implement `src/components/CategoryIcon.jsx` (Lucide icon mapping for all categories).
+- [x] Wire native camera input (`capture="environment"`) and gallery picker in `App.jsx`.
+- [x] Hook up browser history navigation (`pushState` / `popstate`) for Result back button behavior.
+* **Pass Criteria:** Full flow functional from image upload to analysis animation and result presentation. (PASSED)
 
 ---
 
@@ -115,6 +115,6 @@ Each gate:
 | **Gate 0** | Core ML & Environment Setup | **Completed** | 2026-10-13 |
 | **Gate 1** | Design System & Visual Shell | **Completed** | 2026-10-13 |
 | **Gate 2** | Storage & State Management | **Completed** | 2026-10-13 |
-| **Gate 3** | Image Pipeline & Full Flow | Pending | — |
+| **Gate 3** | Image Pipeline & Full Flow | **Completed** | 2026-10-13 |
 | **Gate 4** | Rules & Edge Case Hardening | Pending | — |
 | **Gate 5** | Production Build & QA | Pending | — |
