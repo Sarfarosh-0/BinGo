@@ -1,0 +1,24 @@
+{
+  "labels": [
+    "recyclable",
+    "organic",
+    "ewaste",
+    "hazardous",
+    "general"
+  ],
+  "inputShape": [
+    224,
+    224,
+    3
+  ],
+  "inputRange": [
+    0.0,
+    1.0
+  ],
+  "threshold": 0.6,
+  "version": 1,
+  "format": "graph_model",
+  "signature": "serving_default",
+  "inputName": "image",
+  "preprocessing": "pixels/255 then model applies Rescaling to [-1,1] internally"
+}

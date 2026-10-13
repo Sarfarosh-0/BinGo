@@ -1,0 +1,33 @@
+{
+  "overall": 0.9148718118667603,
+  "perClass": {
+    "recyclable": {
+      "accuracy": 0.8355555555555556,
+      "support": 225
+    },
+    "organic": {
+      "accuracy": 0.9511111111111111,
+      "support": 225
+    },
+    "ewaste": {
+      "accuracy": 1.0,
+      "support": 225
+    },
+    "hazardous": {
+      "accuracy": 0.9066666666666666,
+      "support": 75
+    },
+    "general": {
+      "accuracy": 0.8755555555555555,
+      "support": 225
+    }
+  },
+  "classOrder": [
+    "recyclable",
+    "organic",
+    "ewaste",
+    "hazardous",
+    "general"
+  ],
+  "totalTest": 975
+}
