@@ -1,0 +1,119 @@
+/* Eco Glass Surfaces */
+.surface-glass {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-glass);
+}
+
+.surface-glass-strong {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: var(--shadow-glass);
+}
+
+/* History flat surface without blur for smooth scrolling */
+.surface-flat {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* Fallback for browsers lacking backdrop-filter */
+@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
+  .surface-glass {
+    background: rgba(18, 64, 47, 0.92);
+  }
+  .surface-glass-strong {
+    background: rgba(11, 46, 37, 0.96);
+  }
+}
+
+/* Button & Interactive Classes */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--white);
+  box-shadow: var(--shadow-fab);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: var(--color-primary-pressed);
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--color-border);
+  color: var(--white);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-glass:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.btn-glass:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.97);
+}
+
+.btn-glass:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Scan Line Animation */
+@keyframes scan-sweep {
+  0% {
+    top: 5%;
+  }
+  50% {
+    top: 90%;
+  }
+  100% {
+    top: 5%;
+  }
+}
+
+@keyframes scan-pulse {
+  0%, 100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--emerald-400);
+  box-shadow: var(--shadow-glow-scan);
+  animation: scan-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite, scan-pulse 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-scan-line {
+    animation: scan-pulse 1.2s ease-in-out infinite;
+    top: 50% !important;
+  }
+}

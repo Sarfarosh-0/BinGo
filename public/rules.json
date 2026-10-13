@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "fallback": {
+    "title": "Not sure",
+    "message": "Not sure, try another angle",
+    "tips": [
+      "Try another angle.",
+      "Scan one item at a time."
+    ]
+  },
+  "categories": {
+    "recyclable": {
+      "id": "recyclable",
+      "label": "Recyclable",
+      "iconName": "Recycle",
+      "tone": "accent",
+      "steps": [
+        "Empty and rinse it.",
+        "Keep it dry.",
+        "Put it in the dry-waste bin or give it to a kabadiwala or recycler."
+      ],
+      "sdgFact": "Recycling reduces demand for new raw material taken from forests and land."
+    },
+    "organic": {
+      "id": "organic",
+      "label": "Organic",
+      "iconName": "Sprout",
+      "tone": "highlight",
+      "steps": [
+        "Put it in the wet-waste bin or a compost pit.",
+        "Don't mix it with plastic."
+      ],
+      "sdgFact": "Compost returns nutrients to soil instead of rotting in landfills."
+    },
+    "ewaste": {
+      "id": "ewaste",
+      "label": "E-Waste",
+      "iconName": "Smartphone",
+      "tone": "info",
+      "steps": [
+        "Don't put it in household waste.",
+        "Hand it to an authorised e-waste collector or a take-back counter."
+      ],
+      "sdgFact": "Toxic metals from dumped electronics can leak into soil and harm land ecosystems."
+    },
+    "hazardous": {
+      "id": "hazardous",
+      "label": "Hazardous",
+      "iconName": "TriangleAlert",
+      "tone": "error",
+      "steps": [
+        "Keep it separate and sealed.",
+        "Don't burn, flush or mix it.",
+        "Give it to a hazardous-waste collection point."
+      ],
+      "sdgFact": "Chemicals and batteries that reach the ground contaminate soil and the life that depends on it."
+    },
+    "general": {
+      "id": "general",
+      "label": "General / Non-recyclable",
+      "iconName": "Trash2",
+      "tone": "muted",
+      "steps": [
+        "Wrap it and put it in the general dry non-recyclable bin.",
+        "Don't litter."
+      ],
+      "sdgFact": "Waste left on open land damages soil and habitats, so proper disposal protects them."
+    }
+  }
+}

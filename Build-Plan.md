@@ -41,13 +41,13 @@ Each gate:
 ---
 
 ### Gate 0: Project Scaffolding & Environment Setup
-- [ ] Initialize project using React + Vite.
-- [ ] Configure `tailwind.config.js` (v3.4 layout utilities) and `postcss.config.js`.
-- [ ] Pin exact dependencies in `package.json` (`react`, `react-dom`, `@teachablemachine/image`, `@tensorflow/tfjs`, `lucide-react`, `@fontsource-variable/inter`).
-- [ ] Configure CDN script fallbacks in `index.html` for TensorFlow.js if needed.
-- [ ] Create initial directory structure under `src/` (`components/`, `hooks/`, `lib/`, `styles/`).
-- [ ] Verify bare environment compilation with `npm run build`.
-* **Pass Criteria:** Clean Vite build output, zero warnings.
+- [x] Initialize project using React + Vite.
+- [x] Configure `tailwind.config.js` (v3.4 layout utilities) and `postcss.config.js`.
+- [x] Pin exact dependencies in `package.json` (`react`, `react-dom`, `@teachablemachine/image`, `@tensorflow/tfjs`, `lucide-react`, `@fontsource-variable/inter`).
+- [x] Configure CDN script fallbacks in `index.html` for TensorFlow.js if needed.
+- [x] Create initial directory structure under `src/` (`components/`, `hooks/`, `lib/`, `styles/`).
+- [x] Verify bare environment compilation with `npm run build`.
+* **Pass Criteria:** Clean Vite build output, zero warnings. (PASSED)
 
 ---
 
@@ -112,7 +112,7 @@ Each gate:
 
 | Gate | Focus | Status | Completed At |
 | :--- | :--- | :--- | :--- |
-| **Gate 0** | Core ML & Environment Setup | Pending | — |
+| **Gate 0** | Core ML & Environment Setup | **Completed** | 2026-10-13 |
 | **Gate 1** | Design System & Visual Shell | Pending | — |
 | **Gate 2** | Storage & State Management | Pending | — |
 | **Gate 3** | Image Pipeline & Full Flow | Pending | — |

@@ -1,0 +1,48 @@
+:root {
+  /* Raw Palette */
+  --forest-900: #0B2E25;
+  --forest-800: #12402F;
+  --forest-700: #1B5240;
+  --forest-500: #4F8A6B;
+  --forest-300: #8DB9A0;
+
+  --emerald-300: #7BE8A4;
+  --emerald-400: #4ADE80;
+  --emerald-500: #2FBF71;
+  --emerald-700: #1A8F52;
+
+  --lime-mist:   #CFEA8A;
+  --coral-500:   #FF6B5E;
+  --amber-400:   #F5B942;
+  --aqua-400:    #6FC3D9;
+  --white:       #FFFFFF;
+  --shadow-tint: 4, 26, 20;
+
+  /* Semantic Mappings */
+  --color-bg:              var(--forest-800);
+  --color-primary:         var(--emerald-500);
+  --color-primary-hover:   var(--emerald-400);
+  --color-primary-pressed: var(--emerald-700);
+  --color-accent:          var(--emerald-400);
+  --color-highlight:       var(--lime-mist);
+  --color-info:            var(--aqua-400);
+  --color-error:           var(--coral-500);
+  --color-warning:         var(--amber-400);
+  --color-border:          rgba(255, 255, 255, 0.22);
+  --color-border-subtle:   rgba(255, 255, 255, 0.14);
+  --color-divider:         rgba(255, 255, 255, 0.10);
+
+  /* Typography Colors */
+  --color-text-primary:    #FFFFFF;
+  --color-text-secondary:  rgba(255, 255, 255, 0.78);
+  --color-text-muted:      rgba(255, 255, 255, 0.62);
+  --color-text-disabled:   rgba(255, 255, 255, 0.32);
+
+  /* Shadows & Glows */
+  --shadow-glow-scan:      0 0 20px rgba(74, 222, 128, 0.6), 0 0 8px rgba(74, 222, 128, 0.8);
+  --shadow-fab:            0 8px 24px rgba(47, 191, 113, 0.45);
+  --shadow-glass:          0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Layout */
+  --layout-max-w:          480px;
+}
