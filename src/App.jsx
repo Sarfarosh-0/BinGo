@@ -4,11 +4,17 @@ import { TopBar } from './components/TopBar'
 import { BottomNav } from './components/BottomNav'
 import { ImpactBar } from './components/ImpactBar'
 import { Scanner } from './components/Scanner'
+import { History } from './components/History'
+import { useStreak } from './hooks/useStreak'
+import { useHistory } from './hooks/useHistory'
 import { STRINGS } from './lib/strings'
 
 export default function App() {
   const [view, setView] = useState('home') // 'home' | 'analyzing' | 'result' | 'history'
-  const [isModelReady] = useState(true) // will be linked to useModel in Gate 4
+  const [isModelReady] = useState(true)
+
+  const { totalSorted, streak } = useStreak()
+  const { history } = useHistory()
 
   const cameraInputRef = useRef(null)
   const galleryInputRef = useRef(null)
@@ -30,8 +36,8 @@ export default function App() {
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    console.log('File selected for scan:', file.name, file.size)
-    // Pipeline hooked up in Gate 3
+    console.log('Selected file for classification:', file.name, file.size)
+    // Classification flow hooked up in Gate 3
   }
 
   return (
@@ -39,7 +45,7 @@ export default function App() {
       {/* Persistent Atmospheric Backdrop */}
       <Backdrop />
 
-      {/* Hidden native HTML file inputs for maximum mobile compatibility */}
+      {/* Hidden native HTML file inputs */}
       <input
         ref={cameraInputRef}
         type="file"
@@ -73,10 +79,10 @@ export default function App() {
               </p>
             </header>
 
-            {/* Impact Metric Bar */}
-            <ImpactBar totalSorted={0} streak={0} />
+            {/* Impact Metric Bar with live streak and total */}
+            <ImpactBar totalSorted={totalSorted} streak={streak} />
 
-            {/* Main Scan Station Card */}
+            {/* Scan Station Card */}
             <Scanner
               ready={isModelReady}
               onGalleryClick={handleOpenGallery}
@@ -88,9 +94,10 @@ export default function App() {
         {view === 'history' && (
           <div className="flex-1 flex flex-col">
             <TopBar title={STRINGS.history.title} />
-            <div className="flex-1 flex flex-col items-center justify-center py-16 text-center text-white/60">
-              <p className="text-sm">{STRINGS.history.emptySubtitle}</p>
-            </div>
+            <History 
+              items={history}
+              onOpenItem={(item) => console.log('Open history item:', item.id)}
+            />
           </div>
         )}
       </main>

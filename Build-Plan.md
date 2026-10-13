@@ -66,13 +66,13 @@ Each gate:
 ---
 
 ### Gate 2: Storage & State Management
-- [ ] Implement `src/lib/date.js` (DST-safe local calendar date formatting & difference calculation).
-- [ ] Implement `src/lib/storage.js` (localStorage wrapper with automatic quota management & in-memory fallback).
-- [ ] Implement `src/hooks/useStreak.js` (daily streak calculation and `totalSorted` lifetime counter).
-- [ ] Implement `src/hooks/useHistory.js` (history CRUD capped strictly at 50 items, thumbnail storage, thumbs feedback).
-- [ ] Implement `src/components/History.jsx` (chronological list using `.surface-flat` and empty state).
-- [ ] Connect tab switching between Home and History in `App.jsx`.
-* **Pass Criteria:** Automated tests verify streak increment rules, 50-item FIFO cap, and quota drop logic.
+- [x] Implement `src/lib/date.js` (DST-safe local calendar date formatting & difference calculation).
+- [x] Implement `src/lib/storage.js` (localStorage wrapper with automatic quota management & in-memory fallback).
+- [x] Implement `src/hooks/useStreak.js` (daily streak calculation and `totalSorted` lifetime counter).
+- [x] Implement `src/hooks/useHistory.js` (history CRUD capped strictly at 50 items, thumbnail storage, thumbs feedback).
+- [x] Implement `src/components/History.jsx` (chronological list using `.surface-flat` and empty state).
+- [x] Connect tab switching between Home and History in `App.jsx`.
+* **Pass Criteria:** Automated tests verify streak increment rules, 50-item FIFO cap, and quota drop logic. (PASSED)
 
 ---
 
@@ -114,7 +114,7 @@ Each gate:
 | :--- | :--- | :--- | :--- |
 | **Gate 0** | Core ML & Environment Setup | **Completed** | 2026-10-13 |
 | **Gate 1** | Design System & Visual Shell | **Completed** | 2026-10-13 |
-| **Gate 2** | Storage & State Management | Pending | — |
+| **Gate 2** | Storage & State Management | **Completed** | 2026-10-13 |
 | **Gate 3** | Image Pipeline & Full Flow | Pending | — |
 | **Gate 4** | Rules & Edge Case Hardening | Pending | — |
 | **Gate 5** | Production Build & QA | Pending | — |
