@@ -2,12 +2,16 @@ import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Backdrop } from './components/Backdrop'
 import { TopBar } from './components/TopBar'
 import { BottomNav } from './components/BottomNav'
+import { Sidebar } from './components/Sidebar'
 import { ImpactBar } from './components/ImpactBar'
 import { Scanner } from './components/Scanner'
 import { History } from './components/History'
+import { ImpactCounter } from './components/ImpactCounter'
+import { ScanSheet } from './components/ScanSheet'
 import { AnalyzingView } from './components/AnalyzingView'
 import { ResultCard } from './components/ResultCard'
 import { Banner } from './components/Banner'
+import { CategoryIcon } from './components/CategoryIcon'
 import { useStreak } from './hooks/useStreak'
 import { useHistory } from './hooks/useHistory'
 import { useModel } from './hooks/useModel'
@@ -15,17 +19,22 @@ import { loadRules } from './lib/rules'
 import { processImageFile } from './lib/image'
 import { classify } from './lib/classify'
 import { STRINGS } from './lib/strings'
+import { CATEGORY_THEME } from './lib/categoryTheme'
+import { ArrowRight } from 'lucide-react'
+
+const STATIC_CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
 export default function App() {
-  const [view, setView] = useState('home') // 'home' | 'analyzing' | 'result' | 'history'
+  const [view, setView] = useState('home') // 'home' | 'analyzing' | 'result' | 'history' | 'impact'
   const [originTab, setOriginTab] = useState('home')
   const [banner, setBanner] = useState(null) // { tone, message, onRetry? }
   const [analyzingPreview, setAnalyzingPreview] = useState(null) // object URL or data URL
   const [activeResult, setActiveResult] = useState(null)
   const [currentFeedback, setCurrentFeedback] = useState(null)
   const [rules, setRules] = useState(null)
+  const [isScanSheetOpen, setIsScanSheetOpen] = useState(false)
 
-  const { totalSorted, streak, recordConfidentScan } = useStreak()
+  const { totalSorted, streak, byCategory, recordConfidentScan } = useStreak()
   const { history, addEntry, setFeedback } = useHistory()
   const {
     status: modelStatus,
@@ -134,7 +143,7 @@ export default function App() {
     if (view === 'analyzing') return
     if (!ready || !model || !metadata || !rules) return
 
-    const from = view === 'history' ? 'history' : 'home'
+    const from = (view === 'history' || view === 'impact') ? view : 'home'
     setOriginTab(from)
     setBanner(null)
 
@@ -241,7 +250,7 @@ export default function App() {
   }
 
   const handleOpenHistoryItem = (item) => {
-    setOriginTab('history')
+    setOriginTab(view === 'impact' ? 'impact' : 'history')
     setActiveResult({
       kind: 'confident',
       categoryId: item.categoryId,
@@ -272,8 +281,10 @@ export default function App() {
 
   const dismissBanner = () => setBanner(null)
 
+  const isFullScreenView = view === 'analyzing' || view === 'result'
+
   return (
-    <div className="relative min-h-[100dvh] flex flex-col justify-between overflow-x-hidden text-white font-sans">
+    <div className="relative min-h-[100dvh] flex bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased overflow-x-hidden">
       <Backdrop />
 
       {/* Hidden native file inputs */}
@@ -293,84 +304,175 @@ export default function App() {
         onChange={handleFileSelect}
       />
 
-      {/* Full-screen Analyzing overlay */}
-      {view === 'analyzing' && (
-        <AnalyzingView
-          previewUrl={analyzingPreview}
-          onClose={handleCancelAnalysis}
-        />
-      )}
-
-      {/* Main clamped mobile frame */}
-      <main className="w-full max-w-[480px] mx-auto flex-1 flex flex-col px-4 pt-4 pb-28 gap-4">
-        {banner && (
-          <Banner
-            tone={banner.tone}
-            message={banner.message}
-            onRetry={banner.onRetry}
-            onDismiss={dismissBanner}
-          />
-        )}
-
-        {/* Home screen */}
-        {view === 'home' && (
-          <>
-            <header className="pt-2 pb-1">
-              <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                <span>{STRINGS.app.name}</span>
-                <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--emerald-500)]/20 border border-[var(--emerald-400)]/30 text-[var(--emerald-400)]">
-                  SDG 15
-                </span>
-              </h1>
-              <p className="text-xs text-white/70 mt-0.5">{STRINGS.app.tagline}</p>
-            </header>
-
-            <ImpactBar totalSorted={totalSorted} streak={streak} />
-
-            <Scanner
-              ready={ready}
-              loadingText={
-                modelStatus === 'error'
-                  ? STRINGS.errors.modelLoadFail
-                  : STRINGS.home.loadingModel
-              }
-              onGalleryClick={handleOpenGallery}
-              onCameraClick={handleOpenCamera}
-            />
-          </>
-        )}
-
-        {/* History screen */}
-        {view === 'history' && (
-          <div className="flex-1 flex flex-col">
-            <TopBar title={STRINGS.history.title} />
-            <History items={history} onOpenItem={handleOpenHistoryItem} />
-          </div>
-        )}
-
-        {/* Result screen */}
-        {view === 'result' && activeResult && (
-          <ResultCard
-            result={activeResult}
-            rules={rules}
-            feedback={currentFeedback}
-            onFeedback={handleFeedback}
-            onScanAnother={handleScanAnother}
-            onBack={handleBackFromResult}
-          />
-        )}
-      </main>
-
-      {/* Floating bottom nav — hidden on analyzing and result views */}
-      {view !== 'analyzing' && view !== 'result' && (
-        <BottomNav
-          active={view === 'history' ? 'history' : 'home'}
+      {/* Desktop Sidebar (1024px and up) */}
+      {!isFullScreenView && (
+        <Sidebar
+          active={view}
           onHome={() => setView('home')}
           onHistory={() => setView('history')}
-          onScan={handleOpenCamera}
+          onImpact={() => setView('impact')}
+          onOpenScanSheet={() => setIsScanSheetOpen(true)}
           scanDisabled={!ready}
         />
       )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Full-screen Analyzing overlay */}
+        {view === 'analyzing' && (
+          <AnalyzingView
+            previewUrl={analyzingPreview}
+            onClose={handleCancelAnalysis}
+          />
+        )}
+
+        {/* Main responsive container (centered 480px on mobile, responsive bento) */}
+        <main className="w-full max-w-[480px] lg:max-w-[720px] mx-auto flex-1 flex flex-col px-4 pt-4 pb-36 gap-4">
+          {banner && (
+            <Banner
+              tone={banner.tone}
+              message={banner.message}
+              onRetry={banner.onRetry}
+              onDismiss={dismissBanner}
+            />
+          )}
+
+          {/* Home View */}
+          {view === 'home' && (
+            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+              {/* Brand Header */}
+              <header className="pt-2 pb-1 flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-black text-[var(--color-text)] tracking-tight flex items-center gap-2">
+                    <span>{STRINGS.app.name}</span>
+                    <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)]">
+                      SDG 15
+                    </span>
+                  </h1>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
+                    {STRINGS.app.tagline}
+                  </p>
+                </div>
+              </header>
+
+              {/* Hero Scan Tile */}
+              <Scanner
+                ready={ready}
+                loadingText={
+                  modelStatus === 'error'
+                    ? STRINGS.errors.modelLoadFail
+                    : STRINGS.home.loadingModel
+                }
+                onGalleryClick={handleOpenGallery}
+                onCameraClick={handleOpenCamera}
+              />
+
+              {/* Stat Strip (Side-by-side tiles) */}
+              <ImpactBar totalSorted={totalSorted} streak={streak} />
+
+              {/* What Goes Where Legend Tile */}
+              <section className="card p-4 border border-[var(--color-border)] shadow-sm">
+                <span className="text-xs font-bold text-[var(--color-text)]">
+                  {STRINGS.home.whatGoesWhere}
+                </span>
+                <div className="flex flex-wrap gap-2 mt-2.5">
+                  {STATIC_CATEGORIES.map((catKey) => {
+                    const theme = CATEGORY_THEME[catKey]
+                    return (
+                      <div
+                        key={catKey}
+                        className="chip"
+                        style={{
+                          '--chip-ink': theme.ink,
+                          '--chip-soft': theme.soft,
+                        }}
+                      >
+                        <CategoryIcon categoryId={catKey} size={14} />
+                        <span>{theme.label}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+
+              {/* Recent Scans Tile (2-3 newest entries; hidden if empty) */}
+              {history.length > 0 && (
+                <section className="card p-4 border border-[var(--color-border)] shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold text-[var(--color-text)]">
+                      {STRINGS.home.recentScans}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setView('history')}
+                      className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                    >
+                      <span>{STRINGS.home.seeAll}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <History
+                    items={history.slice(0, 3)}
+                    onOpenItem={handleOpenHistoryItem}
+                  />
+                </section>
+              )}
+            </div>
+          )}
+
+          {/* Impact Counter View */}
+          {view === 'impact' && (
+            <ImpactCounter
+              totalSorted={totalSorted}
+              streak={streak}
+              byCategory={byCategory}
+              history={history}
+              onOpenScanSheet={() => setIsScanSheetOpen(true)}
+              onGoToHistory={() => setView('history')}
+            />
+          )}
+
+          {/* History View */}
+          {view === 'history' && (
+            <div className="flex-1 flex flex-col animate-in fade-in duration-200">
+              <TopBar title={STRINGS.history.title} />
+              <History items={history} onOpenItem={handleOpenHistoryItem} />
+            </div>
+          )}
+
+          {/* Result View */}
+          {view === 'result' && activeResult && (
+            <ResultCard
+              result={activeResult}
+              rules={rules}
+              feedback={currentFeedback}
+              onFeedback={handleFeedback}
+              onScanAnother={handleScanAnother}
+              onBack={handleBackFromResult}
+            />
+          )}
+        </main>
+
+        {/* Floating Bottom Nav (Mobile/Tablet) — hidden on full-screen analyzing and result views */}
+        {!isFullScreenView && (
+          <BottomNav
+            active={view === 'impact' ? 'impact' : view === 'history' ? 'history' : 'home'}
+            onHome={() => setView('home')}
+            onHistory={() => setView('history')}
+            onImpact={() => setView('impact')}
+            onOpenScanSheet={() => setIsScanSheetOpen(true)}
+            scanDisabled={!ready}
+          />
+        )}
+      </div>
+
+      {/* ScanSheet Modal */}
+      <ScanSheet
+        isOpen={isScanSheetOpen}
+        onClose={() => setIsScanSheetOpen(false)}
+        onTakePhoto={handleOpenCamera}
+        onChooseGallery={handleOpenGallery}
+      />
     </div>
   )
 }

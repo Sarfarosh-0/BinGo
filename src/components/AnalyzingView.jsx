@@ -8,7 +8,7 @@ export function AnalyzingView({ previewUrl, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="Image analysis in progress"
-      className="fixed inset-0 z-40 bg-[var(--forest-900)]/95 flex flex-col justify-between p-4 overflow-hidden"
+      className="fixed inset-0 z-50 bg-[var(--color-bg)] flex flex-col justify-between p-4 overflow-hidden"
     >
       {/* Top Bar with Cancel X */}
       <header className="flex items-center justify-between pb-2">
@@ -16,22 +16,22 @@ export function AnalyzingView({ previewUrl, onClose }) {
           type="button"
           onClick={onClose}
           aria-label="Cancel analysis"
-          className="w-11 h-11 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all border border-white/15"
+          className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--color-surface)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)] shadow-sm"
         >
-          <X className="w-5 h-5" strokeWidth={2} />
+          <X className="w-5 h-5 text-[var(--color-text)]" strokeWidth={2.25} />
         </button>
 
-        <h1 className="text-lg font-semibold text-white tracking-wide">
+        <h1 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
           {STRINGS.analyzing.title}
         </h1>
 
         <div className="w-11 h-11" aria-hidden="true" />
       </header>
 
-      {/* Center Viewfinder (~55% of screen height) */}
+      {/* Center Viewfinder Scan Frame (max 420 px tall) */}
       <div className="flex-1 my-3 flex items-center justify-center relative min-h-0">
-        <div className="relative w-full max-w-[360px] h-full max-h-[420px] rounded-3xl overflow-hidden border border-white/20 surface-glass flex items-center justify-center shadow-glass">
-          {/* Live photo preview */}
+        <div className="scan-frame relative w-full max-w-[360px] h-full max-h-[420px] rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-sunken)] flex items-center justify-center shadow-md">
+          {/* Captured photo preview */}
           {previewUrl && (
             <img
               src={previewUrl}
@@ -40,31 +40,34 @@ export function AnalyzingView({ previewUrl, onClose }) {
             />
           )}
 
-          {/* Corner framing brackets + scan line */}
-          <div className="absolute inset-6 pointer-events-none" aria-hidden="true">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-white/80 rounded-tl-xl" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-white/80 rounded-tr-xl" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-white/80 rounded-bl-xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-white/80 rounded-br-xl" />
-            <div className="animate-scan-line" />
-          </div>
+          {/* Corner brackets */}
+          <div className="scan-corner tl" />
+          <div className="scan-corner tr" />
+          <div className="scan-corner bl" />
+          <div className="scan-corner br" />
+
+          {/* Sweeping laser line */}
+          <div className="scan-line" />
         </div>
       </div>
 
-      {/* Status & Hints Panel */}
-      <div className="surface-glass rounded-3xl p-4 border border-white/20 max-w-[360px] mx-auto w-full mb-2">
-        <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--emerald-400)] animate-pulse" />
+      {/* Status & Hints Card */}
+      <div
+        role="status"
+        className="card max-w-[360px] mx-auto w-full mb-2 p-4 border border-[var(--color-border)] shadow-sm"
+      >
+        <h2 className="text-sm font-bold text-[var(--color-text)] mb-2 flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-primary-strong)] animate-pulse" />
           <span>{STRINGS.analyzing.status}</span>
         </h2>
 
-        <div className="space-y-1.5 text-xs text-white/75">
+        <div className="space-y-1.5 text-xs text-[var(--color-text-secondary)]">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-3.5 h-3.5 text-[var(--lime-mist)] shrink-0" />
+            <Lightbulb className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
             <span>{STRINGS.analyzing.hintOneItem}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-3.5 h-3.5 text-[var(--lime-mist)] shrink-0" />
+            <Lightbulb className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
             <span>{STRINGS.analyzing.hintTakesMoment}</span>
           </div>
         </div>

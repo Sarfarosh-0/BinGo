@@ -1,48 +1,94 @@
 :root {
-  /* Raw Palette */
-  --forest-900: #0B2E25;
-  --forest-800: #12402F;
-  --forest-700: #1B5240;
-  --forest-500: #4F8A6B;
-  --forest-300: #8DB9A0;
+  /* Brand */
+  --color-primary: #0F9D58;
+  --color-primary-strong: #0B7A44;
+  --color-primary-hover: #0C8A4B;
+  --color-primary-active: #0A6B3C;
+  --color-primary-soft: #E3F5E9;
+  --color-primary-ring: rgba(15,157,88,.35);
+  --color-secondary: #0B6E4F;
+  --color-accent: #D9F99D;
+  --color-accent-ink: #3F6212;
+  --color-accent-soft: #F2FBDD;
 
-  --emerald-300: #7BE8A4;
-  --emerald-400: #4ADE80;
-  --emerald-500: #2FBF71;
-  --emerald-700: #1A8F52;
+  /* Surfaces */
+  --color-bg: #F3F8F4;
+  --color-bg-band: #EAF4EE;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #E3F5E9;
+  --color-surface-sunken: #EEF4F0;
 
-  --lime-mist:   #CFEA8A;
-  --coral-500:   #FF6B5E;
-  --amber-400:   #F5B942;
-  --aqua-400:    #6FC3D9;
-  --white:       #FFFFFF;
-  --shadow-tint: 4, 26, 20;
+  /* Text */
+  --color-text: #0E2A1F;
+  --color-text-secondary: #52665A;
+  --color-text-muted: #6B7D72;
+  --color-text-disabled: #9AA8A0;
+  --color-text-on-primary: #FFFFFF;
 
-  /* Semantic Mappings */
-  --color-bg:              var(--forest-800);
-  --color-primary:         var(--emerald-500);
-  --color-primary-hover:   var(--emerald-400);
-  --color-primary-pressed: var(--emerald-700);
-  --color-accent:          var(--emerald-400);
-  --color-highlight:       var(--lime-mist);
-  --color-info:            var(--aqua-400);
-  --color-error:           var(--coral-500);
-  --color-warning:         var(--amber-400);
-  --color-border:          rgba(255, 255, 255, 0.22);
-  --color-border-subtle:   rgba(255, 255, 255, 0.14);
-  --color-divider:         rgba(255, 255, 255, 0.10);
+  /* Lines */
+  --color-border: #DCE8DF;
+  --color-border-strong: #C6D9CC;
+  --color-divider: #E6F0E9;
+  --color-focus-ring: #0F9D58;
 
-  /* Typography Colors */
-  --color-text-primary:    #FFFFFF;
-  --color-text-secondary:  rgba(255, 255, 255, 0.78);
-  --color-text-muted:      rgba(255, 255, 255, 0.62);
-  --color-text-disabled:   rgba(255, 255, 255, 0.32);
+  /* Status */
+  --color-success: #16834A;  --color-success-soft: #E4F5EB;
+  --color-warning: #9A6700;  --color-warning-soft: #FFF6E0;
+  --color-error:   #C62828;  --color-error-soft:   #FCEAEA;
+  --color-info:    #1769AA;  --color-info-soft:    #E7F1FA;
 
-  /* Shadows & Glows */
-  --shadow-glow-scan:      0 0 20px rgba(74, 222, 128, 0.6), 0 0 8px rgba(74, 222, 128, 0.8);
-  --shadow-fab:            0 8px 24px rgba(47, 191, 113, 0.45);
-  --shadow-glass:          0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  /* Categories */
+  --cat-recyclable: #1565C0; --cat-recyclable-soft: #E7F0FB;
+  --cat-organic:    #2E7D32; --cat-organic-soft:    #E8F6EA;
+  --cat-ewaste:     #6A3DB8; --cat-ewaste-soft:     #F0EAFB;
+  --cat-hazardous:  #C62828; --cat-hazardous-soft:  #FBE9E9;
+  --cat-general:    #5F6B63; --cat-general-soft:    #EEF2EF;
+  --cat-not-sure:   #9A6700; --cat-not-sure-soft:   #FFF6E0;
+
+  /* Scan */
+  --scan-line: #0F9D58;
+  --scan-line-soft: rgba(15,157,88,.30);
+  --scan-frame-border: rgba(255,255,255,.9);
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgba(14,42,31,.06);
+  --shadow-sm: 0 2px 6px rgba(14,42,31,.06), 0 1px 2px rgba(14,42,31,.04);
+  --shadow-md: 0 6px 16px rgba(14,42,31,.08), 0 2px 4px rgba(14,42,31,.05);
+  --shadow-lg: 0 12px 28px rgba(14,42,31,.10), 0 4px 8px rgba(14,42,31,.05);
+  --shadow-scan-btn: 0 6px 16px rgba(15,157,88,.32);
+
+  /* Radii */
+  --radius-xs: 8px;  --radius-sm: 10px; --radius-md: 14px;
+  --radius-lg: 20px; --radius-xl: 24px; --radius-2xl: 28px; --radius-pill: 999px;
+
+  /* Spacing */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px;
 
   /* Layout */
-  --layout-max-w:          480px;
+  --layout-max-w: 480px;
+  --layout-content-w: 720px;
+  --layout-wide-w: 1080px;
+  --nav-h: 68px;
+  --topbar-h: 56px;
+  --gutter: 16px;
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 72px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(.4, 0, .2, 1);
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Z-index */
+  --z-nav: 40;
+  --z-sidebar: 40;
+  --z-sheet-backdrop: 60;
+  --z-sheet: 70;
+  --z-toast: 80;
+
+  /* Type */
+  --font-sans: 'Manrope Variable', 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }

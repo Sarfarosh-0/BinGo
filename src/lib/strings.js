@@ -1,4 +1,4 @@
-// Central UI string dictionary as required by Agent-Rules.md Section 4.3
+// Central UI string dictionary as required by Agent-Rules.md Section 4.3 and Design-Document.md Section 7.4
 export const STRINGS = {
   app: {
     name: 'BinGo',
@@ -12,8 +12,12 @@ export const STRINGS = {
     scanSubtitle: 'Point your camera at one item to see how to dispose of it.',
     hintOneItem: 'Scan one item at a time',
     hintGoodLight: 'Use good light and fill the frame',
+    btnCamera: 'Take a photo',
     btnGallery: 'Choose from gallery',
     loadingModel: 'Loading model...',
+    whatGoesWhere: 'What goes where',
+    recentScans: 'Recent scans',
+    seeAll: 'See all',
   },
   analyzing: {
     title: 'Analyzing',
@@ -38,9 +42,26 @@ export const STRINGS = {
     emptyTitle: 'No scans yet',
     emptySubtitle: 'Your last 50 scans will show up here.',
   },
+  impact: {
+    title: 'Impact Counter',
+    heroCaption: 'Items sorted',
+    dayStreak: 'Day streak',
+    streakDesc: 'A streak grows each day you sort at least one item.',
+    startStreak: 'Start a streak today',
+    last7Days: 'Last 7 days',
+    breakdownTitle: 'Category breakdown',
+    seeScans: 'See your scans',
+  },
+  scanSheet: {
+    title: 'Scan an item',
+    takePhoto: 'Take a photo',
+    chooseGallery: 'Choose from gallery',
+    cancel: 'Cancel',
+  },
   nav: {
     home: 'Home',
     history: 'History',
+    impact: 'Impact',
     scan: 'Scan',
   },
   errors: {
@@ -50,5 +71,6 @@ export const STRINGS = {
     rulesLoadFail: "Couldn't load app content.",
     scanFail: 'Something went wrong while scanning.',
     retry: 'Retry',
+    dismiss: 'Dismiss',
   },
 }

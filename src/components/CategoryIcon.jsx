@@ -7,6 +7,7 @@ import {
   Trash2,
   CircleHelp,
 } from 'lucide-react'
+import { getCategoryTheme } from '../lib/categoryTheme'
 
 const ICON_MAP = {
   recyclable: Recycle,
@@ -17,36 +18,27 @@ const ICON_MAP = {
   not_sure: CircleHelp,
 }
 
-const TONE_COLOR_MAP = {
-  recyclable: 'text-[var(--emerald-400)]',
-  organic: 'text-[var(--lime-mist)]',
-  ewaste: 'text-[var(--aqua-400)]',
-  hazardous: 'text-[var(--coral-500)]',
-  general: 'text-white/60',
-  not_sure: 'text-[var(--amber-400)]',
-}
-
-/**
- * Renders the appropriate Lucide icon for a waste category.
- * Accepts `categoryId` (e.g. "recyclable") which is the canonical prop.
- * For legacy callers passing `iconName` it falls back gracefully.
- */
 export function CategoryIcon({
   categoryId,
-  iconName,       // legacy compat
-  tone,           // legacy compat (ignored; color derived from categoryId)
+  iconName,
   size = 24,
   className = '',
   inheritColor = false,
+  style = {},
 }) {
   const key = (categoryId || iconName || 'not_sure').toLowerCase().trim()
   const Component = ICON_MAP[key] || CircleHelp
-  const toneClass = inheritColor ? '' : (TONE_COLOR_MAP[key] || 'text-white/80')
+  const theme = getCategoryTheme(key)
+
+  const iconStyle = inheritColor
+    ? style
+    : { color: theme.ink, ...style }
 
   return (
     <Component
       size={size}
-      className={`${toneClass} ${className}`}
+      style={iconStyle}
+      className={`shrink-0 ${className}`}
       strokeWidth={2}
       aria-hidden="true"
     />

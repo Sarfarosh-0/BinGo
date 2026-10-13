@@ -1,119 +1,238 @@
-/* Eco Glass Surfaces */
-.surface-glass {
-  background: rgba(255, 255, 255, 0.10);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-glass);
-}
-
-.surface-glass-strong {
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(32px) saturate(150%);
-  -webkit-backdrop-filter: blur(32px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  box-shadow: var(--shadow-glass);
-}
-
-/* History flat surface without blur for smooth scrolling */
-.surface-flat {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--color-border-subtle);
-}
-
-/* Fallback for browsers lacking backdrop-filter */
-@supports not ((-webkit-backdrop-filter: none) or (backdrop-filter: none)) {
-  .surface-glass {
-    background: rgba(18, 64, 47, 0.92);
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 24px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    font: 700 15px/1.1 var(--font-sans);
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-standard),
+      transform var(--dur-fast) var(--ease-standard),
+      box-shadow var(--dur-fast) var(--ease-standard);
   }
-  .surface-glass-strong {
-    background: rgba(11, 46, 37, 0.96);
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn:focus-visible {
+    outline: 3px solid var(--color-primary-ring);
+    outline-offset: 2px;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .btn-primary {
+    height: 52px;
+    background: var(--color-primary-strong);
+    color: var(--color-text-on-primary);
+    border-radius: var(--radius-pill);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    transform: translateY(-1px);
+  }
+  .btn-primary:active:not(:disabled) {
+    background: var(--color-primary-active);
+  }
+
+  .btn-secondary {
+    height: 52px;
+    background: var(--color-surface);
+    color: var(--color-primary-strong);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--color-primary-soft);
+  }
+
+  .btn-tonal {
+    height: 52px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-strong);
+    border-radius: var(--radius-pill);
+  }
+  .btn-tonal:hover:not(:disabled) {
+    background: #D5EDDF;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-pill);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--color-surface-alt);
+  }
+
+  .btn-icon {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text);
+  }
+  .btn-icon:hover:not(:disabled) {
+    background: var(--color-surface-alt);
+  }
+  .btn-icon:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-sm);
+  }
+  .card-hero {
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-md);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+  }
+  .card-mint {
+    background: var(--color-surface-alt);
+    border: 1px solid transparent;
+    box-shadow: none;
+    border-radius: var(--radius-xl);
+  }
+  .card-interactive {
+    transition: box-shadow 160ms var(--ease-standard), transform 160ms var(--ease-standard);
+  }
+  .card-interactive:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .history-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 72px;
+    padding: 12px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: box-shadow var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+  }
+  .history-row:hover {
+    box-shadow: var(--shadow-sm);
+  }
+  .history-row:active {
+    transform: scale(0.99);
+  }
+  .history-row:focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+    font: 600 12px/1.4 var(--font-sans);
+    background: var(--chip-soft, var(--color-surface-alt));
+    color: var(--chip-ink, var(--color-text));
+    border: 1px solid color-mix(in srgb, var(--chip-ink, var(--color-border)) 25%, transparent);
+  }
+
+  .scan-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    background: var(--color-surface-sunken);
+  }
+  .scan-corner {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border: 0 solid var(--scan-frame-border);
+  }
+  .scan-corner.tl {
+    top: 12%;
+    left: 12%;
+    border-top-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 12px;
+  }
+  .scan-corner.tr {
+    top: 12%;
+    right: 12%;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-top-right-radius: 12px;
+  }
+  .scan-corner.bl {
+    bottom: 12%;
+    left: 12%;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-bottom-left-radius: 12px;
+  }
+  .scan-corner.br {
+    bottom: 12%;
+    right: 12%;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-bottom-right-radius: 12px;
+  }
+  .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 6%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--scan-line), transparent);
+    box-shadow: 0 0 12px var(--scan-line-soft);
+    animation: scan-sweep 1800ms linear infinite alternate, scan-breathe 1200ms ease-in-out infinite;
   }
 }
 
-/* Button & Interactive Classes */
-.btn-primary {
-  background-color: var(--color-primary);
-  color: var(--white);
-  box-shadow: var(--shadow-fab);
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-}
-
-.btn-primary:active:not(:disabled) {
-  background-color: var(--color-primary-pressed);
-  transform: scale(0.97);
-}
-
-.btn-primary:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.btn-glass {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid var(--color-border);
-  color: var(--white);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-glass:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.35);
-}
-
-.btn-glass:active:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-  transform: scale(0.97);
-}
-
-.btn-glass:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* Scan Line Animation */
 @keyframes scan-sweep {
-  0% {
-    top: 5%;
+  from {
+    transform: translateY(0);
   }
-  50% {
-    top: 90%;
-  }
-  100% {
-    top: 5%;
+  to {
+    transform: translateY(var(--scan-travel, 280px));
   }
 }
 
-@keyframes scan-pulse {
+@keyframes scan-breathe {
   0%, 100% {
-    opacity: 0.65;
+    opacity: 0.55;
   }
   50% {
     opacity: 1;
   }
 }
 
-.animate-scan-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: var(--emerald-400);
-  box-shadow: var(--shadow-glow-scan);
-  animation: scan-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite, scan-pulse 1.2s ease-in-out infinite;
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-scan-line {
-    animation: scan-pulse 1.2s ease-in-out infinite;
-    top: 50% !important;
+  .scan-line {
+    animation: scan-breathe 1200ms ease-in-out infinite;
+    transform: none;
+  }
+  *, *::before, *::after {
+    transition-duration: 1ms !important;
   }
 }
