@@ -7,5 +7,8 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+    watch: {
+      ignored: ['**/dist/**', '**/*.png', '**/*.jpg', '**/*.jpeg'],
+    },
   },
 })

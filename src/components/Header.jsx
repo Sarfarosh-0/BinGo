@@ -19,47 +19,12 @@ export function Header() {
         {/* Left Section: Logo + Brand Name + SDG Badge + Tagline */}
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           {/* Rounded-Square Green Logo Container */}
-          <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#10B981] via-[#0F9D58] to-[#0B6E4F] flex items-center justify-center shadow-[0_4px_14px_rgba(15,157,88,0.3)] border border-white/40 shrink-0 group">
-            {/* White recycling loop + vibrant leaf inside */}
-            <svg
-              viewBox="0 0 36 36"
-              className="w-7 h-7 sm:w-8 sm:h-8"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-label="BinGo recycling leaf logo"
-            >
-              {/* Outer Mobius recycling loop arrows */}
-              <path
-                d="M18 5L21 9H16.5C12.91 9 10 11.91 10 15.5V17L7 17V15.5C7 10.25 11.25 6 16.5 6L18 5Z"
-                fill="#FFFFFF"
-              />
-              <path
-                d="M27.5 14L30.5 18L26.5 20.5L25 18C23.21 15.11 19.5 14 16.5 15.5L15 13C19.5 10.75 25 12.25 27.5 16L27.5 14Z"
-                fill="#FFFFFF"
-                opacity="0.95"
-              />
-              <path
-                d="M19.5 31L16.5 27H21C24.59 27 27.5 24.09 27.5 20.5V19L30.5 19V20.5C30.5 25.75 26.25 30 21 30L19.5 31Z"
-                fill="#FFFFFF"
-              />
-              <path
-                d="M8.5 22L5.5 18L9.5 15.5L11 18C12.79 20.89 16.5 22 19.5 20.5L21 23C16.5 25.25 11 23.75 8.5 20L8.5 22Z"
-                fill="#FFFFFF"
-                opacity="0.95"
-              />
-              {/* Inner stylized leaf */}
-              <path
-                d="M18 10C18 10 24 12 24 18C24 23 19 25 18 25C17 25 12 23 12 18C12 12 18 10 18 10Z"
-                fill="#D9F99D"
-                opacity="0.9"
-              />
-              <path
-                d="M18 12V24M18 16C19.5 17 21 17.5 22 17M18 19C16.5 20 15 20.5 14 20"
-                stroke="#0B6E4F"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+          <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-[0_4px_14px_rgba(15,157,88,0.25)] border border-[#C6D9CC] shrink-0">
+            <img
+              src="/logo.png"
+              alt="BinGo recycling leaf logo"
+              className="w-full h-full object-cover"
+            />
           </div>
 
           {/* Typography block */}
