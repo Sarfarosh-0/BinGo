@@ -1,5 +1,13 @@
-// TensorFlow.js model loader — the ONLY module allowed to import @tensorflow/tfjs (Agent-Rules §4.1)
-import * as tf from '@tensorflow/tfjs'
+// TensorFlow.js model loader — the ONLY module allowed to touch the tf global (Agent-Rules §4.1)
+// TF.js is loaded via CDN <script> in index.html; we access the global here rather than
+// importing the npm package so Rollup/Vite doesn't try to bundle it.
+
+/** @returns {typeof import('@tensorflow/tfjs')} */
+const getTf = () => {
+  const t = globalThis.tf
+  if (!t) throw new Error('TensorFlow.js not loaded — check index.html CDN script order')
+  return t
+}
 
 const BASE = import.meta.env.BASE_URL || '/'
 const MODEL_URL = `${BASE}model/model.json`
@@ -10,6 +18,7 @@ const METADATA_URL = `${BASE}model/metadata.json`
  * Returns { model, metadata } where metadata.labels maps output indices to class IDs.
  */
 export async function loadModel() {
+  const tf = getTf()
   const [model, metadata] = await Promise.all([
     tf.loadGraphModel(MODEL_URL),
     fetch(METADATA_URL).then((r) => {
@@ -42,15 +51,15 @@ export async function loadModel() {
 
 /**
  * Runs inference on a preprocessed canvas.
- * @param {tf.GraphModel} model
- * @param {HTMLCanvasElement} canvas - 224x224 RGB canvas with pixels 0-255
- * @returns {number[]} probabilities matching metadata.labels order
+ * @param {object} model - loaded tf.GraphModel
+ * @param {HTMLCanvasElement} canvas - 224×224 RGB canvas (pixels 0-255)
+ * @returns {number[]} probability array matching metadata.labels order
  */
 export function predict(model, canvas) {
+  const tf = getTf()
   return tf.tidy(() => {
     const tensor = tf.browser.fromPixels(canvas).toFloat().div(255.0)
     const batched = tensor.expandDims(0)
-    // Graph models may need named inputs; fall back to single-tensor predict
     let output
     try {
       output = model.predict(batched)
@@ -61,8 +70,9 @@ export function predict(model, canvas) {
   })
 }
 
-/** Warmup inference with a blank 224x224 tensor (compiles WebGL shaders early). */
+/** Warmup inference with a blank 224×224 tensor (compiles WebGL shaders early). */
 export function warmup(model, labelCount) {
+  const tf = getTf()
   return tf.tidy(() => {
     const blank = tf.zeros([1, 224, 224, 3])
     let output
@@ -74,5 +84,3 @@ export function warmup(model, labelCount) {
     return output.dataSync().length === labelCount
   })
 }
-
-export { tf }

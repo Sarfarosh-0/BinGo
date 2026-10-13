@@ -1,83 +1,10 @@
-<<<<<<< HEAD
-import React, { useEffect, useRef } from 'react'
-import { Lightbulb } from 'lucide-react'
-import { TopBar } from './TopBar'
-import { STRINGS } from '../lib/strings'
-
-const MIN_DISPLAY_MS = 500
-
-export function AnalyzingView({ photoCanvas, onClose }) {
-  const imgRef = useRef(null)
-  const startedRef = useRef(Date.now())
-
-  useEffect(() => {
-    startedRef.current = Date.now()
-    if (photoCanvas && imgRef.current) {
-      try {
-        imgRef.current.src = photoCanvas.toDataURL('image/jpeg', 0.85)
-      } catch {
-        /* tainted canvas — ignore */
-      }
-    }
-  }, [photoCanvas])
-
-  const handleClose = () => {
-    const elapsed = Date.now() - startedRef.current
-    const wait = Math.max(0, MIN_DISPLAY_MS - elapsed)
-    if (wait > 0) {
-      setTimeout(onClose, wait)
-    } else {
-      onClose()
-    }
-  }
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0">
-      <TopBar title={STRINGS.analyzing.title} onClose={handleClose} />
-
-      <div className="flex-1 flex flex-col px-4 py-4 gap-4 min-h-0">
-        {/* Viewfinder with corner brackets + sweeping scan line */}
-        <div className="relative w-full flex-1 min-h-[220px] rounded-3xl overflow-hidden bg-black/40 border border-white/15">
-          <img
-            ref={imgRef}
-            alt=""
-            className="absolute inset-0 w-full h-full object-contain"
-          />
-
-          {/* Four white corner brackets */}
-          <div className="absolute top-6 left-6 w-8 h-8 border-t-[3px] border-l-[3px] border-white/80 rounded-tl-xl" />
-          <div className="absolute top-6 right-6 w-8 h-8 border-t-[3px] border-r-[3px] border-white/80 rounded-tr-xl" />
-          <div className="absolute bottom-6 left-6 w-8 h-8 border-b-[3px] border-l-[3px] border-white/80 rounded-bl-xl" />
-          <div className="absolute bottom-6 right-6 w-8 h-8 border-b-[3px] border-r-[3px] border-white/80 rounded-br-xl" />
-
-          {/* Glowing scan line */}
-          <div className="animate-scan-line" aria-hidden="true" />
-        </div>
-
-        {/* Status panel */}
-        <section className="surface-glass rounded-3xl p-4 border border-white/20">
-          <h2 className="text-base font-bold text-white mb-2">
-            {STRINGS.analyzing.status}
-          </h2>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-white/75">
-              <Lightbulb className="w-3.5 h-3.5 text-[var(--lime-mist)] shrink-0" />
-              <span>{STRINGS.analyzing.hintOneItem}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-white/75">
-              <Lightbulb className="w-3.5 h-3.5 text-[var(--lime-mist)] shrink-0" />
-              <span>{STRINGS.analyzing.hintTakesMoment}</span>
-            </div>
-          </div>
-        </section>
-=======
 import React from 'react'
 import { X, Lightbulb } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 
 export function AnalyzingView({ previewUrl, onClose }) {
   return (
-    <div 
+    <div
       role="dialog"
       aria-modal="true"
       aria-label="Image analysis in progress"
@@ -101,10 +28,10 @@ export function AnalyzingView({ previewUrl, onClose }) {
         <div className="w-11 h-11" aria-hidden="true" />
       </header>
 
-      {/* Center Viewfinder Container (~55% height) */}
+      {/* Center Viewfinder (~55% of screen height) */}
       <div className="flex-1 my-3 flex items-center justify-center relative min-h-0">
         <div className="relative w-full max-w-[360px] h-full max-h-[420px] rounded-3xl overflow-hidden border border-white/20 surface-glass flex items-center justify-center shadow-glass">
-          {/* User Photo Preview */}
+          {/* Live photo preview */}
           {previewUrl && (
             <img
               src={previewUrl}
@@ -113,14 +40,12 @@ export function AnalyzingView({ previewUrl, onClose }) {
             />
           )}
 
-          {/* Viewfinder Target Framing Brackets */}
+          {/* Corner framing brackets + scan line */}
           <div className="absolute inset-6 pointer-events-none" aria-hidden="true">
-            <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-white/80 rounded-tl-xl" />
-            <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-white/80 rounded-tr-xl" />
-            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-white/80 rounded-bl-xl" />
-            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-white/80 rounded-br-xl" />
-
-            {/* Glowing animated sweeping scan line */}
+            <div className="absolute top-0 left-0 w-8 h-8 border-t-[3px] border-l-[3px] border-white/80 rounded-tl-xl" />
+            <div className="absolute top-0 right-0 w-8 h-8 border-t-[3px] border-r-[3px] border-white/80 rounded-tr-xl" />
+            <div className="absolute bottom-0 left-0 w-8 h-8 border-b-[3px] border-l-[3px] border-white/80 rounded-bl-xl" />
+            <div className="absolute bottom-0 right-0 w-8 h-8 border-b-[3px] border-r-[3px] border-white/80 rounded-br-xl" />
             <div className="animate-scan-line" />
           </div>
         </div>
@@ -143,7 +68,6 @@ export function AnalyzingView({ previewUrl, onClose }) {
             <span>{STRINGS.analyzing.hintTakesMoment}</span>
           </div>
         </div>
->>>>>>> 34af0729ef93c0a988739df7f4f7c459280ae23a
       </div>
     </div>
   )

@@ -9,33 +9,6 @@ import {
 } from 'lucide-react'
 
 const ICON_MAP = {
-<<<<<<< HEAD
-  Recycle,
-  Sprout,
-  Smartphone,
-  TriangleAlert,
-  Trash2,
-  CircleHelp,
-}
-
-const TONE_COLORS = {
-  accent: 'var(--emerald-400)',
-  highlight: 'var(--lime-mist)',
-  info: 'var(--aqua-400)',
-  error: 'var(--coral-500)',
-  muted: 'rgba(255,255,255,0.62)',
-  warning: 'var(--amber-400)',
-}
-
-export function CategoryIcon({ iconName, tone, size = 24, className = '' }) {
-  const Icon = ICON_MAP[iconName] || Recycle
-  const color = TONE_COLORS[tone] || TONE_COLORS.accent
-  return (
-    <Icon
-      className={className}
-      style={{ color, width: size, height: size }}
-      strokeWidth={1.75}
-=======
   recyclable: Recycle,
   organic: Sprout,
   ewaste: Smartphone,
@@ -53,22 +26,28 @@ const TONE_COLOR_MAP = {
   not_sure: 'text-[var(--amber-400)]',
 }
 
+/**
+ * Renders the appropriate Lucide icon for a waste category.
+ * Accepts `categoryId` (e.g. "recyclable") which is the canonical prop.
+ * For legacy callers passing `iconName` it falls back gracefully.
+ */
 export function CategoryIcon({
-  categoryId = 'recyclable',
+  categoryId,
+  iconName,       // legacy compat
+  tone,           // legacy compat (ignored; color derived from categoryId)
   size = 24,
   className = '',
   inheritColor = false,
 }) {
-  const normalizedKey = categoryId?.toLowerCase?.()?.trim?.() || 'not_sure'
-  const Component = ICON_MAP[normalizedKey] || CircleHelp
-  const toneClass = inheritColor ? '' : (TONE_COLOR_MAP[normalizedKey] || 'text-white/80')
+  const key = (categoryId || iconName || 'not_sure').toLowerCase().trim()
+  const Component = ICON_MAP[key] || CircleHelp
+  const toneClass = inheritColor ? '' : (TONE_COLOR_MAP[key] || 'text-white/80')
 
   return (
     <Component
       size={size}
       className={`${toneClass} ${className}`}
       strokeWidth={2}
->>>>>>> 34af0729ef93c0a988739df7f4f7c459280ae23a
       aria-hidden="true"
     />
   )

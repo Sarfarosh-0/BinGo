@@ -5,9 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0B2E25" />
     <meta name="description" content="BinGo — Smart Waste Sorting for SDG 15 (Life on Land). Sort your waste in one scan." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>BinGo — Smart Waste Sorting</title>
-    <!-- TensorFlow.js is bundled via npm (@tensorflow/tfjs) — no CDN scripts needed -->
+
+    <!--
+      TensorFlow.js must be a regular (non-defer) script so that window.tf is
+      guaranteed to be defined before any ES module code runs.
+      ES modules (type="module") are always deferred; regular scripts run first
+      in document order, so this CDN tag executes before /src/main.jsx.
+      Pinned to a stable patch version to prevent surprise regressions.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
   </head>
   <body class="bg-[#0B2E25] text-white antialiased select-none overflow-x-hidden min-h-screen">
     <div id="root"></div>

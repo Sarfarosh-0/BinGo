@@ -84,11 +84,7 @@ Each gate:
 - [x] Implement `src/components/CategoryIcon.jsx` (Lucide icon mapping for all categories).
 - [x] Wire native camera input (`capture="environment"`) and gallery picker in `App.jsx`.
 - [x] Hook up browser history navigation (`pushState` / `popstate`) for Result back button behavior.
-<<<<<<< HEAD
 * **Pass Criteria:** Full flow functional from image upload to analysis animation and result presentation. (PASSED — `npm run build` clean)
-=======
-* **Pass Criteria:** Full flow functional from image upload to analysis animation and result presentation. (PASSED)
->>>>>>> 34af0729ef93c0a988739df7f4f7c459280ae23a
 
 ---
 
@@ -120,11 +116,6 @@ Each gate:
 | **Gate 0** | Core ML & Environment Setup | **Completed** | 2026-10-13 |
 | **Gate 1** | Design System & Visual Shell | **Completed** | 2026-10-13 |
 | **Gate 2** | Storage & State Management | **Completed** | 2026-10-13 |
-<<<<<<< HEAD
-| **Gate 3** | Image Pipeline & Full Flow | **Completed** | 2026-10-14 |
-| **Gate 4** | Rules & Edge Case Hardening | **Completed** | 2026-10-14 |
-=======
 | **Gate 3** | Image Pipeline & Full Flow | **Completed** | 2026-10-13 |
-| **Gate 4** | Rules & Edge Case Hardening | Pending | — |
->>>>>>> 34af0729ef93c0a988739df7f4f7c459280ae23a
+| **Gate 4** | Rules & Edge Case Hardening | **Completed** | 2026-10-14 |
 | **Gate 5** | Production Build & QA | Pending | — |
