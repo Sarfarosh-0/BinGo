@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Backdrop } from './components/Backdrop'
+import { Header } from './components/Header'
 import { TopBar } from './components/TopBar'
 import { BottomNav } from './components/BottomNav'
 import { Sidebar } from './components/Sidebar'
@@ -340,20 +341,8 @@ export default function App() {
           {/* Home View */}
           {view === 'home' && (
             <div className="flex flex-col gap-4 animate-in fade-in duration-200">
-              {/* Brand Header */}
-              <header className="pt-2 pb-1 flex items-center justify-between">
-                <div>
-                  <h1 className="text-2xl font-black text-[var(--color-text)] tracking-tight flex items-center gap-2">
-                    <span>{STRINGS.app.name}</span>
-                    <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)]">
-                      SDG 15
-                    </span>
-                  </h1>
-                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-                    {STRINGS.app.tagline}
-                  </p>
-                </div>
-              </header>
+              {/* Brand Header Banner */}
+              <Header />
 
               {/* Hero Scan Tile */}
               <Scanner

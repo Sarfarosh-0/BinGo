@@ -17,14 +17,23 @@ export function Sidebar({
     >
       <div>
         {/* Brand header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-[var(--color-text)] tracking-tight flex items-center gap-2">
-            <span>{STRINGS.app.name}</span>
-            <span className="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)]">
-              SDG 15
-            </span>
-          </h1>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">{STRINGS.app.tagline}</p>
+        <div className="mb-8 flex items-center gap-3">
+          <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-[#10B981] via-[#0F9D58] to-[#0B6E4F] flex items-center justify-center shadow-sm border border-white/40 shrink-0">
+            <svg viewBox="0 0 36 36" className="w-6 h-6" fill="none">
+              <path d="M18 5L21 9H16.5C12.91 9 10 11.91 10 15.5V17L7 17V15.5C7 10.25 11.25 6 16.5 6L18 5Z" fill="#FFFFFF" />
+              <path d="M19.5 31L16.5 27H21C24.59 27 27.5 24.09 27.5 20.5V19L30.5 19V20.5C30.5 25.75 26.25 30 21 30L19.5 31Z" fill="#FFFFFF" />
+              <path d="M18 10C18 10 24 12 24 18C24 23 19 25 18 25C17 25 12 23 12 18C12 12 18 10 18 10Z" fill="#D9F99D" opacity="0.9" />
+            </svg>
+          </div>
+          <div>
+            <h1 className="text-xl font-black tracking-tight leading-none flex items-center gap-1.5">
+              <span><span className="text-[#0E2A1F]">Bin</span><span className="text-[#0F9D58]">Go</span></span>
+              <span className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)]">
+                SDG 15
+              </span>
+            </h1>
+            <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">{STRINGS.app.tagline}</p>
+          </div>
         </div>
 
         {/* Scan Hero Button */}
