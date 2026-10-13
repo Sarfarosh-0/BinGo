@@ -10,9 +10,9 @@
 ## 1. Core Operating Mandate
 
 You are acting as an autonomous software engineering agent tasked with building **BinGo**. Your primary directive is **faithful, high-precision execution** of the approved specification documents:
-1. [PRD.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/BioSlove/PRD.md)
-2. [Design-Document.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/BioSlove/Design-Document.md)
-3. [Technical-Approach.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/BioSlove/Technical-Approach.md)
+1. [PRD.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/My%20Projects/BinGo/PRD.md)
+2. [Design-Document.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/My%20Projects/BinGo/Design-Document.md)
+3. [Technical-Approach.md](file:///c:/Users/Sarfarosh%20Alam/Work%20Space/My%20Projects/BinGo/Technical-Approach.md)
 
 You must never innovate outside the approved requirements, never invent features, never add unapproved third-party dependencies, and never claim a feature or test works without physical, automated verification.
 
