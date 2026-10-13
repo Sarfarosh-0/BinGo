@@ -101,11 +101,11 @@ Each gate:
 ---
 
 ### Gate 5: Production Deployment & QA
-- [ ] Run `npm run build` and ensure bundle size $\le 350$ KB gzipped (excluding model weights).
-- [ ] Verify accessibility: WCAG AA contrast, 44px touch targets, `aria-live="polite"` on results.
-- [ ] Verify responsive layout across 320px–480px mobile viewports and desktop centered frame.
-- [ ] Prepare static deployment configuration for Vercel.
-* **Pass Criteria:** Clean production bundle ready for static HTTPS deployment.
+- [x] Run `npm run build` and ensure bundle size $\le 350$ KB gzipped (excluding model weights). *(Achieved: 58.38 kB JS gzip, 5.83 kB CSS gzip)*
+- [x] Verify accessibility: WCAG AA contrast, 44px touch targets, `aria-live="polite"` on results.
+- [x] Verify responsive layout across 320px–480px mobile viewports and desktop centered frame.
+- [x] Prepare static deployment configuration for Vercel.
+* **Pass Criteria:** Clean production bundle ready for static HTTPS deployment. (PASSED)
 
 ---
 
@@ -118,4 +118,4 @@ Each gate:
 | **Gate 2** | Storage & State Management | **Completed** | 2026-10-13 |
 | **Gate 3** | Image Pipeline & Full Flow | **Completed** | 2026-10-13 |
 | **Gate 4** | Rules & Edge Case Hardening | **Completed** | 2026-10-14 |
-| **Gate 5** | Production Build & QA | Pending | — |
+| **Gate 5** | Production Build & QA | **Completed** | 2026-10-14 |
