@@ -52,16 +52,16 @@ Each gate:
 ---
 
 ### Gate 1: Design System & Visual Shell
-- [ ] Create `src/styles/tokens.css` with all Eco Glass custom properties.
-- [ ] Create `src/styles/components.css` (`.surface-glass`, `.surface-glass-strong`, `.surface-flat`, buttons).
-- [ ] Import design tokens and typography into `src/styles/index.css`.
-- [ ] Implement `Backdrop.jsx` (persistent forest gradient and static bokeh).
-- [ ] Implement `TopBar.jsx` (title and 44px back/close hitboxes).
-- [ ] Implement `BottomNav.jsx` (floating glass pill with elevated center camera FAB).
-- [ ] Implement `ImpactBar.jsx` (items sorted & streak counter display).
-- [ ] Implement `Scanner.jsx` (scan card with decorative frame, hints, gallery trigger).
-- [ ] Assemble Home shell in `App.jsx` with mobile viewport clamp (`max-w-[480px]`).
-* **Pass Criteria:** Pixel-perfect Home screen layout conforming to Eco Glass specs on 375px mobile view.
+- [x] Create `src/styles/tokens.css` with all Eco Glass custom properties.
+- [x] Create `src/styles/components.css` (`.surface-glass`, `.surface-glass-strong`, `.surface-flat`, buttons).
+- [x] Import design tokens and typography into `src/styles/index.css`.
+- [x] Implement `Backdrop.jsx` (persistent forest gradient and static bokeh).
+- [x] Implement `TopBar.jsx` (title and 44px back/close hitboxes).
+- [x] Implement `BottomNav.jsx` (floating glass pill with elevated center camera FAB).
+- [x] Implement `ImpactBar.jsx` (items sorted & streak counter display).
+- [x] Implement `Scanner.jsx` (scan card with decorative frame, hints, gallery trigger).
+- [x] Assemble Home shell in `App.jsx` with mobile viewport clamp (`max-w-[480px]`).
+* **Pass Criteria:** Pixel-perfect Home screen layout conforming to Eco Glass specs on 375px mobile view. (PASSED)
 
 ---
 
@@ -113,7 +113,7 @@ Each gate:
 | Gate | Focus | Status | Completed At |
 | :--- | :--- | :--- | :--- |
 | **Gate 0** | Core ML & Environment Setup | **Completed** | 2026-10-13 |
-| **Gate 1** | Design System & Visual Shell | Pending | — |
+| **Gate 1** | Design System & Visual Shell | **Completed** | 2026-10-13 |
 | **Gate 2** | Storage & State Management | Pending | — |
 | **Gate 3** | Image Pipeline & Full Flow | Pending | — |
 | **Gate 4** | Rules & Edge Case Hardening | Pending | — |
