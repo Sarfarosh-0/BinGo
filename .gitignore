@@ -1,36 +1,46 @@
-# Logs
-logs
+# ──────────────────────────────────────────────────────
+# BinGo — .gitignore
+# ──────────────────────────────────────────────────────
+
+# ── Dependencies ──────────────────────────────────────
+node_modules/
+
+# ── Build output ──────────────────────────────────────
+dist/
+dist-ssr/
+*.local
+
+# ── Environment variables ─────────────────────────────
+# Keep .env.example (safe template with no secrets)
+.env
+.env.*
+!.env.example
+
+# ── Logs & diagnostics ───────────────────────────────
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-# Runtime data
-pids
+# ── Runtime data ──────────────────────────────────────
+pids/
 *.pid
 *.seed
 *.pid.lock
 
-# Dependencies
-node_modules/
+# ── Vite / Tailwind / PostCSS caches ─────────────────
+.vite/
+*.tsbuildinfo
 
-# Production build
-dist/
-dist-ssr/
+# ── Testing & coverage ───────────────────────────────
+coverage/
+.nyc_output/
 
-# Environment variables
-.env
-.env.production
-.env.development
-.env.local
-.env.*.local
-
-# Editor & OS files
+# ── Editor & OS files ─────────────────────────────────
 .vscode/
 .idea/
 *.suo
@@ -40,7 +50,28 @@ dist-ssr/
 *.sw?
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
 
-# Machine Learning & Raw Data
+# ── ML training artifacts (large binaries) ────────────
+# Keep training/train.py (source) and training/work/report.json (results).
+# Exclude large model checkpoints, feature caches, and saved models
+# that can be regenerated from the training script.
+training/work/saved_model/
+training/work/*.keras
+training/work/*.h5
+training/work/*.npz
+training/work/*.pb
+
+# Raw training data directories
 dataset/
 raw_images/
+
+# ── Dev-only patch & bundle files ─────────────────────
+# One-time development artifacts; not needed in production repo
+*.patch
+*.bundle
+patches/
+
+# ── Vercel local artifacts ────────────────────────────
+.vercel/
