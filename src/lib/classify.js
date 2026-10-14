@@ -16,8 +16,8 @@ import { predict } from './tm.js'
  *   ranked: Array<{ className: string, probability: number }>
  * }}
  */
-export function classify(model, metadata, canvas) {
-  const probs = predict(model, canvas)
+export async function classify(model, metadata, canvas) {
+  const probs = await predict(model, canvas)
   const labels = metadata.labels
 
   const ranked = labels

@@ -9,6 +9,7 @@ import { Scanner } from './components/Scanner'
 import { History } from './components/History'
 import { ImpactCounter } from './components/ImpactCounter'
 import { ScanSheet } from './components/ScanSheet'
+import { CameraModal } from './components/CameraModal'
 import { CategoryGuideModal } from './components/CategoryGuideModal'
 import { AnalyzingView } from './components/AnalyzingView'
 import { ResultCard } from './components/ResultCard'
@@ -36,6 +37,7 @@ export default function App() {
   const [currentFeedback, setCurrentFeedback] = useState(null)
   const [rules, setRules] = useState(null)
   const [isScanSheetOpen, setIsScanSheetOpen] = useState(false)
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false)
   const [isGuideOpen, setIsGuideOpen] = useState(false)
   const [selectedGuideCategory, setSelectedGuideCategory] = useState('recyclable')
 
@@ -115,7 +117,10 @@ export default function App() {
 
   const handleOpenCamera = useCallback(() => {
     if (!ready) return
-    if (cameraInputRef.current) {
+    // Use in-app camera if getUserMedia is available to prevent OS background killing
+    if (navigator.mediaDevices?.getUserMedia) {
+      setIsCameraModalOpen(true)
+    } else if (cameraInputRef.current) {
       cameraInputRef.current.value = ''
       cameraInputRef.current.click()
     }
@@ -182,7 +187,7 @@ export default function App() {
       // Run classification
       let result
       try {
-        result = classify(model, metadata, modelCanvas)
+        result = await classify(model, metadata, modelCanvas)
       } catch (inferErr) {
         console.error('Inference failed:', inferErr)
         if (runId !== runIdRef.current) return
@@ -581,6 +586,17 @@ export default function App() {
         isOpen={isGuideOpen}
         initialCategory={selectedGuideCategory}
         onClose={() => setIsGuideOpen(false)}
+      />
+
+      {/* Live In-App Camera Modal (foreground camera to avoid mobile tab kills) */}
+      <CameraModal
+        isOpen={isCameraModalOpen}
+        onClose={() => setIsCameraModalOpen(false)}
+        onCapture={(file) => {
+          setIsCameraModalOpen(false)
+          processFile(file)
+        }}
+        onFallbackFilePicker={handleOpenGallery}
       />
     </div>
   )

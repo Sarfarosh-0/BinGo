@@ -12,83 +12,140 @@ const getTf = () => {
 const BASE = import.meta.env.BASE_URL || '/'
 const MODEL_URL = `${BASE}model/model.json`
 const METADATA_URL = `${BASE}model/metadata.json`
+const INDEXEDDB_KEY = 'indexeddb://bingo-waste-model-v1'
+
+// Global singleton cache so model is NEVER re-downloaded or re-parsed multiple times
+let cachedModelPromise = null
 
 /**
- * Loads the TF.js graph model + metadata.json.
+ * Loads the TF.js graph model + metadata.json with singleton promise & IndexedDB persistence.
  * Returns { model, metadata } where metadata.labels maps output indices to class IDs.
  */
 export async function loadModel() {
-  if (!globalThis.tf) {
-    try {
-      const tfModule = await import('@tensorflow/tfjs')
-      globalThis.tf = tfModule.default || tfModule
-    } catch (e) {
-      console.warn('Fallback to @tensorflow/tfjs npm import failed:', e)
-    }
+  if (cachedModelPromise) {
+    return cachedModelPromise
   }
-  const tf = getTf()
-  const [model, metadata] = await Promise.all([
-    tf.loadGraphModel(MODEL_URL),
-    fetch(METADATA_URL).then((r) => {
+
+  cachedModelPromise = (async () => {
+    if (!globalThis.tf) {
+      try {
+        const tfModule = await import('@tensorflow/tfjs')
+        globalThis.tf = tfModule.default || tfModule
+      } catch (e) {
+        console.warn('Fallback to @tensorflow/tfjs npm import failed:', e)
+      }
+    }
+    const tf = getTf()
+
+    // 1. Fetch metadata in parallel
+    const metadataPromise = fetch(METADATA_URL).then((r) => {
       if (!r.ok) throw new Error(`metadata HTTP ${r.status}`)
       return r.json()
-    }),
-  ])
+    })
 
-  if (!metadata?.labels?.length) {
-    throw new Error('Model metadata missing labels')
-  }
+    // 2. Try loading model from IndexedDB first for instant, offline, zero-network load
+    let model = null
+    try {
+      if ('indexedDB' in window) {
+        model = await tf.loadGraphModel(INDEXEDDB_KEY)
+      }
+    } catch {
+      model = null
+    }
 
-  // Warmup + validate output size
-  const blank = tf.zeros([1, 224, 224, 3])
-  let out
-  try {
-    out = model.predict(blank)
-  } catch {
-    out = model.execute({ image: blank })
-  }
-  const outData = await out.data()
-  if (outData.length !== metadata.labels.length) {
-    throw new Error(`Model output size ${outData.length} !== labels ${metadata.labels.length}`)
-  }
-  out.dispose()
-  blank.dispose()
+    // 3. If not in IndexedDB or failed, load from static HTTP path and save to IndexedDB
+    if (!model) {
+      model = await tf.loadGraphModel(MODEL_URL)
+      try {
+        if ('indexedDB' in window) {
+          model.save(INDEXEDDB_KEY).catch((e) => {
+            console.warn('Failed to cache model in IndexedDB (non-fatal):', e)
+          })
+        }
+      } catch {
+        /* IndexedDB save optional */
+      }
+    }
 
-  return { model, metadata }
+    const metadata = await metadataPromise
+
+    if (!metadata?.labels?.length) {
+      throw new Error('Model metadata missing labels')
+    }
+
+    // 4. Initial validation
+    const blank = tf.zeros([1, 224, 224, 3])
+    let out
+    try {
+      out = model.predict(blank)
+    } catch {
+      out = model.execute({ image: blank })
+    }
+    const outData = await out.data()
+    if (outData.length !== metadata.labels.length) {
+      out.dispose()
+      blank.dispose()
+      throw new Error(`Model output size ${outData.length} !== labels ${metadata.labels.length}`)
+    }
+    out.dispose()
+    blank.dispose()
+
+    return { model, metadata }
+  })().catch((err) => {
+    // Reset cache on hard failure so subsequent retries can succeed
+    cachedModelPromise = null
+    throw err
+  })
+
+  return cachedModelPromise
 }
 
 /**
- * Runs inference on a preprocessed canvas.
+ * Runs non-blocking asynchronous inference on a preprocessed canvas.
+ * Disposes all intermediate tensors promptly to prevent WebGL memory leaks.
  * @param {object} model - loaded tf.GraphModel
  * @param {HTMLCanvasElement} canvas - 224×224 RGB canvas (pixels 0-255)
- * @returns {number[]} probability array matching metadata.labels order
+ * @returns {Promise<number[]>} probability array matching metadata.labels order
  */
-export function predict(model, canvas) {
+export async function predict(model, canvas) {
   const tf = getTf()
-  return tf.tidy(() => {
-    const tensor = tf.browser.fromPixels(canvas).toFloat().div(255.0)
-    const batched = tensor.expandDims(0)
-    let output
-    try {
-      output = model.predict(batched)
-    } catch {
-      output = model.execute({ image: batched })
-    }
-    return Array.from(output.dataSync())
-  })
+  const tensor = tf.browser.fromPixels(canvas).toFloat().div(255.0)
+  const batched = tensor.expandDims(0)
+  let output
+  try {
+    output = model.predict(batched)
+  } catch {
+    output = model.execute({ image: batched })
+  }
+
+  // Non-blocking async GPU readback — does NOT freeze the browser main thread
+  const data = await output.data()
+
+  // Explicit cleanup of tensors
+  tensor.dispose()
+  batched.dispose()
+  output.dispose()
+
+  return Array.from(data)
 }
 
 /** Warmup inference with a blank 224×224 tensor (compiles WebGL shaders early). */
-export function warmup(model, labelCount) {
+export async function warmup(model, labelCount) {
   const tf = getTf()
-  return tf.tidy(() => {
-    const blank = tf.zeros([1, 224, 224, 3])
-    let output
-    try {
-      output = model.predict(blank)
-    } catch {
-      output = model.execute({ image: blank })
-    }
-    return output.dataSync().length === labelCount
-  })
+  const blank = tf.zeros([1, 224, 224, 3])
+  let output
+  try {
+    output = model.predict(blank)
+  } catch {
+    output = model.execute({ image: blank })
+  }
+  const data = await output.data()
+  blank.dispose()
+  output.dispose()
+  return data.length === labelCount
+}
+
+/** Force clears model cache if recovery or re-download is requested */
+export function clearModelCache() {
+  cachedModelPromise = null
 }

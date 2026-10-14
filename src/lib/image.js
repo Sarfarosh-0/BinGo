@@ -21,13 +21,22 @@ function loadImageElement(file) {
   })
 }
 
-/** Decode a File/Blob into an upright HTMLImageElement or ImageBitmap. */
+/** Decode a File/Blob into an upright HTMLImageElement or ImageBitmap with memory-safe downscaling. */
 export async function decodeImage(file) {
   if (typeof createImageBitmap === 'function') {
     try {
-      return await createImageBitmap(file, { imageOrientation: 'from-image' })
+      // Decode directly at max 1024px width to prevent huge 48MP photos from crashing tab memory
+      return await createImageBitmap(file, {
+        imageOrientation: 'from-image',
+        resizeWidth: 1024,
+        resizeQuality: 'medium',
+      })
     } catch {
-      // fall through to <img>
+      try {
+        return await createImageBitmap(file, { imageOrientation: 'from-image' })
+      } catch {
+        // fall through to <img>
+      }
     }
   }
   return loadImageElement(file)

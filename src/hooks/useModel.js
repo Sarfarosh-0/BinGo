@@ -19,7 +19,7 @@ export function useModel() {
       const { model: m, metadata: md } = await loadModel()
       if (!mountedRef.current) return
       try {
-        warmup(m, md.labels.length)
+        await warmup(m, md.labels.length)
       } catch (warmErr) {
         console.warn('Model warmup failed (non-fatal):', warmErr)
       }
