@@ -18,6 +18,14 @@ const METADATA_URL = `${BASE}model/metadata.json`
  * Returns { model, metadata } where metadata.labels maps output indices to class IDs.
  */
 export async function loadModel() {
+  if (!globalThis.tf) {
+    try {
+      const tfModule = await import('@tensorflow/tfjs')
+      globalThis.tf = tfModule.default || tfModule
+    } catch (e) {
+      console.warn('Fallback to @tensorflow/tfjs npm import failed:', e)
+    }
+  }
   const tf = getTf()
   const [model, metadata] = await Promise.all([
     tf.loadGraphModel(MODEL_URL),

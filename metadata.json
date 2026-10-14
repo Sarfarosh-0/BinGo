@@ -1,0 +1,8 @@
+{
+  "name": "BinGo — Smart Waste Sorting",
+  "description": "Smart Waste Sorting for SDG 15 (Life on Land). Sort your waste in one scan.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

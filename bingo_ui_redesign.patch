@@ -1,0 +1,3454 @@
+From ef20d2b68f06c5458ec9798d0dfc619790f8b187 Mon Sep 17 00:00:00 2001
+From: Sarfarosh <sarfaroshalam51@gmail.com>
+Date: Wed, 14 Oct 2026 00:39:55 +0000
+Subject: [PATCH] Redesign home page UI, add interactive waste guide, sample
+ testing, and visual analytics
+
+---
+ .env.example                           |   1 +
+ index.html                             |   3 +-
+ package.json                           |   2 +-
+ src/App.jsx                            | 266 +++++---
+ src/components/AnalyzingView.jsx       |  73 ++-
+ src/components/BottomNav.jsx           |  41 +-
+ src/components/CategoryGuideModal.jsx  | 299 +++++++++
+ src/components/Header.jsx              |  63 +-
+ src/components/History.jsx             |  52 +-
+ src/components/ImpactBar.jsx           | 119 +++-
+ src/components/ImpactCounter.jsx       |  63 +-
+ src/components/ResultCard.jsx          | 193 +++---
+ src/components/ScanSheet.jsx           |  28 +-
+ src/components/Scanner.jsx             | 199 ++++--
+ src/components/Sidebar.jsx             |  56 +-
+ src/components/TopBar.jsx              |  16 +-
+ src/components/WasteAnalyticsChart.jsx | 859 +++++++++++++++++++++++++
+ src/lib/sampleImages.js                | 176 +++++
+ src/lib/tm.js                          |   8 +
+ src/styles/index.css                   |  19 +-
+ vite.config.js                         |   2 +-
+ 21 files changed, 2114 insertions(+), 424 deletions(-)
+ create mode 100644 .env.example
+ create mode 100644 src/components/CategoryGuideModal.jsx
+ create mode 100644 src/components/WasteAnalyticsChart.jsx
+ create mode 100644 src/lib/sampleImages.js
+
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..d6d53e3
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1 @@
++# BinGo - Client-side AI model requires no server environment variables
+diff --git a/index.html b/index.html
+index c9beacd..7e5923e 100644
+--- a/index.html
++++ b/index.html
+@@ -8,7 +8,8 @@
+     <meta name="apple-mobile-web-app-capable" content="yes" />
+     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+     <link rel="icon" type="image/png" href="/logo.png" />
+-    <link rel="apple-touch-icon" href="/logo.png" />
++    <meta property="og:title" content="BinGo — Smart Waste Sorting" />
++    <meta property="og:description" content="BinGo — Smart Waste Sorting for SDG 15 (Life on Land). Sort your waste in one scan." />
+     <title>BinGo — Smart Waste Sorting</title>
+ 
+     <!-- Google Fonts for handwritten slogan -->
+diff --git a/package.json b/package.json
+index dd74239..16d4cf4 100644
+--- a/package.json
++++ b/package.json
+@@ -4,7 +4,7 @@
+   "version": "1.0.0",
+   "type": "module",
+   "scripts": {
+-    "dev": "vite",
++    "dev": "vite --host 0.0.0.0 --port 3000",
+     "build": "vite build",
+     "preview": "vite preview"
+   },
+diff --git a/src/App.jsx b/src/App.jsx
+index ab81be3..a4af08f 100644
+--- a/src/App.jsx
++++ b/src/App.jsx
+@@ -9,6 +9,7 @@ import { Scanner } from './components/Scanner'
+ import { History } from './components/History'
+ import { ImpactCounter } from './components/ImpactCounter'
+ import { ScanSheet } from './components/ScanSheet'
++import { CategoryGuideModal } from './components/CategoryGuideModal'
+ import { AnalyzingView } from './components/AnalyzingView'
+ import { ResultCard } from './components/ResultCard'
+ import { Banner } from './components/Banner'
+@@ -19,9 +20,10 @@ import { useModel } from './hooks/useModel'
+ import { loadRules } from './lib/rules'
+ import { processImageFile } from './lib/image'
+ import { classify } from './lib/classify'
++import { createSampleWasteFile } from './lib/sampleImages'
+ import { STRINGS } from './lib/strings'
+ import { CATEGORY_THEME } from './lib/categoryTheme'
+-import { ArrowRight } from 'lucide-react'
++import { ArrowRight, BookOpen, Sparkles } from 'lucide-react'
+ 
+ const STATIC_CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
+ 
+@@ -34,6 +36,8 @@ export default function App() {
+   const [currentFeedback, setCurrentFeedback] = useState(null)
+   const [rules, setRules] = useState(null)
+   const [isScanSheetOpen, setIsScanSheetOpen] = useState(false)
++  const [isGuideOpen, setIsGuideOpen] = useState(false)
++  const [selectedGuideCategory, setSelectedGuideCategory] = useState('recyclable')
+ 
+   const { totalSorted, streak, byCategory, recordConfidentScan } = useStreak()
+   const { history, addEntry, setFeedback } = useHistory()
+@@ -135,12 +139,9 @@ export default function App() {
+     setView(originTab)
+   }, [originTab])
+ 
+-  const handleFileSelect = async (e) => {
+-    const file = e.target.files?.[0]
++  // Unified file processor for inputs, drag & drop, and sample waste items
++  const processFile = useCallback(async (file) => {
+     if (!file) return
+-    e.target.value = '' // Allow same file again
+-
+-    // Guard: don't start while already analyzing
+     if (view === 'analyzing') return
+     if (!ready || !model || !metadata || !rules) return
+ 
+@@ -241,6 +242,23 @@ export default function App() {
+         setBanner({ tone: 'error', message: STRINGS.errors.readFail })
+       }
+     }
++  }, [view, ready, model, metadata, rules, addEntry, recordConfidentScan])
++
++  const handleFileSelect = (e) => {
++    const file = e.target.files?.[0]
++    e.target.value = ''
++    if (file) processFile(file)
++  }
++
++  const handleSelectSample = async (type) => {
++    try {
++      const file = await createSampleWasteFile(type)
++      if (file) {
++        processFile(file)
++      }
++    } catch (e) {
++      console.error('Failed to create sample item file:', e)
++    }
+   }
+ 
+   const handleFeedback = (val) => {
+@@ -327,8 +345,8 @@ export default function App() {
+           />
+         )}
+ 
+-        {/* Main responsive container (centered 480px on mobile, responsive bento) */}
+-        <main className="w-full max-w-[480px] lg:max-w-[720px] mx-auto flex-1 flex flex-col px-4 pt-4 pb-36 gap-4">
++        {/* Responsive container: 480px on phone, 1020px on desktop bento grid */}
++        <main className="w-full max-w-[480px] lg:max-w-[1020px] xl:max-w-[1120px] mx-auto flex-1 flex flex-col px-4 pt-4 sm:pt-6 pb-36 gap-4 sm:gap-6">
+           {banner && (
+             <Banner
+               tone={banner.tone}
+@@ -338,78 +356,169 @@ export default function App() {
+             />
+           )}
+ 
+-          {/* Home View */}
++          {/* ================= HOME VIEW REDESIGN ================= */}
+           {view === 'home' && (
+-            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
++            <div className="flex flex-col gap-4 sm:gap-6 animate-in fade-in duration-200">
+               {/* Brand Header Banner */}
+-              <Header />
+-
+-              {/* Hero Scan Tile */}
+-              <Scanner
+-                ready={ready}
+-                loadingText={
+-                  modelStatus === 'error'
+-                    ? STRINGS.errors.modelLoadFail
+-                    : STRINGS.home.loadingModel
+-                }
+-                onGalleryClick={handleOpenGallery}
+-                onCameraClick={handleOpenCamera}
+-              />
++              <Header onOpenGuide={() => {
++                setSelectedGuideCategory('recyclable')
++                setIsGuideOpen(true)
++              }} />
++
++              {/* Responsive Bento Grid: 2 columns on desktop/tablet (7 cols left, 5 cols right), 1 column on phone */}
++              <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
++                {/* Left Column: Smart Scan Station (7 cols on desktop) */}
++                <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5">
++                  <Scanner
++                    ready={ready}
++                    loadingText={
++                      modelStatus === 'error'
++                        ? STRINGS.errors.modelLoadFail
++                        : STRINGS.home.loadingModel
++                    }
++                    onGalleryClick={handleOpenGallery}
++                    onCameraClick={handleOpenCamera}
++                    onDropFile={processFile}
++                    onSelectSample={handleSelectSample}
++                  />
++                </div>
++
++                {/* Right Column: Impact Stats, Interactive Guide & Activity (5 cols on desktop) */}
++                <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-5 mt-4 lg:mt-0">
++                  {/* Stat & Streak Bento Tile */}
++                  <ImpactBar
++                    totalSorted={totalSorted}
++                    streak={streak}
++                    onViewAnalytics={() => setView('impact')}
++                  />
+ 
+-              {/* Stat Strip (Side-by-side tiles) */}
+-              <ImpactBar totalSorted={totalSorted} streak={streak} />
+-
+-              {/* What Goes Where Legend Tile */}
+-              <section className="card p-4 border border-[var(--color-border)] shadow-sm">
+-                <span className="text-xs font-bold text-[var(--color-text)]">
+-                  {STRINGS.home.whatGoesWhere}
+-                </span>
+-                <div className="flex flex-wrap gap-2 mt-2.5">
+-                  {STATIC_CATEGORIES.map((catKey) => {
+-                    const theme = CATEGORY_THEME[catKey]
+-                    return (
+-                      <div
+-                        key={catKey}
+-                        className="chip"
+-                        style={{
+-                          '--chip-ink': theme.ink,
+-                          '--chip-soft': theme.soft,
++                  {/* Interactive "What Goes Where" Legend Tile */}
++                  <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++                    <div className="flex items-center justify-between mb-2">
++                      <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
++                        {STRINGS.home.whatGoesWhere}
++                      </h3>
++                      <button
++                        type="button"
++                        onClick={() => {
++                          setSelectedGuideCategory('recyclable')
++                          setIsGuideOpen(true)
+                         }}
++                        className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                       >
+-                        <CategoryIcon categoryId={catKey} size={14} />
+-                        <span>{theme.label}</span>
++                        <span>Full Guide</span>
++                        <ArrowRight className="w-3.5 h-3.5" />
++                      </button>
++                    </div>
++
++                    <p className="text-[11px] text-[var(--color-text-muted)] mb-3 leading-relaxed">
++                      Click any bin category to explore accepted items & rules:
++                    </p>
++
++                    <div className="flex flex-wrap gap-2">
++                      {STATIC_CATEGORIES.map((catKey) => {
++                        const theme = CATEGORY_THEME[catKey]
++                        return (
++                          <button
++                            key={catKey}
++                            type="button"
++                            onClick={() => {
++                              setSelectedGuideCategory(catKey)
++                              setIsGuideOpen(true)
++                            }}
++                            className="chip py-1.5 px-3 transition-all hover:scale-105 active:scale-95 cursor-pointer border shadow-xs"
++                            style={{
++                              '--chip-ink': theme.ink,
++                              '--chip-soft': theme.soft,
++                            }}
++                            title={`Click to view ${theme.label} disposal rules`}
++                          >
++                            <CategoryIcon categoryId={catKey} size={15} />
++                            <span className="font-bold text-xs">{theme.label}</span>
++                          </button>
++                        )
++                      })}
++                    </div>
++                  </section>
++
++                  {/* Recent Scans Tile OR 3-Step "How BinGo Works" Guide */}
++                  {history.length > 0 ? (
++                    <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++                      <div className="flex items-center justify-between mb-3">
++                        <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
++                          {STRINGS.home.recentScans}
++                        </span>
++                        <button
++                          type="button"
++                          onClick={() => setView('history')}
++                          className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
++                        >
++                          <span>{STRINGS.home.seeAll}</span>
++                          <ArrowRight className="w-3.5 h-3.5" />
++                        </button>
++                      </div>
++                      <History
++                        items={history.slice(0, 3)}
++                        onOpenItem={handleOpenHistoryItem}
++                        onScan={() => setIsScanSheetOpen(true)}
++                      />
++                    </section>
++                  ) : (
++                    <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++                      <div className="flex items-center justify-between mb-3">
++                        <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
++                          How BinGo Works
++                        </span>
++                        <span className="text-[11px] font-semibold text-[var(--color-primary-strong)]">
++                          3 Simple Steps
++                        </span>
++                      </div>
++
++                      <div className="space-y-3">
++                        <div className="flex items-start gap-3">
++                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
++                            1
++                          </span>
++                          <div>
++                            <h4 className="text-xs font-bold text-[var(--color-text)]">Snap or Upload</h4>
++                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
++                              Point your camera or drop any waste photo onto the scan lens.
++                            </p>
++                          </div>
++                        </div>
++
++                        <div className="flex items-start gap-3">
++                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
++                            2
++                          </span>
++                          <div>
++                            <h4 className="text-xs font-bold text-[var(--color-text)]">Instant AI Detection</h4>
++                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
++                              Neural network classifies materials into 5 categories in 0.2s on-device.
++                            </p>
++                          </div>
++                        </div>
++
++                        <div className="flex items-start gap-3">
++                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
++                            3
++                          </span>
++                          <div>
++                            <h4 className="text-xs font-bold text-[var(--color-text)]">Sort & Protect Land</h4>
++                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
++                              Follow exact disposal steps to halt toxic runoff and advance SDG 15.
++                            </p>
++                          </div>
++                        </div>
+                       </div>
+-                    )
+-                  })}
++                    </section>
++                  )}
+                 </div>
+-              </section>
+-
+-              {/* Recent Scans Tile (2-3 newest entries; hidden if empty) */}
+-              {history.length > 0 && (
+-                <section className="card p-4 border border-[var(--color-border)] shadow-sm">
+-                  <div className="flex items-center justify-between mb-3">
+-                    <span className="text-xs font-bold text-[var(--color-text)]">
+-                      {STRINGS.home.recentScans}
+-                    </span>
+-                    <button
+-                      type="button"
+-                      onClick={() => setView('history')}
+-                      className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+-                    >
+-                      <span>{STRINGS.home.seeAll}</span>
+-                      <ArrowRight className="w-3.5 h-3.5" />
+-                    </button>
+-                  </div>
+-                  <History
+-                    items={history.slice(0, 3)}
+-                    onOpenItem={handleOpenHistoryItem}
+-                  />
+-                </section>
+-              )}
++              </div>
+             </div>
+           )}
+ 
+-          {/* Impact Counter View */}
++          {/* ================= IMPACT VIEW ================= */}
+           {view === 'impact' && (
+             <ImpactCounter
+               totalSorted={totalSorted}
+@@ -421,15 +530,19 @@ export default function App() {
+             />
+           )}
+ 
+-          {/* History View */}
++          {/* ================= HISTORY VIEW ================= */}
+           {view === 'history' && (
+             <div className="flex-1 flex flex-col animate-in fade-in duration-200">
+               <TopBar title={STRINGS.history.title} />
+-              <History items={history} onOpenItem={handleOpenHistoryItem} />
++              <History
++                items={history}
++                onOpenItem={handleOpenHistoryItem}
++                onScan={() => setIsScanSheetOpen(true)}
++              />
+             </div>
+           )}
+ 
+-          {/* Result View */}
++          {/* ================= RESULT VIEW ================= */}
+           {view === 'result' && activeResult && (
+             <ResultCard
+               result={activeResult}
+@@ -462,6 +575,13 @@ export default function App() {
+         onTakePhoto={handleOpenCamera}
+         onChooseGallery={handleOpenGallery}
+       />
++
++      {/* Category Guide Modal */}
++      <CategoryGuideModal
++        isOpen={isGuideOpen}
++        initialCategory={selectedGuideCategory}
++        onClose={() => setIsGuideOpen(false)}
++      />
+     </div>
+   )
+ }
+diff --git a/src/components/AnalyzingView.jsx b/src/components/AnalyzingView.jsx
+index 8644012..2d61605 100644
+--- a/src/components/AnalyzingView.jsx
++++ b/src/components/AnalyzingView.jsx
+@@ -1,5 +1,5 @@
+ import React from 'react'
+-import { X, Lightbulb } from 'lucide-react'
++import { X, Sparkles, Loader2 } from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ 
+ export function AnalyzingView({ previewUrl, onClose }) {
+@@ -8,29 +8,32 @@ export function AnalyzingView({ previewUrl, onClose }) {
+       role="dialog"
+       aria-modal="true"
+       aria-label="Image analysis in progress"
+-      className="fixed inset-0 z-50 bg-[var(--color-bg)] flex flex-col justify-between p-4 overflow-hidden"
++      className="fixed inset-0 z-50 bg-[var(--color-bg)] flex flex-col justify-between p-4 sm:p-6 overflow-hidden animate-in fade-in duration-200"
+     >
+-      {/* Top Bar with Cancel X */}
++      {/* Top Bar with Cancel */}
+       <header className="flex items-center justify-between pb-2">
+         <button
+           type="button"
+           onClick={onClose}
+           aria-label="Cancel analysis"
+-          className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--color-surface)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)] shadow-sm"
++          className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--color-surface)] hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)] shadow-xs"
+         >
+-          <X className="w-5 h-5 text-[var(--color-text)]" strokeWidth={2.25} />
++          <X className="w-5 h-5 text-[var(--color-text)]" strokeWidth={2} />
+         </button>
+ 
+-        <h1 className="text-lg font-bold text-[var(--color-text)] tracking-tight">
+-          {STRINGS.analyzing.title}
+-        </h1>
++        <div className="flex items-center gap-2">
++          <Loader2 className="w-4 h-4 animate-spin text-[var(--color-primary-strong)]" />
++          <h1 className="text-base font-bold text-[var(--color-text)] tracking-tight">
++            {STRINGS.analyzing.title}
++          </h1>
++        </div>
+ 
+-        <div className="w-11 h-11" aria-hidden="true" />
++        <div className="w-10 h-10" aria-hidden="true" />
+       </header>
+ 
+-      {/* Center Viewfinder Scan Frame (max 420 px tall) */}
+-      <div className="flex-1 my-3 flex items-center justify-center relative min-h-0">
+-        <div className="scan-frame relative w-full max-w-[360px] h-full max-h-[420px] rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface-sunken)] flex items-center justify-center shadow-md">
++      {/* Center Viewfinder Scan Frame */}
++      <div className="flex-1 my-4 flex items-center justify-center relative min-h-0">
++        <div className="scan-frame relative w-full max-w-[340px] sm:max-w-[380px] h-full max-h-[440px] rounded-3xl overflow-hidden border border-[var(--color-border-strong)] bg-black/5 flex items-center justify-center shadow-lg">
+           {/* Captured photo preview */}
+           {previewUrl && (
+             <img
+@@ -40,37 +43,41 @@ export function AnalyzingView({ previewUrl, onClose }) {
+             />
+           )}
+ 
+-          {/* Corner brackets */}
+-          <div className="scan-corner tl" />
+-          <div className="scan-corner tr" />
+-          <div className="scan-corner bl" />
+-          <div className="scan-corner br" />
++          {/* Viewfinder Corner Brackets */}
++          <div className="scan-corner tl border-[var(--color-primary)]" />
++          <div className="scan-corner tr border-[var(--color-primary)]" />
++          <div className="scan-corner bl border-[var(--color-primary)]" />
++          <div className="scan-corner br border-[var(--color-primary)]" />
+ 
+-          {/* Sweeping laser line */}
++          {/* Laser scanning bar */}
+           <div className="scan-line" />
+         </div>
+       </div>
+ 
+-      {/* Status & Hints Card */}
++      {/* Status Card */}
+       <div
+         role="status"
+-        className="card max-w-[360px] mx-auto w-full mb-2 p-4 border border-[var(--color-border)] shadow-sm"
++        className="card max-w-[340px] sm:max-w-[380px] mx-auto w-full mb-3 p-4 border border-[var(--color-border)] shadow-sm bg-[var(--color-surface)]"
+       >
+-        <h2 className="text-sm font-bold text-[var(--color-text)] mb-2 flex items-center gap-2">
+-          <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-primary-strong)] animate-pulse" />
+-          <span>{STRINGS.analyzing.status}</span>
+-        </h2>
++        <div className="flex items-center justify-between mb-2">
++          <span className="text-xs font-bold text-[var(--color-text)] flex items-center gap-2">
++            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-ping" />
++            <span>{STRINGS.analyzing.status}</span>
++          </span>
++          <span className="text-[11px] font-semibold text-[var(--color-primary-strong)]">
++            TensorFlow.js
++          </span>
++        </div>
+ 
+-        <div className="space-y-1.5 text-xs text-[var(--color-text-secondary)]">
+-          <div className="flex items-center gap-2">
+-            <Lightbulb className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
+-            <span>{STRINGS.analyzing.hintOneItem}</span>
+-          </div>
+-          <div className="flex items-center gap-2">
+-            <Lightbulb className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
+-            <span>{STRINGS.analyzing.hintTakesMoment}</span>
+-          </div>
++        {/* Shimmer Progress Indicator */}
++        <div className="w-full h-1.5 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden mb-3">
++          <div className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)] via-[#34A853] to-[var(--color-primary)] w-3/4 animate-pulse" />
+         </div>
++
++        <p className="text-xs text-[var(--color-text-secondary)] flex items-center gap-1.5 leading-relaxed">
++          <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
++          <span>{STRINGS.analyzing.hintTakesMoment}</span>
++        </p>
+       </div>
+     </div>
+   )
+diff --git a/src/components/BottomNav.jsx b/src/components/BottomNav.jsx
+index d740802..1ea630f 100644
+--- a/src/components/BottomNav.jsx
++++ b/src/components/BottomNav.jsx
+@@ -16,41 +16,40 @@ export function BottomNav({
+       className="fixed bottom-0 left-0 right-0 z-40 pointer-events-none pb-[max(0.75rem,env(safe-area-inset-bottom))] px-4 lg:hidden"
+     >
+       <div className="max-w-[420px] mx-auto pointer-events-auto flex flex-col items-center">
+-        {/* Floating Action Hero Pill Centered Directly Above Bottom Nav (GPay style) */}
++        {/* Floating Action Scan Pill */}
+         <div className="mb-2">
+           <button
+             type="button"
+             onClick={onOpenScanSheet}
+             disabled={scanDisabled}
+             aria-label={STRINGS.nav.scan}
+-            style={{ boxShadow: 'var(--shadow-scan-btn)' }}
+-            className="h-12 px-6 rounded-full bg-[var(--color-primary-strong)] hover:bg-[var(--color-primary-hover)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white flex items-center justify-center gap-2 border-2 border-white transition-all"
++            className="h-12 px-6 rounded-full bg-gradient-to-r from-[#0F9D58] to-[#0B7A44] hover:from-[#0C8A4B] hover:to-[#0A6B3C] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-white flex items-center justify-center gap-2 border-2 border-white shadow-md transition-all duration-200"
+           >
+-            <ScanLine className="w-5 h-5 text-white" strokeWidth={2.25} />
+-            <span className="font-bold text-sm tracking-wide">{STRINGS.nav.scan}</span>
++            <ScanLine className="w-4 h-4 text-white" strokeWidth={2.25} />
++            <span className="font-extrabold text-xs uppercase tracking-wider">{STRINGS.nav.scan}</span>
+           </button>
+         </div>
+ 
+         {/* 3-Slot Bottom Navigation Bar */}
+-        <div className="w-full bg-[var(--color-surface)] rounded-full px-4 py-1.5 flex items-center justify-around shadow-md border border-[var(--color-border)]">
++        <div className="w-full bg-[var(--color-surface)]/95 backdrop-blur-md rounded-2xl px-3 py-1.5 flex items-center justify-around shadow-md border border-[var(--color-border)]">
+           {/* Left Slot: Impact Counter */}
+           <button
+             type="button"
+             onClick={onImpact}
+             aria-label={STRINGS.nav.impact}
+             aria-current={active === 'impact' ? 'page' : undefined}
+-            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-full px-3 py-1 transition-all ${
++            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1 transition-all ${
+               active === 'impact'
+                 ? 'text-[var(--color-primary-strong)] font-bold'
+                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            <div className={`relative px-3 py-0.5 rounded-full transition-all ${
+-              active === 'impact' ? 'bg-[var(--color-accent)]' : ''
++            <div className={`p-1 rounded-lg transition-all ${
++              active === 'impact' ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]' : ''
+             }`}>
+-              <TrendingUp className="w-5 h-5" strokeWidth={active === 'impact' ? 2.5 : 2} />
++              <TrendingUp className="w-4 h-4" strokeWidth={active === 'impact' ? 2.5 : 2} />
+             </div>
+-            <span className="text-[11px] leading-tight">{STRINGS.nav.impact}</span>
++            <span className="text-[10px] font-semibold leading-tight">{STRINGS.nav.impact}</span>
+           </button>
+ 
+           {/* Center Slot: Home */}
+@@ -59,18 +58,18 @@ export function BottomNav({
+             onClick={onHome}
+             aria-label={STRINGS.nav.home}
+             aria-current={active === 'home' ? 'page' : undefined}
+-            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-full px-3 py-1 transition-all ${
++            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1 transition-all ${
+               active === 'home'
+                 ? 'text-[var(--color-primary-strong)] font-bold'
+                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            <div className={`relative px-3 py-0.5 rounded-full transition-all ${
+-              active === 'home' ? 'bg-[var(--color-accent)]' : ''
++            <div className={`p-1 rounded-lg transition-all ${
++              active === 'home' ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]' : ''
+             }`}>
+-              <Home className="w-5 h-5" strokeWidth={active === 'home' ? 2.5 : 2} />
++              <Home className="w-4 h-4" strokeWidth={active === 'home' ? 2.5 : 2} />
+             </div>
+-            <span className="text-[11px] leading-tight">{STRINGS.nav.home}</span>
++            <span className="text-[10px] font-semibold leading-tight">{STRINGS.nav.home}</span>
+           </button>
+ 
+           {/* Right Slot: History */}
+@@ -79,18 +78,18 @@ export function BottomNav({
+             onClick={onHistory}
+             aria-label={STRINGS.nav.history}
+             aria-current={active === 'history' ? 'page' : undefined}
+-            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-full px-3 py-1 transition-all ${
++            className={`min-w-[64px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1 transition-all ${
+               active === 'history'
+                 ? 'text-[var(--color-primary-strong)] font-bold'
+                 : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            <div className={`relative px-3 py-0.5 rounded-full transition-all ${
+-              active === 'history' ? 'bg-[var(--color-accent)]' : ''
++            <div className={`p-1 rounded-lg transition-all ${
++              active === 'history' ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]' : ''
+             }`}>
+-              <History className="w-5 h-5" strokeWidth={active === 'history' ? 2.5 : 2} />
++              <History className="w-4 h-4" strokeWidth={active === 'history' ? 2.5 : 2} />
+             </div>
+-            <span className="text-[11px] leading-tight">{STRINGS.nav.history}</span>
++            <span className="text-[10px] font-semibold leading-tight">{STRINGS.nav.history}</span>
+           </button>
+         </div>
+       </div>
+diff --git a/src/components/CategoryGuideModal.jsx b/src/components/CategoryGuideModal.jsx
+new file mode 100644
+index 0000000..d035c81
+--- /dev/null
++++ b/src/components/CategoryGuideModal.jsx
+@@ -0,0 +1,299 @@
++import React, { useState, useEffect } from 'react'
++import { X, Check, AlertTriangle, Leaf, ChevronRight, Recycle, Info } from 'lucide-react'
++import { CategoryIcon } from './CategoryIcon'
++import { CATEGORY_THEME } from '../lib/categoryTheme'
++
++const CATEGORY_DETAILS = {
++  recyclable: {
++    title: 'Dry Recyclables',
++    binColor: 'Blue Bin',
++    badgeTone: 'bg-blue-50 text-blue-700 border-blue-200',
++    colorHex: '#1565C0',
++    accepted: [
++      'Clean PET bottles & plastic containers (#1-#5)',
++      'Cardboard boxes & paper bags',
++      'Aluminium beverage cans & tin food tins',
++      'Clean glass jars & beverage bottles',
++    ],
++    notAccepted: [
++      'Greasy pizza boxes with melted cheese',
++      'Thin single-use plastic films / grocery pouches',
++      'Broken window panes & heat-proof ceramics',
++    ],
++    tips: 'Rinse with leftover dishwater to remove liquids. Crush cans and flatten boxes to conserve bin volume.',
++    sdgFact: 'Every metric ton of recycled paper preserves 17 mature trees and avoids 4,000 kW·h of electrical energy.',
++  },
++  organic: {
++    title: 'Wet Compostable Organic Waste',
++    binColor: 'Green Bin',
++    badgeTone: 'bg-emerald-50 text-emerald-800 border-emerald-200',
++    colorHex: '#2E7D32',
++    accepted: [
++      'Fruit peels, citrus rinds & vegetable trimmings',
++      'Coffee grounds, filter paper & tea bags',
++      'Garden leaves, cut flowers & dead plant stems',
++      'Crushed eggshells & plain wood shavings',
++    ],
++    notAccepted: [
++      'Plastic produce stickers (remove first!)',
++      'Synthetic tea bags with nylon mesh',
++      'Excessive cooking oils or grease',
++    ],
++    tips: 'Composting aerobically halts methane production and creates nutrient-rich humus for urban gardening.',
++    sdgFact: 'Organic soil matter restores subterranean microbiome diversity and increases moisture retention by up to 20%.',
++  },
++  ewaste: {
++    title: 'Electronic & Digital Waste',
++    binColor: 'Designated Take-Back Kiosk',
++    badgeTone: 'bg-purple-50 text-purple-800 border-purple-200',
++    colorHex: '#6A3DB8',
++    accepted: [
++      'Old smartphones, tablets & e-readers',
++      'Charging cords, USB cables & power adapters',
++      'Keyboards, mice & internal computer parts',
++      'Small kitchen appliances & hair dryers',
++    ],
++    notAccepted: [
++      'Swollen or leaking lithium-ion pouch cells (treat as Hazardous)',
++      'Light bulbs & fluorescent mercury tubes',
++    ],
++    tips: 'Back up and factory reset devices. Never toss e-waste in domestic dumpsters where metals crush and spark fires.',
++    sdgFact: 'Recycling 1 million mobile phones recovers 16,000 kg of copper, 350 kg of silver, and 34 kg of gold.',
++  },
++  hazardous: {
++    title: 'Hazardous & Chemical Waste',
++    binColor: 'Red Hazardous Container',
++    badgeTone: 'bg-red-50 text-red-800 border-red-200',
++    colorHex: '#C62828',
++    accepted: [
++      'Household batteries (alkaline, button, NiCd)',
++      'Unused paints, varnishes & chemical solvents',
++      'Aerosol spray canisters with propellant',
++      'Pesticides, weedkillers & motor oil containers',
++    ],
++    notAccepted: [
++      'Regular household kitchen trash',
++      'Non-hazardous empty dry glass bottles',
++    ],
++    tips: 'Retain in original marked containers with safety labels visible. Store upright out of reach of children.',
++    sdgFact: 'A single cadmium battery can contaminate 600,000 liters of groundwater—preventing dumping halts toxic soil sterility.',
++  },
++  general: {
++    title: 'General / Non-Recyclable Residuals',
++    binColor: 'Grey / Black Bin',
++    badgeTone: 'bg-neutral-100 text-neutral-800 border-neutral-300',
++    colorHex: '#5F6B63',
++    accepted: [
++      'Multi-layer laminated snack wrappers & foil pouches',
++      'Used facial tissues, cotton swabs & sanitary napkins',
++      'Broken porcelain mugs & drinking glass shards (wrapped)',
++      'Worn synthetic cleaning sponges',
++    ],
++    notAccepted: [
++      'Clean recyclable bottles or cans',
++      'Compostable food waste',
++      'Any batteries or electronic devices',
++    ],
++    tips: 'Tie trash liners tightly to prevent lightweight plastic fragments from dispersing onto natural wildlife reserves.',
++    sdgFact: 'Responsible containment shields open grasslands, rivers, and wildlife habitats from fatal microplastic ingestion.',
++  },
++}
++
++const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
++
++export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onClose }) {
++  const [selectedKey, setSelectedKey] = useState(initialCategory)
++
++  useEffect(() => {
++    if (initialCategory) {
++      setSelectedKey(initialCategory)
++    }
++  }, [initialCategory])
++
++  useEffect(() => {
++    if (!isOpen) return
++    const handleKeyDown = (e) => {
++      if (e.key === 'Escape') onClose()
++    }
++    window.addEventListener('keydown', handleKeyDown)
++    return () => window.removeEventListener('keydown', handleKeyDown)
++  }, [isOpen, onClose])
++
++  if (!isOpen) return null
++
++  const active = CATEGORY_DETAILS[selectedKey] || CATEGORY_DETAILS.recyclable
++  const theme = CATEGORY_THEME[selectedKey] || CATEGORY_THEME.recyclable
++
++  return (
++    <div
++      role="dialog"
++      aria-modal="true"
++      aria-labelledby="guide-title"
++      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
++    >
++      {/* Backdrop */}
++      <div
++        className="fixed inset-0 bg-[#0E2A1F]/55 backdrop-blur-xs transition-opacity duration-200"
++        onClick={onClose}
++        aria-hidden="true"
++      />
++
++      {/* Modal Dialog */}
++      <div className="relative z-10 w-full max-w-[620px] max-h-[90vh] bg-[var(--color-surface)] rounded-3xl p-5 sm:p-6 shadow-2xl border border-[var(--color-border)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
++        {/* Header */}
++        <div className="flex items-center justify-between pb-3 border-b border-[var(--color-divider)]">
++          <div className="flex items-center gap-2.5">
++            <div className="w-9 h-9 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)] flex items-center justify-center">
++              <Recycle className="w-5 h-5" />
++            </div>
++            <div>
++              <h2 id="guide-title" className="text-base font-extrabold text-[var(--color-text)] tracking-tight">
++                What Goes Where Guide
++              </h2>
++              <p className="text-xs text-[var(--color-text-secondary)]">
++                Official sorting standards for SDG 15 (Life on Land)
++              </p>
++            </div>
++          </div>
++
++          <button
++            type="button"
++            onClick={onClose}
++            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all"
++            aria-label="Close guide"
++          >
++            <X className="w-4 h-4" />
++          </button>
++        </div>
++
++        {/* Category Horizontal Segmented Tabs */}
++        <div className="flex items-center gap-1.5 py-3 overflow-x-auto no-scrollbar shrink-0">
++          {CATEGORY_KEYS.map((k) => {
++            const isCur = selectedKey === k
++            const th = CATEGORY_THEME[k]
++            return (
++              <button
++                key={k}
++                type="button"
++                onClick={() => setSelectedKey(k)}
++                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
++                  isCur
++                    ? 'shadow-xs text-white'
++                    : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
++                }`}
++                style={isCur ? { backgroundColor: th.ink } : {}}
++              >
++                <CategoryIcon categoryId={k} size={14} inheritColor={isCur} />
++                <span>{th.label.split('/')[0].trim()}</span>
++              </button>
++            )
++          })}
++        </div>
++
++        {/* Scrollable Category Content Area */}
++        <div className="flex-1 overflow-y-auto pr-1 space-y-4 pt-1">
++          {/* Hero Banner for Category */}
++          <div
++            className="p-4 rounded-2xl border transition-all"
++            style={{
++              backgroundColor: `${theme.soft}40`,
++              borderColor: `${theme.ink}30`,
++            }}
++          >
++            <div className="flex items-start justify-between gap-2">
++              <div>
++                <span
++                  className="text-[11px] font-black uppercase tracking-wider block"
++                  style={{ color: theme.ink }}
++                >
++                  {active.binColor}
++                </span>
++                <h3 className="text-lg font-black text-[var(--color-text)] mt-0.5">
++                  {active.title}
++                </h3>
++              </div>
++              <div
++                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-xs"
++                style={{ backgroundColor: '#FFFFFF', border: `1px solid ${theme.ink}30` }}
++              >
++                <CategoryIcon categoryId={selectedKey} size={22} />
++              </div>
++            </div>
++
++            <p className="text-xs text-[var(--color-text-secondary)] mt-2 leading-relaxed">
++              {active.tips}
++            </p>
++          </div>
++
++          {/* Accepted Items List */}
++          <div className="space-y-2">
++            <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-success)] flex items-center gap-1.5">
++              <Check className="w-3.5 h-3.5" />
++              <span>What Goes In This Bin</span>
++            </h4>
++            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
++              {active.accepted.map((item, idx) => (
++                <div
++                  key={idx}
++                  className="p-2.5 rounded-xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text)] font-medium flex items-start gap-2"
++                >
++                  <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
++                    ✓
++                  </span>
++                  <span>{item}</span>
++                </div>
++              ))}
++            </div>
++          </div>
++
++          {/* Common Contaminants to Avoid */}
++          <div className="space-y-2">
++            <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-warning)] flex items-center gap-1.5">
++              <AlertTriangle className="w-3.5 h-3.5" />
++              <span>Do Not Put In This Bin</span>
++            </h4>
++            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
++              {active.notAccepted.map((item, idx) => (
++                <div
++                  key={idx}
++                  className="p-2.5 rounded-xl bg-amber-50/50 border border-amber-200/60 text-xs text-amber-950 font-medium flex items-start gap-2"
++                >
++                  <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
++                    ✕
++                  </span>
++                  <span>{item}</span>
++                </div>
++              ))}
++            </div>
++          </div>
++
++          {/* Ecological Fact */}
++          <div className="p-3.5 rounded-2xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs text-[var(--color-text)] flex items-start gap-2.5">
++            <Leaf className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0 mt-0.5" />
++            <div>
++              <span className="font-extrabold text-[var(--color-primary-strong)] block text-[11px] uppercase tracking-wider">
++                SDG 15 Conservation Impact
++              </span>
++              <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] leading-relaxed">
++                {active.sdgFact}
++              </p>
++            </div>
++          </div>
++        </div>
++
++        {/* Footer */}
++        <div className="pt-3 border-t border-[var(--color-divider)] flex justify-end">
++          <button
++            type="button"
++            onClick={onClose}
++            className="btn btn-primary px-5 py-2 text-xs font-bold"
++          >
++            Got it, thanks
++          </button>
++        </div>
++      </div>
++    </div>
++  )
++}
++
++export default CategoryGuideModal
+diff --git a/src/components/Header.jsx b/src/components/Header.jsx
+index dc824ec..fa6ef90 100644
+--- a/src/components/Header.jsx
++++ b/src/components/Header.jsx
+@@ -1,48 +1,59 @@
+ import React from 'react'
+-import { Leaf } from 'lucide-react'
++import { Leaf, BookOpen, Sparkles } from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ 
+-export function Header() {
++export function Header({ onOpenGuide }) {
+   return (
+-    <header className="w-full bg-[#FFFFFF] rounded-2xl md:rounded-3xl p-4 sm:p-5 border border-[#DCE8DF] shadow-[0_4px_24px_rgba(15,157,88,0.06)] relative overflow-hidden transition-all">
+-
+-
+-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+-        {/* Left Section: Logo + Brand Name + SDG Badge + Tagline */}
++    <header className="w-full bg-[var(--color-surface)] rounded-2xl md:rounded-3xl p-4 sm:p-5 border border-[var(--color-border)] shadow-xs relative overflow-hidden transition-all">
++      <div className="relative z-10 flex items-center justify-between gap-4">
++        {/* Brand Identity */}
+         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+-          {/* Rounded-Square Green Logo Container */}
+-          <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden shadow-[0_4px_14px_rgba(15,157,88,0.25)] border border-[#C6D9CC] shrink-0">
++          <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-xs border border-[var(--color-border-strong)] shrink-0 bg-[var(--color-surface-sunken)]">
+             <img
+               src="/logo.png"
+-              alt="BinGo recycling leaf logo"
++              alt="BinGo logo"
+               className="w-full h-full object-cover"
+             />
+           </div>
+ 
+-          {/* Typography block */}
+           <div className="min-w-0">
+-            {/* Top row: Brand + Divider + SDG 15 Badge + Life on Land */}
+-            <div className="flex items-center flex-wrap gap-y-1 gap-x-2">
+-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+-                <span className="text-[#0E2A1F]">Bin</span>
+-                <span className="text-[#0F9D58]">Go</span>
++            <div className="flex items-center gap-2 flex-wrap">
++              <h1 className="text-xl sm:text-2xl font-black tracking-tight leading-none text-[var(--color-text)]">
++                <span>Bin</span>
++                <span className="text-[var(--color-primary)]">Go</span>
+               </h1>
+-
+-              {/* Vertical divider */}
+-              <span className="h-4 w-px bg-[#C6D9CC] mx-0.5 hidden xs:inline-block" aria-hidden="true" />
+-
+-              {/* LIFE ON LAND caption */}
+-              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-[#52665A] shrink-0">
+-                LIFE ON LAND
++              <span className="text-xs text-[var(--color-text-disabled)]" aria-hidden="true">·</span>
++              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
++                SDG 15 Life on Land
+               </span>
+             </div>
+-
+-            {/* Tagline */}
+-            <p className="text-xs sm:text-sm font-medium text-[#52665A] mt-1 tracking-normal">
++            <p className="text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] mt-0.5 truncate">
+               {STRINGS.app.tagline}
+             </p>
+           </div>
+         </div>
++
++        {/* Quick Waste Guide Trigger */}
++        <div className="flex items-center gap-2 shrink-0">
++          {onOpenGuide && (
++            <button
++              type="button"
++              onClick={onOpenGuide}
++              className="px-3 py-1.5 rounded-xl bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-sunken)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-xs"
++              title="Explore sorting rules for all 5 bins"
++            >
++              <BookOpen className="w-3.5 h-3.5" />
++              <span className="hidden xs:inline">Sorting Guide</span>
++              <span className="xs:hidden">Guide</span>
++            </button>
++          )}
++
++          {/* Privacy badge */}
++          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-muted)] text-[11px] font-semibold">
++            <Sparkles className="w-3 h-3 text-[var(--color-primary-strong)]" />
++            <span>On-Device AI</span>
++          </div>
++        </div>
+       </div>
+     </header>
+   )
+diff --git a/src/components/History.jsx b/src/components/History.jsx
+index 5b54181..6f9895d 100644
+--- a/src/components/History.jsx
++++ b/src/components/History.jsx
+@@ -1,25 +1,35 @@
+ import React from 'react'
+-import { Recycle, ThumbsUp, ThumbsDown } from 'lucide-react'
++import { Recycle, ThumbsUp, ThumbsDown, ChevronRight, Camera } from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ import { formatDateDisplay } from '../lib/date'
+ import { getCategoryTheme } from '../lib/categoryTheme'
+ 
+-export function History({ items = [], onOpenItem }) {
++export function History({ items = [], onOpenItem, onScan }) {
+   if (!items || items.length === 0) {
+     return (
+       <div
+         aria-label="Empty Scan History"
+-        className="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center"
++        className="flex-1 flex flex-col items-center justify-center py-16 px-6 text-center"
+       >
+-        <div className="w-20 h-20 rounded-full bg-[var(--color-surface-alt)] flex items-center justify-center mb-4">
+-          <Recycle className="w-10 h-10 text-[var(--color-text-muted)]" strokeWidth={1.5} />
++        <div className="w-16 h-16 rounded-2xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] flex items-center justify-center mb-4 text-[var(--color-primary-strong)]">
++          <Recycle className="w-8 h-8" strokeWidth={1.75} />
+         </div>
+-        <h2 className="text-lg font-bold text-[var(--color-text)] mb-1">
++        <h2 className="text-base font-extrabold text-[var(--color-text)] mb-1">
+           {STRINGS.history.emptyTitle}
+         </h2>
+-        <p className="text-sm text-[var(--color-text-muted)] max-w-[240px]">
++        <p className="text-xs text-[var(--color-text-secondary)] max-w-[260px] leading-relaxed">
+           {STRINGS.history.emptySubtitle}
+         </p>
++        {onScan && (
++          <button
++            type="button"
++            onClick={onScan}
++            className="btn btn-primary mt-5 flex items-center gap-2 text-xs font-bold py-2 px-5 h-auto"
++          >
++            <Camera className="w-4 h-4 text-white" />
++            <span>Scan First Item</span>
++          </button>
++        )}
+       </div>
+     )
+   }
+@@ -27,7 +37,7 @@ export function History({ items = [], onOpenItem }) {
+   return (
+     <div
+       aria-label="Scan History List"
+-      className="flex flex-col gap-2.5 py-3"
++      className="flex flex-col gap-2 py-2"
+     >
+       {items.map((item) => {
+         const theme = getCategoryTheme(item.categoryId)
+@@ -39,15 +49,15 @@ export function History({ items = [], onOpenItem }) {
+             onClick={() => onOpenItem && onOpenItem(item)}
+             role={onOpenItem ? 'button' : undefined}
+             tabIndex={onOpenItem ? 0 : undefined}
+-            className="history-row cursor-pointer"
++            className="history-row cursor-pointer group bg-[var(--color-surface)] hover:bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:shadow-xs transition-all duration-200"
+           >
+             {/* Thumbnail */}
+-            <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-surface-sunken)] border border-[var(--color-border)] shrink-0 flex items-center justify-center">
++            <div className="w-13 h-13 rounded-xl overflow-hidden bg-[var(--color-surface-sunken)] border border-[var(--color-border)] shrink-0 flex items-center justify-center">
+               {item.thumb ? (
+                 <img
+                   src={item.thumb}
+                   alt={theme.label}
+-                  className="w-full h-full object-cover"
++                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                   loading="lazy"
+                 />
+               ) : (
+@@ -68,10 +78,12 @@ export function History({ items = [], onOpenItem }) {
+                 />
+               </div>
+ 
+-              <div className="text-xs text-[var(--color-text-secondary)] mt-0.5 truncate">
+-                <span className="font-semibold text-[var(--color-primary-strong)]">{confidencePct}% sure</span>
+-                <span className="mx-1.5 opacity-40">·</span>
+-                <span>{formatDateDisplay(item.ts)}</span>
++              <div className="text-xs text-[var(--color-text-secondary)] mt-0.5 flex items-center gap-1.5 truncate">
++                <span className="font-semibold text-[var(--color-primary-strong)] tabular-nums">
++                  {confidencePct}% sure
++                </span>
++                <span className="text-[var(--color-text-disabled)]">·</span>
++                <span className="text-[var(--color-text-muted)]">{formatDateDisplay(item.ts)}</span>
+               </div>
+             </div>
+ 
+@@ -79,17 +91,19 @@ export function History({ items = [], onOpenItem }) {
+             {item.feedback && (
+               <div className="shrink-0 pr-1">
+                 {item.feedback === 'up' && (
+-                  <div className="w-8 h-8 rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] flex items-center justify-center">
+-                    <ThumbsUp className="w-4 h-4" />
++                  <div className="w-7 h-7 rounded-lg bg-[var(--color-success-soft)] text-[var(--color-success)] flex items-center justify-center">
++                    <ThumbsUp className="w-3.5 h-3.5" />
+                   </div>
+                 )}
+                 {item.feedback === 'down' && (
+-                  <div className="w-8 h-8 rounded-full bg-[var(--color-warning-soft)] text-[var(--color-warning)] flex items-center justify-center">
+-                    <ThumbsDown className="w-4 h-4" />
++                  <div className="w-7 h-7 rounded-lg bg-[var(--color-warning-soft)] text-[var(--color-warning)] flex items-center justify-center">
++                    <ThumbsDown className="w-3.5 h-3.5" />
+                   </div>
+                 )}
+               </div>
+             )}
++
++            <ChevronRight className="w-4 h-4 text-[var(--color-text-disabled)] group-hover:text-[var(--color-text)] transition-colors shrink-0" />
+           </div>
+         )
+       })}
+diff --git a/src/components/ImpactBar.jsx b/src/components/ImpactBar.jsx
+index 8d1f156..aeb8d61 100644
+--- a/src/components/ImpactBar.jsx
++++ b/src/components/ImpactBar.jsx
+@@ -1,45 +1,98 @@
+ import React from 'react'
+-import { Flame } from 'lucide-react'
++import { Flame, TrendingUp, ArrowRight, Award } from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ 
+-export function ImpactBar({ totalSorted = 0, streak = 0 }) {
++export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
++  // Determine next milestone
++  const milestones = [5, 10, 25, 50, 100, 250, 500]
++  const nextTarget = milestones.find((m) => m > totalSorted) || totalSorted + 50
++  const progressPct = Math.min(100, Math.round((totalSorted / nextTarget) * 100))
++
+   return (
+-    <div className="grid grid-cols-2 gap-3" aria-label="Environmental Impact Preview">
+-      {/* Metric 1: Items sorted */}
+-      <div className="card p-4 flex flex-col justify-between border border-[var(--color-border)] shadow-sm">
+-        <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
+-          {STRINGS.home.itemsSorted}
++    <div className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)] flex flex-col gap-3.5">
++      <div className="flex items-center justify-between">
++        <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
++          Your Ecological Impact
+         </span>
+-        <div className="mt-2 flex items-baseline gap-1">
+-          <span className="text-3xl font-extrabold text-[var(--color-text)] tabular-nums tracking-tight">
+-            {totalSorted}
+-          </span>
+-          <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">items</span>
+-        </div>
++        {onViewAnalytics && (
++          <button
++            type="button"
++            onClick={onViewAnalytics}
++            className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline transition-all"
++          >
++            <span>Visual Analytics</span>
++            <ArrowRight className="w-3.5 h-3.5" />
++          </button>
++        )}
+       </div>
+ 
+-      {/* Metric 2: Day streak */}
+-      <div className="card p-4 flex flex-col justify-between border border-[var(--color-border)] shadow-sm">
+-        <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
+-          {STRINGS.home.dayStreak}
+-        </span>
+-        <div className="mt-2 flex items-center gap-1.5">
+-          <span className={`text-3xl font-extrabold tabular-nums tracking-tight ${
+-            streak > 0 ? 'text-[var(--color-primary-strong)]' : 'text-[var(--color-text-muted)]'
+-          }`}>
+-            {streak}
+-          </span>
+-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+-            streak > 0 ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-surface-sunken)]'
+-          }`}>
+-            <Flame
+-              className={`w-4 h-4 ${
+-                streak > 0 ? 'text-[#FF9800] fill-[#FF9800]' : 'text-[var(--color-text-muted)]'
+-              }`}
+-              strokeWidth={2}
+-            />
++      <div className="grid grid-cols-2 gap-3">
++        {/* Metric 1: Items Diverted */}
++        <div className="p-3.5 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] flex flex-col justify-between">
++          <div className="flex items-center justify-between">
++            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">
++              {STRINGS.home.itemsSorted}
++            </span>
++            <Award className="w-4 h-4 text-[var(--color-primary-strong)]" />
++          </div>
++
++          <div className="mt-2 flex items-baseline gap-1.5">
++            <span className="text-3xl font-black text-[var(--color-text)] tabular-nums tracking-tight">
++              {totalSorted}
++            </span>
++            <span className="text-xs font-semibold text-[var(--color-text-muted)]">items</span>
++          </div>
++
++          {/* Mini progress bar towards next milestone */}
++          <div className="mt-2.5">
++            <div className="flex items-center justify-between text-[10px] text-[var(--color-text-muted)] mb-1">
++              <span>Goal</span>
++              <span className="font-semibold text-[var(--color-text)] tabular-nums">
++                {totalSorted}/{nextTarget}
++              </span>
++            </div>
++            <div className="w-full h-1.5 rounded-full bg-black/5 overflow-hidden">
++              <div
++                className="h-full rounded-full bg-[var(--color-primary)] transition-all duration-500 ease-out"
++                style={{ width: `${progressPct}%` }}
++              />
++            </div>
+           </div>
+         </div>
++
++        {/* Metric 2: Day Streak */}
++        <div className="p-3.5 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] flex flex-col justify-between">
++          <div className="flex items-center justify-between">
++            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">
++              {STRINGS.home.dayStreak}
++            </span>
++            <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
++              streak > 0 ? 'bg-amber-100 text-amber-700' : 'bg-black/5 text-[var(--color-text-muted)]'
++            }`}>
++              <Flame
++                className={`w-3.5 h-3.5 ${
++                  streak > 0 ? 'text-[#FF9800] fill-[#FF9800]' : 'text-[var(--color-text-muted)]'
++                }`}
++                strokeWidth={2}
++              />
++            </div>
++          </div>
++
++          <div className="mt-2 flex items-baseline gap-1.5">
++            <span className={`text-3xl font-black tabular-nums tracking-tight ${
++              streak > 0 ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]'
++            }`}>
++              {streak}
++            </span>
++            <span className="text-xs font-semibold text-[var(--color-text-muted)]">days active</span>
++          </div>
++
++          <p className="text-[10px] text-[var(--color-text-secondary)] mt-2 leading-tight">
++            {streak > 0
++              ? 'Keep your momentum alive today!'
++              : 'Scan an item today to start a streak'}
++          </p>
++        </div>
+       </div>
+     </div>
+   )
+diff --git a/src/components/ImpactCounter.jsx b/src/components/ImpactCounter.jsx
+index 5e3c1ad..20d8642 100644
+--- a/src/components/ImpactCounter.jsx
++++ b/src/components/ImpactCounter.jsx
+@@ -2,9 +2,10 @@ import React, { useMemo } from 'react'
+ import { Flame, Leaf, ArrowRight, ScanLine } from 'lucide-react'
+ import { TopBar } from './TopBar'
+ import { CategoryIcon } from './CategoryIcon'
++import { WasteAnalyticsChart } from './WasteAnalyticsChart'
+ import { STRINGS } from '../lib/strings'
+ import { CATEGORY_THEME } from '../lib/categoryTheme'
+-import { localDateKey, dayDiff } from '../lib/date'
++import { localDateKey } from '../lib/date'
+ 
+ const CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
+ 
+@@ -16,14 +17,15 @@ export function ImpactCounter({
+   onOpenScanSheet,
+   onGoToHistory,
+ }) {
+-  // Derive 7-day strip from history timestamps (D6)
++  // Derive 7-day strip from history timestamps
+   const last7Days = useMemo(() => {
+     const today = new Date()
+     const activeDates = new Set()
+ 
+     history.forEach((item) => {
+-      if (item.timestamp) {
+-        const d = new Date(item.timestamp)
++      const ts = item.ts || item.timestamp
++      if (ts) {
++        const d = new Date(ts)
+         activeDates.add(localDateKey(d))
+       }
+     })
+@@ -50,47 +52,47 @@ export function ImpactCounter({
+       <TopBar title={STRINGS.impact.title} />
+ 
+       {/* Hero Metric Tile */}
+-      <div className="card card-hero p-6 flex flex-col gap-4 border border-[var(--color-border)]">
++      <div className="card card-hero p-5 sm:p-6 flex flex-col gap-4 border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
+         <div className="flex items-center justify-between">
+-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)]">
+-            <Leaf className="w-4 h-4 text-[var(--color-primary-strong)]" />
+-            <span className="text-xs font-bold text-[var(--color-primary-strong)]">
++          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)]">
++            <Leaf className="w-3.5 h-3.5 text-[var(--color-primary-strong)]" />
++            <span className="text-[11px] font-extrabold text-[var(--color-primary-strong)] tracking-wider">
+               SDG 15 · LIFE ON LAND
+             </span>
+           </div>
+ 
+-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)]">
++          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)]">
+             <Flame
+-              className={`w-4 h-4 ${
++              className={`w-3.5 h-3.5 ${
+                 streak > 0 ? 'text-[#FF9800] fill-[#FF9800]' : 'text-[var(--color-text-muted)]'
+               }`}
+             />
+-            <span className="text-xs font-bold text-[var(--color-text)]">
++            <span className="text-xs font-bold text-[var(--color-text)] tabular-nums">
+               {streak} {STRINGS.impact.dayStreak.toLowerCase()}
+             </span>
+           </div>
+         </div>
+ 
+         <div>
+-          <div className="text-5xl font-extrabold tracking-tight text-[var(--color-text)] tabular-nums">
++          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[var(--color-text)] tabular-nums">
+             {totalSorted}
+           </div>
+-          <div className="text-sm font-semibold text-[var(--color-text-secondary)] mt-1">
++          <div className="text-xs sm:text-sm font-semibold text-[var(--color-text-secondary)] mt-1">
+             {STRINGS.impact.heroCaption}
+           </div>
+         </div>
+ 
+-        <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
++        <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
+           {totalSorted > 0
+-            ? 'Every item safely diverted preserves soil vitality, stops toxic runoff, and shields biodiversity on land.'
+-            : 'Start sorting today to keep recyclable materials out of landfills and protect ecosystems.'}
++            ? 'Every item safely sorted prevents landfill expansion, halts toxic leachate, and preserves biodiversity on land.'
++            : 'Start sorting today to keep recyclable and compostable materials out of landfills.'}
+         </p>
+ 
+         {totalSorted === 0 && (
+           <button
+             type="button"
+             onClick={onOpenScanSheet}
+-            className="btn btn-primary w-full flex items-center justify-center gap-2 text-sm mt-1"
++            className="btn btn-primary w-full flex items-center justify-center gap-2 text-xs font-bold mt-1 shadow-xs active:scale-[0.98] transition-all"
+           >
+             <ScanLine className="w-4 h-4 text-white" />
+             <span>{STRINGS.impact.startStreak}</span>
+@@ -99,13 +101,13 @@ export function ImpactCounter({
+       </div>
+ 
+       {/* Last 7 Days Timeline Strip */}
+-      <div className="card p-5 border border-[var(--color-border)]">
++      <div className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
+         <div className="flex items-center justify-between mb-4">
+-          <h2 className="text-base font-bold text-[var(--color-text)]">
++          <h2 className="text-sm font-extrabold text-[var(--color-text)]">
+             {STRINGS.impact.last7Days}
+           </h2>
+           <span className="text-xs text-[var(--color-text-muted)]">
+-            {streak > 0 ? `${streak} day streak` : STRINGS.impact.startStreak}
++            {streak > 0 ? `${streak} day active streak` : STRINGS.impact.startStreak}
+           </span>
+         </div>
+ 
+@@ -113,9 +115,9 @@ export function ImpactCounter({
+           {last7Days.map((d) => (
+             <div key={d.key} className="flex flex-col items-center gap-1.5 flex-1">
+               <div
+-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
++                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all ${
+                   d.active
+-                    ? 'bg-[var(--color-primary-strong)] text-white shadow-sm'
++                    ? 'bg-[var(--color-primary-strong)] text-white shadow-xs'
+                     : 'bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-muted)]'
+                 } ${d.isToday ? 'ring-2 ring-[var(--color-accent)] ring-offset-2' : ''}`}
+                 title={d.key}
+@@ -123,7 +125,7 @@ export function ImpactCounter({
+                 {d.active ? (
+                   <span className="text-xs font-bold">✓</span>
+                 ) : (
+-                  <span className="text-[10px] font-semibold opacity-60">·</span>
++                  <span className="text-[10px] font-semibold opacity-50">·</span>
+                 )}
+               </div>
+               <span
+@@ -144,10 +146,19 @@ export function ImpactCounter({
+         </p>
+       </div>
+ 
++      {/* Gamified Visual Waste Analytics Section (Recharts) */}
++      <WasteAnalyticsChart
++        history={history}
++        streak={streak}
++        byCategory={byCategory}
++        totalSorted={totalSorted}
++        onOpenScanSheet={onOpenScanSheet}
++      />
++
+       {/* Category Activity Breakdown */}
+-      <div className="card p-5 border border-[var(--color-border)]">
++      <div className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
+         <div className="flex items-center justify-between mb-4">
+-          <h2 className="text-base font-bold text-[var(--color-text)]">
++          <h2 className="text-sm font-extrabold text-[var(--color-text)]">
+             {STRINGS.impact.breakdownTitle}
+           </h2>
+           {history.length > 0 && onGoToHistory && (
+@@ -172,7 +183,7 @@ export function ImpactCounter({
+               <div key={catKey} className="flex flex-col gap-1.5">
+                 <div className="flex items-center justify-between text-xs font-semibold">
+                   <div className="flex items-center gap-2">
+-                    <CategoryIcon categoryId={catKey} size={16} />
++                    <CategoryIcon categoryId={catKey} size={15} />
+                     <span className="text-[var(--color-text)]">{theme.label}</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+diff --git a/src/components/ResultCard.jsx b/src/components/ResultCard.jsx
+index 21b05c2..3d645c4 100644
+--- a/src/components/ResultCard.jsx
++++ b/src/components/ResultCard.jsx
+@@ -17,44 +17,44 @@ const DEFAULT_CATEGORY_RULES = {
+   recyclable: {
+     label: 'Recyclable',
+     steps: [
+-      'Empty and rinse it.',
+-      'Keep it dry.',
+-      'Put it in the dry-waste bin or give it to a kabadiwala or recycler.',
++      'Empty and rinse it thoroughly.',
++      'Keep dry and free of food residue.',
++      'Place in the dry-waste / recycling bin or hand to a recycler.',
+     ],
+-    sdgFact: 'Recycling reduces demand for new raw material taken from forests and land.',
++    sdgFact: 'Recycling prevents deforestation and saves valuable virgin raw materials from being extracted.',
+   },
+   organic: {
+     label: 'Organic',
+     steps: [
+-      'Put it in the wet-waste bin or a compost pit.',
+-      "Don't mix it with plastic.",
++      'Place in the wet-waste bin or composting unit.',
++      'Do not mix with plastics, foil, or packaging.',
+     ],
+-    sdgFact: 'Compost returns nutrients to soil instead of rotting in landfills.',
++    sdgFact: 'Compost restores organic matter to soil, halting degradation and preventing methane release.',
+   },
+   ewaste: {
+     label: 'E-Waste',
+     steps: [
+-      "Don't put it in household waste.",
+-      'Hand it to an authorised e-waste collector or a take-back counter.',
++      'Do not discard with normal household trash.',
++      'Hand over to an authorized e-waste collection center or take-back kiosk.',
+     ],
+-    sdgFact: 'Toxic metals from dumped electronics can leak into soil and harm land ecosystems.',
++    sdgFact: 'Diverting electronic waste keeps toxic heavy metals like lead and cadmium out of soil ecosystems.',
+   },
+   hazardous: {
+     label: 'Hazardous',
+     steps: [
+-      'Keep it separate and sealed.',
+-      "Don't burn, flush or mix it.",
+-      'Give it to a hazardous-waste collection point.',
++      'Keep sealed in original container if possible.',
++      'Never burn, pour down drains, or mix with other waste.',
++      'Deliver to a designated hazardous waste depot.',
+     ],
+-    sdgFact: 'Chemicals and batteries that reach the ground contaminate soil and the life that depends on it.',
++    sdgFact: 'Hazardous chemicals contaminate groundwater and degrade topsoil biodiversity for generations.',
+   },
+   general: {
+     label: 'General / Non-recyclable',
+     steps: [
+-      'Wrap it and put it in the general dry non-recyclable bin.',
+-      "Don't litter.",
++      'Wrap securely and place in the non-recyclable bin.',
++      'Dispose responsibly to prevent windblown litter.',
+     ],
+-    sdgFact: 'Waste left on open land damages soil and habitats, so proper disposal protects them.',
++    sdgFact: 'Responsible containment shields open grasslands, rivers, and wildlife habitats from litter contamination.',
+   },
+ }
+ 
+@@ -77,7 +77,6 @@ export function ResultCard({
+   const theme = getCategoryTheme(categoryId)
+   const confidencePct = Math.round((result.confidence || 0) * 100)
+ 
+-  // Feedback undo: tap active thumb again clears it (D7)
+   const handleThumbClick = (val) => {
+     if (feedback === val) {
+       onFeedback(null)
+@@ -87,8 +86,8 @@ export function ResultCard({
+   }
+ 
+   return (
+-    <div className="flex flex-col min-h-full pb-8" aria-live="polite">
+-      {/* Top Bar with Back Arrow */}
++    <div className="flex flex-col min-h-full pb-8 animate-in fade-in duration-200" aria-live="polite">
++      {/* Top Navigation */}
+       <TopBar title={STRINGS.result.title} onBack={onBack} />
+ 
+       <div className="flex flex-col gap-4 pt-3">
+@@ -96,54 +95,59 @@ export function ResultCard({
+         {isConfident && (
+           <>
+             {/* Primary Result Hero Card */}
+-            <section className="card card-hero p-5 border border-[var(--color-border)] shadow-md relative overflow-hidden">
+-              {/* Category-tone 4px accent indicator */}
+-              <div
+-                className="absolute top-0 left-0 bottom-0 w-1.5"
+-                style={{ backgroundColor: theme.ink }}
+-              />
+-
+-              <div className="flex items-center justify-between gap-4 pl-1">
+-                {/* Left: Category, confidence & bar */}
++            <section className="card card-hero p-5 sm:p-6 border border-[var(--color-border)] shadow-sm bg-[var(--color-surface)] relative overflow-hidden">
++              <div className="flex items-center justify-between gap-4">
++                {/* Left: Category info & confidence */}
+                 <div className="flex-1 min-w-0">
+                   <div className="flex items-center gap-2 mb-1">
+-                    <CategoryIcon categoryId={categoryId} size={24} />
+-                    <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight truncate">
+-                      {categoryRules.label}
+-                    </h2>
++                    <CategoryIcon categoryId={categoryId} size={22} />
++                    <span
++                      className="text-xs font-bold uppercase tracking-wider"
++                      style={{ color: theme.ink }}
++                    >
++                      Classified Waste
++                    </span>
+                   </div>
+ 
+-                  <p className="text-sm font-bold text-[var(--color-primary-strong)]">
+-                    {confidencePct}% sure
+-                  </p>
++                  <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--color-text)] tracking-tight truncate">
++                    {categoryRules.label}
++                  </h2>
+ 
+-                  {/* Confidence progress bar */}
++                  <div className="flex items-center gap-2 mt-1">
++                    <span className="text-sm font-bold text-[var(--color-primary-strong)] tabular-nums">
++                      {confidencePct}% confidence
++                    </span>
++                    <span className="text-xs text-[var(--color-text-disabled)]">·</span>
++                    <span className="text-xs text-[var(--color-text-secondary)]">AI Model Verified</span>
++                  </div>
++
++                  {/* Confidence progress indicator */}
+                   <div
+                     role="progressbar"
+                     aria-valuenow={confidencePct}
+                     aria-valuemin="0"
+                     aria-valuemax="100"
+-                    className="w-full h-1.5 rounded-full bg-[var(--color-surface-sunken)] mt-3 overflow-hidden"
++                    className="w-full h-2 rounded-full bg-[var(--color-surface-sunken)] mt-3.5 overflow-hidden border border-[var(--color-border)]"
+                   >
+                     <div
+                       className="h-full rounded-full transition-all duration-700 ease-out"
+                       style={{
+-                        width: `${Math.min(100, Math.max(10, confidencePct))}%`,
++                        width: `${Math.min(100, Math.max(12, confidencePct))}%`,
+                         backgroundColor: theme.ink,
+                       }}
+                     />
+                   </div>
+                 </div>
+ 
+-                {/* Right: 112x112 photo preview with mint check badge */}
++                {/* Right: Photo preview thumbnail */}
+                 {result.previewUrl && (
+-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-[var(--color-surface-sunken)] shadow-sm">
++                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-[var(--color-surface-sunken)] shadow-xs">
+                     <img
+                       src={result.previewUrl}
+                       alt={categoryRules.label}
+                       className="w-full h-full object-cover"
+                     />
+-                    <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-strong)] flex items-center justify-center shadow-sm">
++                    <div className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full bg-white shadow-xs border border-[var(--color-border)] flex items-center justify-center">
+                       <Check className="w-3.5 h-3.5 text-[var(--color-primary-strong)]" strokeWidth={3} />
+                     </div>
+                   </div>
+@@ -151,42 +155,42 @@ export function ResultCard({
+               </div>
+             </section>
+ 
+-            {/* How to Dispose Steps Card */}
+-            <section className="card p-5 border border-[var(--color-border)] shadow-sm">
+-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
++            {/* How to Dispose Steps */}
++            <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+                 {STRINGS.result.howToDispose}
+-              </span>
++              </h3>
+ 
+-              <ol className="mt-3 space-y-3">
++              <ol className="mt-3.5 space-y-3">
+                 {categoryRules.steps.map((step, index) => (
+                   <li key={index} className="flex items-start gap-3 text-sm text-[var(--color-text)]">
+-                    <span className="w-5 h-5 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border-strong)] text-[var(--color-text)] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
++                    <span className="w-6 h-6 rounded-lg bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-secondary)] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 tabular-nums">
+                       {index + 1}
+                     </span>
+-                    <span className="leading-snug">{step}</span>
++                    <span className="leading-relaxed font-medium">{step}</span>
+                   </li>
+                 ))}
+               </ol>
+             </section>
+ 
+-            {/* SDG 15 Impact Fact Card (.card-mint) */}
+-            <section className="card card-mint p-4 flex items-start gap-3 border border-transparent">
+-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
+-                <Leaf className="w-4 h-4 text-[var(--color-primary-strong)]" />
++            {/* SDG 15 Impact Fact */}
++            <section className="card p-4 sm:p-5 flex items-start gap-3.5 border border-[var(--color-primary-soft)] bg-[var(--color-surface-alt)] shadow-xs">
++              <div className="w-9 h-9 rounded-xl bg-white flex items-center justify-center shrink-0 shadow-xs border border-[var(--color-border)] text-[var(--color-primary-strong)]">
++                <Leaf className="w-4 h-4" />
+               </div>
+-              <div>
+-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-primary-strong)]">
++              <div className="min-w-0">
++                <span className="text-[11px] font-black uppercase tracking-wider text-[var(--color-primary-strong)]">
+                   {STRINGS.result.sdgOverline}
+                 </span>
+-                <p className="text-xs text-[var(--color-text)] mt-1 leading-relaxed">
++                <p className="text-xs sm:text-sm text-[var(--color-text)] mt-1 leading-relaxed">
+                   {categoryRules.sdgFact}
+                 </p>
+               </div>
+             </section>
+ 
+-            {/* Feedback Row */}
+-            <section className="card p-4 flex items-center justify-between border border-[var(--color-border)] shadow-xs">
+-              <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
++            {/* Feedback Widget */}
++            <section className="card p-4 flex items-center justify-between border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++              <span className="text-xs font-medium text-[var(--color-text-secondary)]">
+                 {feedback ? STRINGS.result.feedbackThanks : STRINGS.result.wasCorrect}
+               </span>
+ 
+@@ -194,28 +198,30 @@ export function ResultCard({
+                 <button
+                   type="button"
+                   onClick={() => handleThumbClick('up')}
+-                  aria-label="Thumbs up"
++                  aria-label="Correct classification"
+                   aria-pressed={feedback === 'up'}
+-                  className={`btn-icon flex items-center justify-center transition-all ${
++                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                     feedback === 'up'
+-                      ? 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)] ring-1 ring-[var(--color-success)]'
+-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
++                      ? 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)]/40 font-bold'
++                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] border border-[var(--color-border)]'
+                   }`}
+                 >
+-                  <ThumbsUp className="w-4 h-4" />
++                  <ThumbsUp className="w-3.5 h-3.5" />
++                  <span>Correct</span>
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => handleThumbClick('down')}
+-                  aria-label="Thumbs down"
++                  aria-label="Incorrect classification"
+                   aria-pressed={feedback === 'down'}
+-                  className={`btn-icon flex items-center justify-center transition-all ${
++                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                     feedback === 'down'
+-                      ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)] ring-1 ring-[var(--color-warning)]'
+-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
++                      ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)]/40 font-bold'
++                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] border border-[var(--color-border)]'
+                   }`}
+                 >
+-                  <ThumbsDown className="w-4 h-4" />
++                  <ThumbsDown className="w-3.5 h-3.5" />
++                  <span>Incorrect</span>
+                 </button>
+               </div>
+             </section>
+@@ -225,9 +231,9 @@ export function ResultCard({
+               <button
+                 type="button"
+                 onClick={onScanAnother}
+-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base shadow-sm"
++                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-sm font-bold shadow-xs active:scale-[0.98] transition-all"
+               >
+-                <Camera className="w-5 h-5 text-white" />
++                <Camera className="w-4 h-4 text-white" />
+                 <span>{STRINGS.result.scanAnother}</span>
+               </button>
+             </div>
+@@ -237,22 +243,25 @@ export function ResultCard({
+         {/* ================= NOT SURE / LOW CONFIDENCE STATE ================= */}
+         {!isConfident && (
+           <>
+-            <section className="card card-hero p-5 border border-[#FFE082] bg-[var(--color-warning-soft)] shadow-md">
++            <section className="card card-hero p-5 sm:p-6 border border-amber-200 bg-amber-50/60 shadow-sm">
+               <div className="flex items-center justify-between gap-4">
+                 <div className="flex-1">
+-                  <div className="flex items-center gap-2 mb-1">
+-                    <CircleHelp className="w-6 h-6 text-[var(--color-warning)]" />
+-                    <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight">
+-                      {STRINGS.result.notSureTitle}
+-                    </h2>
++                  <div className="flex items-center gap-2 mb-1.5">
++                    <CircleHelp className="w-5 h-5 text-amber-700" />
++                    <span className="text-xs font-bold uppercase tracking-wider text-amber-800">
++                      Uncertain Match
++                    </span>
+                   </div>
+-                  <p className="text-sm font-semibold text-[var(--color-text-secondary)]">
++                  <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight">
++                    {STRINGS.result.notSureTitle}
++                  </h2>
++                  <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1 leading-relaxed">
+                     {STRINGS.result.notSureMessage}
+                   </p>
+                 </div>
+ 
+                 {result.previewUrl && (
+-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-white shadow-sm">
++                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-amber-200 bg-white shadow-xs">
+                     <img
+                       src={result.previewUrl}
+                       alt="Captured item"
+@@ -264,19 +273,19 @@ export function ResultCard({
+             </section>
+ 
+             {/* Tips Card */}
+-            <section className="card p-5 border border-[var(--color-border)] shadow-sm">
+-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+-                Scanning Tips
+-              </span>
++            <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
++                Scanning Suggestions
++              </h3>
+ 
+-              <ul className="mt-3 space-y-2.5">
+-                <li className="flex items-center gap-2.5 text-sm text-[var(--color-text)]">
+-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0" />
+-                  <span>{STRINGS.result.tipAnotherAngle}</span>
++              <ul className="mt-3.5 space-y-2.5">
++                <li className="flex items-start gap-2.5 text-xs sm:text-sm text-[var(--color-text)]">
++                  <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
++                  <span className="leading-relaxed">{STRINGS.result.tipAnotherAngle}</span>
+                 </li>
+-                <li className="flex items-center gap-2.5 text-sm text-[var(--color-text)]">
+-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0" />
+-                  <span>{STRINGS.result.tipOneItem}</span>
++                <li className="flex items-start gap-2.5 text-xs sm:text-sm text-[var(--color-text)]">
++                  <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
++                  <span className="leading-relaxed">{STRINGS.result.tipOneItem}</span>
+                 </li>
+               </ul>
+             </section>
+@@ -286,9 +295,9 @@ export function ResultCard({
+               <button
+                 type="button"
+                 onClick={onScanAnother}
+-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base shadow-sm"
++                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-sm font-bold shadow-xs active:scale-[0.98] transition-all"
+               >
+-                <Camera className="w-5 h-5 text-white" />
++                <Camera className="w-4 h-4 text-white" />
+                 <span>{STRINGS.result.scanAnother}</span>
+               </button>
+             </div>
+diff --git a/src/components/ScanSheet.jsx b/src/components/ScanSheet.jsx
+index 77b7e20..1a43d31 100644
+--- a/src/components/ScanSheet.jsx
++++ b/src/components/ScanSheet.jsx
+@@ -28,36 +28,36 @@ export function ScanSheet({
+       aria-labelledby="scansheet-title"
+       className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4"
+     >
+-      {/* Dimmed backdrop */}
++      {/* Dimmed backdrop with subtle blur */}
+       <div
+-        className="fixed inset-0 bg-[#0E2A1F]/45 transition-opacity"
++        className="fixed inset-0 bg-[#0E2A1F]/50 backdrop-blur-xs transition-opacity duration-200"
+         onClick={onClose}
+         aria-hidden="true"
+       />
+ 
+       {/* Sheet Panel */}
+-      <div className="relative z-10 w-full max-w-[440px] bg-[var(--color-surface)] rounded-t-[28px] md:rounded-[28px] p-6 shadow-lg border border-[var(--color-border)] animate-in fade-in slide-in-from-bottom-6 duration-200">
+-        {/* Handle for mobile */}
+-        <div className="w-9 h-1 rounded-full bg-[var(--color-border-strong)] mx-auto mb-4 md:hidden" />
++      <div className="relative z-10 w-full max-w-[440px] bg-[var(--color-surface)] rounded-t-3xl md:rounded-3xl p-6 shadow-xl border border-[var(--color-border)] animate-in fade-in slide-in-from-bottom-6 duration-200">
++        {/* Drag handle for mobile */}
++        <div className="w-10 h-1 rounded-full bg-[var(--color-border-strong)] mx-auto mb-4 md:hidden" />
+ 
+-        <div className="flex items-center justify-between mb-4">
++        <div className="flex items-center justify-between mb-2">
+           <h2
+             id="scansheet-title"
+-            className="text-lg font-bold text-[var(--color-text)] tracking-tight"
++            className="text-lg font-extrabold text-[var(--color-text)] tracking-tight"
+           >
+             {STRINGS.scanSheet.title}
+           </h2>
+           <button
+             type="button"
+             onClick={onClose}
+-            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all"
++            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all"
+             aria-label="Close sheet"
+           >
+-            <X className="w-5 h-5" />
++            <X className="w-4 h-4" />
+           </button>
+         </div>
+ 
+-        <p className="text-sm text-[var(--color-text-secondary)] mb-6">
++        <p className="text-xs text-[var(--color-text-secondary)] mb-6">
+           {STRINGS.home.scanSubtitle}
+         </p>
+ 
+@@ -69,9 +69,9 @@ export function ScanSheet({
+               onClose()
+               onTakePhoto()
+             }}
+-            className="btn btn-primary w-full shadow-sm flex items-center justify-center gap-3 text-base"
++            className="btn btn-primary w-full shadow-xs flex items-center justify-center gap-3 text-sm font-bold active:scale-[0.98] transition-all"
+           >
+-            <Camera className="w-5 h-5 text-white" />
++            <Camera className="w-4 h-4 text-white" />
+             <span>{STRINGS.scanSheet.takePhoto}</span>
+           </button>
+ 
+@@ -82,9 +82,9 @@ export function ScanSheet({
+               onClose()
+               onChooseGallery()
+             }}
+-            className="btn btn-secondary w-full flex items-center justify-center gap-3 text-base"
++            className="btn btn-tonal w-full flex items-center justify-center gap-3 text-sm font-bold active:scale-[0.98] transition-all"
+           >
+-            <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)]" />
++            <ImageIcon className="w-4 h-4 text-[var(--color-primary-strong)]" />
+             <span>{STRINGS.scanSheet.chooseGallery}</span>
+           </button>
+         </div>
+diff --git a/src/components/Scanner.jsx b/src/components/Scanner.jsx
+index ef1b597..7ce4196 100644
+--- a/src/components/Scanner.jsx
++++ b/src/components/Scanner.jsx
+@@ -1,5 +1,15 @@
+-import React from 'react'
+-import { Recycle, Lightbulb, Image as ImageIcon, Camera } from 'lucide-react'
++import React, { useState, useCallback } from 'react'
++import {
++  Recycle,
++  Camera,
++  Image as ImageIcon,
++  Sparkles,
++  Loader2,
++  UploadCloud,
++  CheckCircle2,
++  Shield,
++  Zap,
++} from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ 
+ export function Scanner({
+@@ -7,52 +17,101 @@ export function Scanner({
+   loadingText = STRINGS.home.loadingModel,
+   onGalleryClick,
+   onCameraClick,
++  onDropFile,
++  onSelectSample,
+ }) {
++  const [isDragOver, setIsDragOver] = useState(false)
++
++  const handleDragOver = useCallback((e) => {
++    e.preventDefault()
++    e.stopPropagation()
++    if (!ready) return
++    setIsDragOver(true)
++  }, [ready])
++
++  const handleDragLeave = useCallback((e) => {
++    e.preventDefault()
++    e.stopPropagation()
++    setIsDragOver(false)
++  }, [])
++
++  const handleDrop = useCallback((e) => {
++    e.preventDefault()
++    e.stopPropagation()
++    setIsDragOver(false)
++    if (!ready) return
++
++    const files = e.dataTransfer?.files
++    if (files && files.length > 0 && onDropFile) {
++      onDropFile(files[0])
++    }
++  }, [ready, onDropFile])
++
+   return (
+     <section
+       aria-label="Scan Station"
+-      className="card card-hero p-6 flex flex-col items-center text-center border border-[var(--color-border)] shadow-md relative overflow-hidden"
++      className="card card-hero p-5 sm:p-6 flex flex-col items-center text-center border border-[var(--color-border)] shadow-xs relative overflow-hidden transition-all bg-[var(--color-surface)]"
++      onDragOver={handleDragOver}
++      onDragLeave={handleDragLeave}
++      onDrop={handleDrop}
+     >
+-      {/* Lens with Recycle glyph and static scan line */}
++      {/* Drag & Drop Visual Overlay */}
++      {isDragOver && (
++        <div className="absolute inset-0 z-30 bg-[#0F9D58]/90 text-white flex flex-col items-center justify-center p-6 backdrop-blur-xs animate-in fade-in duration-150">
++          <UploadCloud className="w-16 h-16 animate-bounce mb-3 text-white" />
++          <h3 className="text-xl font-black tracking-tight">Drop your waste photo here</h3>
++          <p className="text-xs text-white/90 mt-1">Our on-device AI will identify the material instantly</p>
++        </div>
++      )}
++
++      {/* Interactive Viewfinder Aperture */}
+       <div
+-        className="relative w-40 h-40 my-2 flex items-center justify-center rounded-[28px] bg-[var(--color-surface-sunken)] border border-[var(--color-border)] cursor-pointer group"
++        className="relative w-44 h-44 sm:w-48 sm:h-48 my-1 flex items-center justify-center rounded-3xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] cursor-pointer group transition-all duration-300 hover:border-[var(--color-primary)] hover:shadow-md"
+         onClick={ready && onCameraClick ? onCameraClick : undefined}
+         role={onCameraClick ? 'button' : undefined}
+         tabIndex={onCameraClick ? 0 : undefined}
+-        aria-label={STRINGS.home.scanTitle}
++        aria-label="Activate camera to scan waste"
+       >
+-        {/* Subtle static scan line */}
+-        <div
+-          className="absolute left-4 right-4 h-[2px] bg-[var(--color-primary)] opacity-60 shadow-sm"
+-          aria-hidden="true"
+-        />
+-
+-        {/* Center recycle badge */}
+-        <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-[var(--color-border)] group-hover:scale-105 transition-transform">
++        {/* Viewfinder reticle brackets */}
++        <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[var(--color-primary)]/50 rounded-tl-xs group-hover:border-[var(--color-primary)] transition-colors" />
++        <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[var(--color-primary)]/50 rounded-tr-xs group-hover:border-[var(--color-primary)] transition-colors" />
++        <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[var(--color-primary)]/50 rounded-bl-xs group-hover:border-[var(--color-primary)] transition-colors" />
++        <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[var(--color-primary)]/50 rounded-br-xs group-hover:border-[var(--color-primary)] transition-colors" />
++
++        {/* Center lens emblem */}
++        <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-2xl bg-white flex items-center justify-center shadow-xs border border-[var(--color-border)] group-hover:scale-105 group-hover:shadow-sm transition-all duration-200">
+           <Recycle
+-            className="w-10 h-10 text-[var(--color-primary-strong)] animate-pulse"
++            className="w-10 h-10 sm:w-11 sm:h-11 text-[var(--color-primary-strong)] group-hover:rotate-12 transition-transform duration-300"
+             strokeWidth={1.8}
+           />
+         </div>
++
++        {/* Sub-label inside viewfinder */}
++        <div className="absolute bottom-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-primary-strong)] transition-colors">
++          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
++          <span>Tap or drag photo</span>
++        </div>
+       </div>
+ 
+-      {/* Headings */}
+-      <h2 className="text-xl font-bold text-[var(--color-text)] tracking-tight mt-3">
+-        {STRINGS.home.scanTitle}
+-      </h2>
+-      <p className="text-sm text-[var(--color-text-secondary)] mt-1 max-w-[280px]">
+-        {STRINGS.home.scanSubtitle}
+-      </p>
++      {/* Title & Subtitle */}
++      <div className="mt-3">
++        <h2 className="text-xl sm:text-2xl font-black text-[var(--color-text)] tracking-tight">
++          {STRINGS.home.scanTitle}
++        </h2>
++        <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1 max-w-[340px] leading-relaxed mx-auto">
++          {STRINGS.home.scanSubtitle}
++        </p>
++      </div>
+ 
+       {/* Action Buttons */}
+-      <div className="w-full flex flex-col gap-2.5 mt-5">
++      <div className="w-full flex flex-col sm:flex-row gap-2.5 mt-4">
+         <button
+           type="button"
+           onClick={onCameraClick}
+           disabled={!ready}
+-          className="btn btn-primary w-full shadow-sm flex items-center justify-center gap-2.5"
++          className="btn btn-primary flex-1 shadow-xs flex items-center justify-center gap-2.5 text-sm font-bold active:scale-[0.98] transition-all"
+         >
+-          <Camera className="w-5 h-5 text-white" />
++          <Camera className="w-4 h-4 text-white" />
+           <span>{STRINGS.home.btnCamera}</span>
+         </button>
+ 
+@@ -60,29 +119,91 @@ export function Scanner({
+           type="button"
+           onClick={onGalleryClick}
+           disabled={!ready}
+-          className="btn btn-tonal w-full flex items-center justify-center gap-2.5"
++          className="btn btn-tonal flex-1 flex items-center justify-center gap-2.5 text-sm font-bold active:scale-[0.98] transition-all"
+         >
+-          <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)]" />
++          <ImageIcon className="w-4 h-4 text-[var(--color-primary-strong)]" />
+           <span>{STRINGS.home.btnGallery}</span>
+         </button>
+       </div>
+ 
+-      {/* Hints */}
+-      <div className="w-full space-y-2 mt-5 text-left">
+-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]">
+-          <Lightbulb className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" />
+-          <span>{STRINGS.home.hintOneItem}</span>
+-        </div>
+-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)]">
+-          <Lightbulb className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" />
+-          <span>{STRINGS.home.hintGoodLight}</span>
++      {/* Interactive Quick-Try Sample Items */}
++      {onSelectSample && (
++        <div className="w-full mt-4 pt-3.5 border-t border-[var(--color-divider)]">
++          <div className="flex items-center justify-between text-xs mb-2">
++            <span className="font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] text-[10px]">
++              No photo nearby? Try an instant sample
++            </span>
++            <span className="text-[10px] font-semibold text-[var(--color-primary-strong)] flex items-center gap-0.5">
++              <Zap className="w-3 h-3" />
++              1-Click Test
++            </span>
++          </div>
++
++          <div className="grid grid-cols-3 gap-2">
++            <button
++              type="button"
++              onClick={() => onSelectSample('bottle')}
++              disabled={!ready}
++              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#1565C0] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
++              title="Test classification with a plastic water bottle"
++            >
++              <span className="text-base">🥤</span>
++              <span className="text-[11px] group-hover:text-[#1565C0] truncate w-full text-center">
++                Water Bottle
++              </span>
++            </button>
++
++            <button
++              type="button"
++              onClick={() => onSelectSample('organic')}
++              disabled={!ready}
++              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#2E7D32] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
++              title="Test classification with banana peel scraps"
++            >
++              <span className="text-base">🍌</span>
++              <span className="text-[11px] group-hover:text-[#2E7D32] truncate w-full text-center">
++                Banana Peel
++              </span>
++            </button>
++
++            <button
++              type="button"
++              onClick={() => onSelectSample('battery')}
++              disabled={!ready}
++              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#C62828] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
++              title="Test classification with a household battery"
++            >
++              <span className="text-base">🔋</span>
++              <span className="text-[11px] group-hover:text-[#C62828] truncate w-full text-center">
++                AA Battery
++              </span>
++            </button>
++          </div>
+         </div>
++      )}
++
++      {/* On-Device Security & Speed Assurance */}
++      <div className="w-full mt-3.5 flex items-center justify-center gap-4 text-[11px] text-[var(--color-text-muted)] font-medium">
++        <span className="flex items-center gap-1">
++          <Shield className="w-3 h-3 text-[var(--color-primary-strong)]" />
++          <span>100% Private</span>
++        </span>
++        <span aria-hidden="true">·</span>
++        <span className="flex items-center gap-1">
++          <Zap className="w-3 h-3 text-[var(--color-primary-strong)]" />
++          <span>Zero Server Lag</span>
++        </span>
++        <span aria-hidden="true">·</span>
++        <span className="flex items-center gap-1">
++          <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-strong)]" />
++          <span>SDG 15 Verified</span>
++        </span>
+       </div>
+ 
+-      {/* Model Loading Status Chip */}
++      {/* Model Loading State */}
+       {!ready && (
+-        <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs font-semibold text-[var(--color-primary-strong)]">
+-          <span className="w-2 h-2 rounded-full bg-[var(--color-primary-strong)] animate-ping" />
++        <div className="inline-flex items-center gap-2 mt-3.5 px-3 py-1.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs font-semibold text-[var(--color-primary-strong)] animate-pulse">
++          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+           <span>{loadingText}</span>
+         </div>
+       )}
+diff --git a/src/components/Sidebar.jsx b/src/components/Sidebar.jsx
+index 672c8cf..4eeeab5 100644
+--- a/src/components/Sidebar.jsx
++++ b/src/components/Sidebar.jsx
+@@ -1,5 +1,5 @@
+ import React from 'react'
+-import { Home, History, TrendingUp, ScanLine } from 'lucide-react'
++import { Home, History, TrendingUp, ScanLine, Leaf } from 'lucide-react'
+ import { STRINGS } from '../lib/strings'
+ 
+ export function Sidebar({
+@@ -13,12 +13,12 @@ export function Sidebar({
+   return (
+     <aside
+       aria-label="Desktop Navigation"
+-      className="hidden lg:flex flex-col w-60 shrink-0 h-screen sticky top-0 bg-[var(--color-surface)] border-r border-[var(--color-border)] p-6 justify-between"
++      className="hidden lg:flex flex-col w-64 shrink-0 h-screen sticky top-0 bg-[var(--color-surface)] border-r border-[var(--color-border)] p-6 justify-between select-none"
+     >
+       <div>
+         {/* Brand header */}
+-        <div className="mb-8 flex items-center gap-3">
+-          <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-sm border border-[#C6D9CC] shrink-0">
++        <div className="mb-7 flex items-center gap-3">
++          <div className="relative w-11 h-11 rounded-2xl overflow-hidden shadow-xs border border-[var(--color-border)] shrink-0 bg-[var(--color-surface-sunken)]">
+             <img
+               src="/logo.png"
+               alt="BinGo logo"
+@@ -26,13 +26,13 @@ export function Sidebar({
+             />
+           </div>
+           <div>
+-            <h1 className="text-xl font-black tracking-tight leading-none flex items-center gap-1.5">
+-              <span><span className="text-[#0E2A1F]">Bin</span><span className="text-[#0F9D58]">Go</span></span>
+-              <span className="text-[9px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)]">
+-                SDG 15
+-              </span>
++            <h1 className="text-xl font-black tracking-tight leading-none flex items-center gap-1 text-[var(--color-text)]">
++              <span>Bin</span>
++              <span className="text-[var(--color-primary)]">Go</span>
+             </h1>
+-            <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">{STRINGS.app.tagline}</p>
++            <p className="text-[11px] font-semibold text-[var(--color-text-secondary)] mt-1">
++              SDG 15 · Life on Land
++            </p>
+           </div>
+         </div>
+ 
+@@ -41,29 +41,26 @@ export function Sidebar({
+           type="button"
+           onClick={onOpenScanSheet}
+           disabled={scanDisabled}
+-          className="btn btn-primary w-full shadow-md flex items-center justify-center gap-2.5 mb-8 text-sm"
++          className="btn btn-primary w-full shadow-xs flex items-center justify-center gap-2.5 mb-7 text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-all"
+         >
+-          <ScanLine className="w-5 h-5 text-white" />
++          <ScanLine className="w-4 h-4 text-white" strokeWidth={2.25} />
+           <span>Scan an item</span>
+         </button>
+ 
+         {/* Nav list */}
+-        <nav className="flex flex-col gap-1.5">
++        <nav className="flex flex-col gap-1.5" aria-label="Main Menu">
+           {/* Home */}
+           <button
+             type="button"
+             onClick={onHome}
+             aria-current={active === 'home' ? 'page' : undefined}
+-            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all relative ${
++            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all relative ${
+               active === 'home'
+                 ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]'
+                 : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            {active === 'home' && (
+-              <span className="absolute left-0 top-2 bottom-2 w-1 bg-[var(--color-primary-strong)] rounded-r-full" />
+-            )}
+-            <Home className="w-5 h-5" strokeWidth={active === 'home' ? 2.5 : 2} />
++            <Home className="w-4 h-4" strokeWidth={active === 'home' ? 2.5 : 2} />
+             <span>{STRINGS.nav.home}</span>
+           </button>
+ 
+@@ -72,16 +69,13 @@ export function Sidebar({
+             type="button"
+             onClick={onImpact}
+             aria-current={active === 'impact' ? 'page' : undefined}
+-            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all relative ${
++            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all relative ${
+               active === 'impact'
+                 ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]'
+                 : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            {active === 'impact' && (
+-              <span className="absolute left-0 top-2 bottom-2 w-1 bg-[var(--color-primary-strong)] rounded-r-full" />
+-            )}
+-            <TrendingUp className="w-5 h-5" strokeWidth={active === 'impact' ? 2.5 : 2} />
++            <TrendingUp className="w-4 h-4" strokeWidth={active === 'impact' ? 2.5 : 2} />
+             <span>{STRINGS.nav.impact}</span>
+           </button>
+ 
+@@ -90,23 +84,25 @@ export function Sidebar({
+             type="button"
+             onClick={onHistory}
+             aria-current={active === 'history' ? 'page' : undefined}
+-            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold transition-all relative ${
++            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all relative ${
+               active === 'history'
+                 ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)]'
+                 : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)]'
+             }`}
+           >
+-            {active === 'history' && (
+-              <span className="absolute left-0 top-2 bottom-2 w-1 bg-[var(--color-primary-strong)] rounded-r-full" />
+-            )}
+-            <History className="w-5 h-5" strokeWidth={active === 'history' ? 2.5 : 2} />
++            <History className="w-4 h-4" strokeWidth={active === 'history' ? 2.5 : 2} />
+             <span>{STRINGS.nav.history}</span>
+           </button>
+         </nav>
+       </div>
+ 
+-      <div className="p-3 rounded-xl bg-[var(--color-surface-sunken)] text-[11px] text-[var(--color-text-muted)] leading-relaxed">
+-        SDG 15 — Life on Land. Every sorted item helps reduce landfill pollution.
++      {/* Sustainable Mission Note */}
++      <div className="p-3.5 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] leading-relaxed">
++        <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--color-primary-strong)] mb-1">
++          <Leaf className="w-3.5 h-3.5" />
++          <span>SDG 15 Impact</span>
++        </div>
++        Every correctly sorted item protects soil quality and halts landfill runoff.
+       </div>
+     </aside>
+   )
+diff --git a/src/components/TopBar.jsx b/src/components/TopBar.jsx
+index 74a8a0e..059fc96 100644
+--- a/src/components/TopBar.jsx
++++ b/src/components/TopBar.jsx
+@@ -3,36 +3,36 @@ import { ArrowLeft, X } from 'lucide-react'
+ 
+ export function TopBar({ title, onBack, onClose }) {
+   return (
+-    <header className="sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[var(--color-surface)]/90 backdrop-blur-none border-b border-[var(--color-border)]">
+-      <div className="w-11 h-11 flex items-center justify-start">
++    <header className="sticky top-0 z-30 flex items-center justify-between px-2 sm:px-4 py-2.5 bg-[var(--color-surface)]/90 backdrop-blur-md border-b border-[var(--color-border)] rounded-2xl mb-2">
++      <div className="w-10 h-10 flex items-center justify-start">
+         {onBack && (
+           <button
+             type="button"
+             onClick={onBack}
+-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)]"
++            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)] shadow-xs"
+             aria-label="Go back"
+           >
+-            <ArrowLeft className="w-5 h-5 text-[var(--color-text)]" strokeWidth={2.25} />
++            <ArrowLeft className="w-4 h-4 text-[var(--color-text)]" strokeWidth={2} />
+           </button>
+         )}
+         {onClose && !onBack && (
+           <button
+             type="button"
+             onClick={onClose}
+-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)]"
++            className="w-9 h-9 flex items-center justify-center rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] active:scale-95 text-[var(--color-text)] transition-all border border-[var(--color-border)] shadow-xs"
+             aria-label="Close"
+           >
+-            <X className="w-5 h-5 text-[var(--color-text)]" strokeWidth={2.25} />
++            <X className="w-4 h-4 text-[var(--color-text)]" strokeWidth={2} />
+           </button>
+         )}
+       </div>
+ 
+-      <h1 className="text-lg font-bold text-[var(--color-text)] tracking-tight text-center truncate max-w-[240px]">
++      <h1 className="text-base font-extrabold text-[var(--color-text)] tracking-tight text-center truncate max-w-[240px]">
+         {title}
+       </h1>
+ 
+       {/* Spacer to keep title centered */}
+-      <div className="w-11 h-11" aria-hidden="true" />
++      <div className="w-10 h-10" aria-hidden="true" />
+     </header>
+   )
+ }
+diff --git a/src/components/WasteAnalyticsChart.jsx b/src/components/WasteAnalyticsChart.jsx
+new file mode 100644
+index 0000000..5c8ea22
+--- /dev/null
++++ b/src/components/WasteAnalyticsChart.jsx
+@@ -0,0 +1,859 @@
++import React, { useState, useMemo } from 'react'
++import {
++  ResponsiveContainer,
++  BarChart,
++  Bar,
++  AreaChart,
++  Area,
++  PieChart,
++  Pie,
++  Cell,
++  XAxis,
++  YAxis,
++  Tooltip,
++  CartesianGrid,
++} from 'recharts'
++import {
++  Trophy,
++  Award,
++  Zap,
++  Leaf,
++  BarChart3,
++  TrendingUp,
++  PieChart as PieIcon,
++  Sparkles,
++  ShieldCheck,
++  CheckCircle2,
++  Info,
++} from 'lucide-react'
++import { localDateKey } from '../lib/date'
++import { CATEGORY_THEME } from '../lib/categoryTheme'
++
++// Exact brand category colors
++const CATEGORY_COLORS = {
++  recyclable: '#1565C0',
++  organic: '#2E7D32',
++  ewaste: '#6A3DB8',
++  hazardous: '#C62828',
++  general: '#5F6B63',
++}
++
++const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
++
++// Sample timeline for starter/demo mode to showcase gamified visualization immediately
++function generateSampleHistory() {
++  const sample = []
++  const now = Date.now()
++  const daysAgo = (d, h = 12) => now - (d * 24 * 60 * 60 * 1000) + (h * 60 * 60 * 1000)
++
++  const template = [
++    { cat: 'recyclable', days: 6, count: 2 },
++    { cat: 'organic', days: 6, count: 1 },
++    { cat: 'recyclable', days: 5, count: 3 },
++    { cat: 'general', days: 5, count: 1 },
++    { cat: 'organic', days: 4, count: 2 },
++    { cat: 'ewaste', days: 4, count: 1 },
++    { cat: 'recyclable', days: 3, count: 4 },
++    { cat: 'organic', days: 3, count: 3 },
++    { cat: 'hazardous', days: 2, count: 1 },
++    { cat: 'recyclable', days: 2, count: 2 },
++    { cat: 'organic', days: 1, count: 3 },
++    { cat: 'general', days: 1, count: 1 },
++    { cat: 'recyclable', days: 0, count: 3 },
++    { cat: 'organic', days: 0, count: 2 },
++    { cat: 'ewaste', days: 0, count: 1 },
++  ]
++
++  template.forEach(({ cat, days, count }, idx) => {
++    for (let i = 0; i < count; i++) {
++      sample.push({
++        id: `sample_${idx}_${i}`,
++        ts: daysAgo(days, 9 + i * 2),
++        categoryId: cat,
++        confidence: 0.88 + (i * 0.03),
++        feedback: i % 2 === 0 ? 'up' : null,
++      })
++    }
++  })
++  return sample
++}
++
++export function WasteAnalyticsChart({
++  history = [],
++  streak = 0,
++  byCategory = {},
++  totalSorted = 0,
++  onOpenScanSheet,
++}) {
++  const [timeRange, setTimeRange] = useState('7d') // '7d' | '30d' | 'cumulative'
++  const [chartType, setChartType] = useState('bar') // 'bar' | 'area' | 'pie'
++  const [categoryFilter, setCategoryFilter] = useState('all') // 'all' | categoryKey
++  const [useSampleData, setUseSampleData] = useState(() => history.length === 0)
++
++  const activeHistory = useMemo(() => {
++    if (useSampleData || history.length === 0) {
++      return generateSampleHistory()
++    }
++    return history
++  }, [history, useSampleData])
++
++  // Gamification: Calculate Eco XP and Player Level
++  const { xp, level, nextLevelXp, levelTitle, xpProgressPct } = useMemo(() => {
++    let earnedXp = 0
++    activeHistory.forEach((item) => {
++      const cat = item.categoryId
++      if (cat === 'hazardous') earnedXp += 30
++      else if (cat === 'ewaste') earnedXp += 25
++      else if (cat === 'organic') earnedXp += 15
++      else if (cat === 'recyclable') earnedXp += 12
++      else earnedXp += 6
++      if (item.feedback === 'up') earnedXp += 5
++    })
++
++    // Streak multiplier
++    const effectiveStreak = useSampleData ? 4 : streak
++    if (effectiveStreak > 0) {
++      const multiplier = Math.min(1.5, 1 + effectiveStreak * 0.05)
++      earnedXp = Math.round(earnedXp * multiplier)
++    }
++
++    const tiers = [
++      { lvl: 1, title: 'Seedling Sorter', min: 0, max: 60 },
++      { lvl: 2, title: 'Soil Guardian', min: 60, max: 160 },
++      { lvl: 3, title: 'Forest Protector', min: 160, max: 320 },
++      { lvl: 4, title: 'Biodiversity Sentinel', min: 320, max: 550 },
++      { lvl: 5, title: 'Zero-Waste Master', min: 550, max: 99999 },
++    ]
++
++    const curTier = tiers.find((t) => earnedXp >= t.min && earnedXp < t.max) || tiers[tiers.length - 1]
++    const range = curTier.max - curTier.min
++    const curProgress = earnedXp - curTier.min
++    const progressPct = curTier.lvl === 5 ? 100 : Math.min(100, Math.round((curProgress / range) * 100))
++
++    return {
++      xp: earnedXp,
++      level: curTier.lvl,
++      nextLevelXp: curTier.max,
++      levelTitle: curTier.title,
++      xpProgressPct: progressPct,
++    }
++  }, [activeHistory, streak, useSampleData])
++
++  // Environmental Impact Stats calculated over the dataset
++  const impactStats = useMemo(() => {
++    const counts = { recyclable: 0, organic: 0, ewaste: 0, hazardous: 0, general: 0 }
++    activeHistory.forEach((item) => {
++      if (counts[item.categoryId] !== undefined) {
++        counts[item.categoryId]++
++      }
++    })
++    const total = activeHistory.length
++    const diverted = counts.recyclable + counts.organic + counts.ewaste + counts.hazardous
++    const diversionRate = total > 0 ? Math.round((diverted / total) * 100) : 0
++    const co2AvoidedKg = (
++      counts.recyclable * 0.42 +
++      counts.organic * 0.65 +
++      counts.ewaste * 1.85 +
++      counts.hazardous * 1.3
++    ).toFixed(1)
++    const soilAreaProtectedSqFt = (diverted * 1.75).toFixed(1)
++
++    return {
++      counts,
++      total,
++      diverted,
++      diversionRate,
++      co2AvoidedKg,
++      soilAreaProtectedSqFt,
++    }
++  }, [activeHistory])
++
++  // Aggregated data points over time for Recharts
++  const chartData = useMemo(() => {
++    const today = new Date()
++    const daysCount = timeRange === '30d' ? 30 : 7
++
++    // Build timeline buckets
++    const buckets = []
++    for (let i = daysCount - 1; i >= 0; i--) {
++      const d = new Date(today)
++      d.setDate(today.getDate() - i)
++      const key = localDateKey(d)
++      const label =
++        daysCount === 7
++          ? d.toLocaleDateString(undefined, { weekday: 'short' })
++          : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
++      buckets.push({
++        dateKey: key,
++        displayDate: label,
++        recyclable: 0,
++        organic: 0,
++        ewaste: 0,
++        hazardous: 0,
++        general: 0,
++        total: 0,
++        cumulativeTotal: 0,
++      })
++    }
++
++    const bucketMap = new Map(buckets.map((b) => [b.dateKey, b]))
++
++    activeHistory.forEach((item) => {
++      const ts = item.ts || item.timestamp
++      if (!ts) return
++      const itemKey = localDateKey(new Date(ts))
++      const bucket = bucketMap.get(itemKey)
++      if (bucket) {
++        const cat = item.categoryId
++        if (bucket[cat] !== undefined) {
++          bucket[cat]++
++          bucket.total++
++        }
++      }
++    })
++
++    // Compute cumulative totals
++    let runningTotal = 0
++    let runningRecyclable = 0
++    let runningOrganic = 0
++    let runningEwaste = 0
++    let runningHazardous = 0
++    let runningGeneral = 0
++
++    buckets.forEach((b) => {
++      runningTotal += b.total
++      runningRecyclable += b.recyclable
++      runningOrganic += b.organic
++      runningEwaste += b.ewaste
++      runningHazardous += b.hazardous
++      runningGeneral += b.general
++
++      b.cumulativeTotal = runningTotal
++      b.cumRecyclable = runningRecyclable
++      b.cumOrganic = runningOrganic
++      b.cumEwaste = runningEwaste
++      b.cumHazardous = runningHazardous
++      b.cumGeneral = runningGeneral
++    })
++
++    return buckets
++  }, [activeHistory, timeRange])
++
++  // Pie chart breakdown data
++  const pieData = useMemo(() => {
++    return CATEGORY_KEYS.map((key) => {
++      const count = impactStats.counts[key] || 0
++      return {
++        name: CATEGORY_THEME[key]?.label || key,
++        key,
++        value: count,
++        color: CATEGORY_COLORS[key],
++      }
++    }).filter((item) => item.value > 0)
++  }, [impactStats])
++
++  // Gamification Milestones
++  const milestones = useMemo(() => {
++    const total = impactStats.total
++    const organics = impactStats.counts.organic || 0
++    const recyclables = impactStats.counts.recyclable || 0
++    const toxics = (impactStats.counts.ewaste || 0) + (impactStats.counts.hazardous || 0)
++    const activeStreak = useSampleData ? 4 : streak
++
++    return [
++      {
++        id: 'first_divert',
++        title: 'Pioneer Sorter',
++        desc: 'Sort your 1st waste item',
++        target: 1,
++        current: total,
++        unlocked: total >= 1,
++        icon: Leaf,
++        color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
++      },
++      {
++        id: 'streak_3',
++        title: 'Habit Igniter',
++        desc: 'Maintain a 3+ day streak',
++        target: 3,
++        current: activeStreak,
++        unlocked: activeStreak >= 3,
++        icon: Zap,
++        color: 'text-amber-700 bg-amber-50 border-amber-200',
++      },
++      {
++        id: 'organic_5',
++        title: 'Soil Nourisher',
++        desc: 'Divert 5+ organic items',
++        target: 5,
++        current: organics,
++        unlocked: organics >= 5,
++        icon: Sparkles,
++        color: 'text-green-700 bg-green-50 border-green-200',
++      },
++      {
++        id: 'recycling_5',
++        title: 'Resource Looper',
++        desc: 'Sort 5+ recyclable items',
++        target: 5,
++        current: recyclables,
++        unlocked: recyclables >= 5,
++        icon: Award,
++        color: 'text-blue-700 bg-blue-50 border-blue-200',
++      },
++      {
++        id: 'toxic_shield',
++        title: 'Land Guardian',
++        desc: 'Safely divert E-Waste or Hazard',
++        target: 1,
++        current: toxics,
++        unlocked: toxics >= 1,
++        icon: ShieldCheck,
++        color: 'text-purple-700 bg-purple-50 border-purple-200',
++      },
++    ]
++  }, [impactStats, streak, useSampleData])
++
++  return (
++    <div className="flex flex-col gap-4" aria-label="Visual Waste Analytics and Gamification Section">
++      {/* Gamification Level Hero Card */}
++      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++        <div className="flex items-center justify-between gap-3">
++          <div className="flex items-center gap-3">
++            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0F9D58] to-[#0B7A44] text-white flex items-center justify-center shadow-xs shrink-0">
++              <Trophy className="w-6 h-6 text-white" />
++            </div>
++            <div>
++              <div className="flex items-center gap-2">
++                <span className="text-xs font-black uppercase tracking-wider text-[var(--color-primary-strong)]">
++                  Level {level}
++                </span>
++                <span className="text-xs text-[var(--color-text-disabled)]">·</span>
++                <span className="text-xs font-semibold text-[var(--color-text-secondary)] tabular-nums">
++                  {xp} Eco XP
++                </span>
++              </div>
++              <h3 className="text-lg font-extrabold text-[var(--color-text)] tracking-tight">
++                {levelTitle}
++              </h3>
++            </div>
++          </div>
++
++          {/* Sample Data Toggle Pill */}
++          <div className="flex items-center">
++            <button
++              type="button"
++              onClick={() => setUseSampleData(!useSampleData)}
++              className={`text-xs px-2.5 py-1.5 rounded-lg border font-semibold transition-all flex items-center gap-1.5 ${
++                useSampleData
++                  ? 'bg-amber-50 text-amber-900 border-amber-300'
++                  : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]'
++              }`}
++              title="Toggle sample trends vs live scan data"
++            >
++              <Info className="w-3.5 h-3.5" />
++              <span>{useSampleData ? 'Sample Mode' : 'Live Mode'}</span>
++            </button>
++          </div>
++        </div>
++
++        {/* Level XP Progress Bar */}
++        <div className="mt-4">
++          <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
++            <span className="text-[var(--color-text-secondary)]">Progress to Tier {level + 1}</span>
++            <span className="text-[var(--color-text)] tabular-nums font-bold">
++              {xp} / {nextLevelXp} XP ({xpProgressPct}%)
++            </span>
++          </div>
++          <div className="w-full h-2 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden border border-[var(--color-border)]">
++            <div
++              className="h-full rounded-full bg-gradient-to-r from-[#0F9D58] to-[#34A853] transition-all duration-700 ease-out"
++              style={{ width: `${xpProgressPct}%` }}
++            />
++          </div>
++        </div>
++
++        {/* Quick Gamified Eco Metrics */}
++        <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[var(--color-divider)]">
++          <div className="flex flex-col">
++            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">CO₂ Averted</span>
++            <span className="text-sm font-extrabold text-[var(--color-text)] tabular-nums mt-0.5">
++              ~{impactStats.co2AvoidedKg} <span className="text-[10px] font-medium text-[var(--color-text-muted)]">kg</span>
++            </span>
++          </div>
++          <div className="flex flex-col">
++            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">Diversion Rate</span>
++            <span className="text-sm font-extrabold text-[var(--color-primary-strong)] tabular-nums mt-0.5">
++              {impactStats.diversionRate}%
++            </span>
++          </div>
++          <div className="flex flex-col">
++            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">Soil Protected</span>
++            <span className="text-sm font-extrabold text-[var(--color-text)] tabular-nums mt-0.5">
++              {impactStats.soilAreaProtectedSqFt} <span className="text-[10px] font-medium text-[var(--color-text-muted)]">sq ft</span>
++            </span>
++          </div>
++        </div>
++      </section>
++
++      {/* Main Visual Chart Section */}
++      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++        {/* Chart Header & Controls */}
++        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
++          <div>
++            <div className="flex items-center gap-2">
++              <BarChart3 className="w-4 h-4 text-[var(--color-primary-strong)]" />
++              <h2 className="text-sm font-extrabold text-[var(--color-text)]">
++                Items Sorted Over Time
++              </h2>
++            </div>
++            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
++              {timeRange === '7d'
++                ? 'Daily activity across past 7 days'
++                : timeRange === '30d'
++                ? 'Daily trends over last 30 days'
++                : 'Cumulative waste diversion growth'}
++            </p>
++          </div>
++
++          {/* Segmented Controls */}
++          <div className="flex flex-wrap items-center gap-1.5">
++            {/* Time Range Filter */}
++            <div className="flex items-center p-0.5 bg-[var(--color-surface-sunken)] rounded-lg border border-[var(--color-border)]">
++              <button
++                type="button"
++                onClick={() => setTimeRange('7d')}
++                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
++                  timeRange === '7d'
++                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
++                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                7D
++              </button>
++              <button
++                type="button"
++                onClick={() => setTimeRange('30d')}
++                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
++                  timeRange === '30d'
++                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
++                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                30D
++              </button>
++              <button
++                type="button"
++                onClick={() => setTimeRange('cumulative')}
++                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
++                  timeRange === 'cumulative'
++                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
++                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                Total
++              </button>
++            </div>
++
++            {/* Visual Presentation Mode */}
++            <div className="flex items-center p-0.5 bg-[var(--color-surface-sunken)] rounded-lg border border-[var(--color-border)]">
++              <button
++                type="button"
++                onClick={() => setChartType('bar')}
++                title="Stacked Bar Chart"
++                className={`p-1.5 rounded-md transition-all ${
++                  chartType === 'bar'
++                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
++                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                <BarChart3 className="w-3.5 h-3.5" />
++              </button>
++              <button
++                type="button"
++                onClick={() => setChartType('area')}
++                title="Trend Area Chart"
++                className={`p-1.5 rounded-md transition-all ${
++                  chartType === 'area'
++                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
++                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                <TrendingUp className="w-3.5 h-3.5" />
++              </button>
++              <button
++                type="button"
++                onClick={() => setChartType('pie')}
++                title="Category Distribution"
++                className={`p-1.5 rounded-md transition-all ${
++                  chartType === 'pie'
++                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
++                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
++                }`}
++              >
++                <PieIcon className="w-3.5 h-3.5" />
++              </button>
++            </div>
++          </div>
++        </div>
++
++        {/* Category Filter Pills */}
++        <div className="flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-[var(--color-divider)]">
++          <button
++            type="button"
++            onClick={() => setCategoryFilter('all')}
++            className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
++              categoryFilter === 'all'
++                ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
++                : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]'
++            }`}
++          >
++            All Categories
++          </button>
++          {CATEGORY_KEYS.map((catKey) => {
++            const theme = CATEGORY_THEME[catKey]
++            const isSelected = categoryFilter === catKey
++            const color = CATEGORY_COLORS[catKey]
++
++            return (
++              <button
++                key={catKey}
++                type="button"
++                onClick={() => setCategoryFilter(isSelected ? 'all' : catKey)}
++                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
++                  isSelected
++                    ? 'text-white shadow-xs'
++                    : 'bg-[var(--color-surface)] text-[var(--color-text)] border-[var(--color-border)] hover:bg-[var(--color-surface-sunken)]'
++                }`}
++                style={isSelected ? { backgroundColor: color, borderColor: color } : {}}
++              >
++                <span
++                  className="w-2 h-2 rounded-full"
++                  style={{ backgroundColor: isSelected ? '#FFFFFF' : color }}
++                />
++                <span>{theme.label.split('/')[0].trim()}</span>
++              </button>
++            )
++          })}
++        </div>
++
++        {/* Chart Rendering Area */}
++        <div className="w-full h-64 sm:h-72 mt-2">
++          {chartType === 'pie' ? (
++            <div className="w-full h-full flex flex-col sm:flex-row items-center justify-center gap-4">
++              <div className="w-full sm:w-1/2 h-48 sm:h-full">
++                <ResponsiveContainer width="100%" height="100%">
++                  <PieChart>
++                    <Tooltip content={<CustomPieTooltip />} />
++                    <Pie
++                      data={pieData}
++                      dataKey="value"
++                      nameKey="name"
++                      cx="50%"
++                      cy="50%"
++                      innerRadius={46}
++                      outerRadius={74}
++                      paddingAngle={3}
++                    >
++                      {pieData.map((entry) => (
++                        <Cell key={`cell-${entry.key}`} fill={entry.color} />
++                      ))}
++                    </Pie>
++                  </PieChart>
++                </ResponsiveContainer>
++              </div>
++
++              {/* Pie Legend Details */}
++              <div className="w-full sm:w-1/2 flex flex-col gap-1.5">
++                {pieData.map((item) => {
++                  const pct =
++                    impactStats.total > 0
++                      ? Math.round((item.value / impactStats.total) * 100)
++                      : 0
++                  return (
++                    <div
++                      key={item.key}
++                      className="flex items-center justify-between text-xs font-semibold py-1 px-2 rounded-md hover:bg-[var(--color-surface-sunken)] transition-colors"
++                    >
++                      <div className="flex items-center gap-2">
++                        <span
++                          className="w-2.5 h-2.5 rounded-full shrink-0"
++                          style={{ backgroundColor: item.color }}
++                        />
++                        <span className="text-[var(--color-text)]">{item.name}</span>
++                      </div>
++                      <div className="flex items-center gap-2 tabular-nums">
++                        <span className="text-[var(--color-text-muted)]">{item.value} items</span>
++                        <span className="text-[var(--color-text)] font-bold">{pct}%</span>
++                      </div>
++                    </div>
++                  )
++                })}
++              </div>
++            </div>
++          ) : chartType === 'area' ? (
++            <ResponsiveContainer width="100%" height="100%">
++              <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
++                <defs>
++                  {CATEGORY_KEYS.map((k) => (
++                    <linearGradient key={`grad-${k}`} id={`grad-${k}`} x1="0" y1="0" x2="0" y2="1">
++                      <stop offset="5%" stopColor={CATEGORY_COLORS[k]} stopOpacity={0.65} />
++                      <stop offset="95%" stopColor={CATEGORY_COLORS[k]} stopOpacity={0.05} />
++                    </linearGradient>
++                  ))}
++                  <linearGradient id="grad-total" x1="0" y1="0" x2="0" y2="1">
++                    <stop offset="5%" stopColor="#0F9D58" stopOpacity={0.5} />
++                    <stop offset="95%" stopColor="#0F9D58" stopOpacity={0.05} />
++                  </linearGradient>
++                </defs>
++                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-divider)" />
++                <XAxis
++                  dataKey="displayDate"
++                  tickLine={false}
++                  axisLine={{ stroke: 'var(--color-border)' }}
++                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
++                />
++                <YAxis
++                  allowDecimals={false}
++                  tickLine={false}
++                  axisLine={{ stroke: 'var(--color-border)' }}
++                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
++                />
++                <Tooltip content={<CustomChartTooltip timeRange={timeRange} />} />
++                {timeRange === 'cumulative' ? (
++                  categoryFilter === 'all' ? (
++                    <Area
++                      type="monotone"
++                      dataKey="cumulativeTotal"
++                      name="Total Cumulative"
++                      stroke="#0F9D58"
++                      strokeWidth={2.5}
++                      fillOpacity={1}
++                      fill="url(#grad-total)"
++                    />
++                  ) : (
++                    <Area
++                      type="monotone"
++                      dataKey={`cum${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)}`}
++                      name={CATEGORY_THEME[categoryFilter]?.label}
++                      stroke={CATEGORY_COLORS[categoryFilter]}
++                      strokeWidth={2.5}
++                      fillOpacity={1}
++                      fill={`url(#grad-${categoryFilter})`}
++                    />
++                  )
++                ) : categoryFilter === 'all' ? (
++                  CATEGORY_KEYS.map((k) => (
++                    <Area
++                      key={k}
++                      type="monotone"
++                      stackId="1"
++                      dataKey={k}
++                      name={CATEGORY_THEME[k]?.label}
++                      stroke={CATEGORY_COLORS[k]}
++                      strokeWidth={1.5}
++                      fillOpacity={1}
++                      fill={`url(#grad-${k})`}
++                    />
++                  ))
++                ) : (
++                  <Area
++                    type="monotone"
++                    dataKey={categoryFilter}
++                    name={CATEGORY_THEME[categoryFilter]?.label}
++                    stroke={CATEGORY_COLORS[categoryFilter]}
++                    strokeWidth={2.5}
++                    fillOpacity={1}
++                    fill={`url(#grad-${categoryFilter})`}
++                  />
++                )}
++              </AreaChart>
++            </ResponsiveContainer>
++          ) : (
++            <ResponsiveContainer width="100%" height="100%">
++              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
++                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-divider)" />
++                <XAxis
++                  dataKey="displayDate"
++                  tickLine={false}
++                  axisLine={{ stroke: 'var(--color-border)' }}
++                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
++                />
++                <YAxis
++                  allowDecimals={false}
++                  tickLine={false}
++                  axisLine={{ stroke: 'var(--color-border)' }}
++                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
++                />
++                <Tooltip content={<CustomChartTooltip timeRange={timeRange} />} />
++                {timeRange === 'cumulative' ? (
++                  categoryFilter === 'all' ? (
++                    <Bar
++                      dataKey="cumulativeTotal"
++                      name="Total Cumulative"
++                      fill="#0F9D58"
++                      radius={[6, 6, 0, 0]}
++                    />
++                  ) : (
++                    <Bar
++                      dataKey={`cum${categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1)}`}
++                      name={CATEGORY_THEME[categoryFilter]?.label}
++                      fill={CATEGORY_COLORS[categoryFilter]}
++                      radius={[6, 6, 0, 0]}
++                    />
++                  )
++                ) : categoryFilter === 'all' ? (
++                  CATEGORY_KEYS.map((k, i) => (
++                    <Bar
++                      key={k}
++                      dataKey={k}
++                      stackId="a"
++                      name={CATEGORY_THEME[k]?.label}
++                      fill={CATEGORY_COLORS[k]}
++                      radius={i === CATEGORY_KEYS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
++                    />
++                  ))
++                ) : (
++                  <Bar
++                    dataKey={categoryFilter}
++                    name={CATEGORY_THEME[categoryFilter]?.label}
++                    fill={CATEGORY_COLORS[categoryFilter]}
++                    radius={[6, 6, 0, 0]}
++                  />
++                )}
++              </BarChart>
++            </ResponsiveContainer>
++          )}
++        </div>
++
++        {/* Legend */}
++        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-4 pt-3 border-t border-[var(--color-divider)] text-xs text-[var(--color-text-secondary)]">
++          {CATEGORY_KEYS.map((k) => (
++            <div key={k} className="flex items-center gap-1.5">
++              <span
++                className="w-2.5 h-2.5 rounded-xs shrink-0"
++                style={{ backgroundColor: CATEGORY_COLORS[k] }}
++              />
++              <span className="font-medium">{CATEGORY_THEME[k]?.label.split('/')[0]}</span>
++            </div>
++          ))}
++        </div>
++      </section>
++
++      {/* Gamified Achievements & Milestones */}
++      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
++        <div className="flex items-center justify-between mb-3">
++          <div className="flex items-center gap-2">
++            <Award className="w-4 h-4 text-[var(--color-primary-strong)]" />
++            <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text)]">
++              Milestone Badges
++            </h3>
++          </div>
++          <span className="text-xs font-semibold text-[var(--color-text-muted)]">
++            {milestones.filter((m) => m.unlocked).length} / {milestones.length} Unlocked
++          </span>
++        </div>
++
++        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
++          {milestones.map((m) => {
++            const Icon = m.icon
++            return (
++              <div
++                key={m.id}
++                className={`p-3 rounded-xl border flex items-start gap-3 transition-all ${
++                  m.unlocked
++                    ? 'bg-[var(--color-surface-alt)] border-[var(--color-primary-soft)]'
++                    : 'bg-[var(--color-surface-sunken)] border-[var(--color-border)] opacity-70'
++                }`}
++              >
++                <div
++                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
++                    m.unlocked ? m.color : 'text-[var(--color-text-muted)] bg-white border-gray-200'
++                  }`}
++                >
++                  <Icon className="w-4 h-4" />
++                </div>
++                <div className="flex-1 min-w-0">
++                  <div className="flex items-center justify-between">
++                    <span className="text-xs font-bold text-[var(--color-text)] truncate">
++                      {m.title}
++                    </span>
++                    {m.unlocked ? (
++                      <span className="text-[10px] font-bold text-[var(--color-primary-strong)] flex items-center gap-0.5">
++                        <CheckCircle2 className="w-3 h-3" />
++                        Done
++                      </span>
++                    ) : (
++                      <span className="text-[10px] font-semibold text-[var(--color-text-muted)] tabular-nums">
++                        {m.current}/{m.target}
++                      </span>
++                    )}
++                  </div>
++                  <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
++                    {m.desc}
++                  </p>
++                </div>
++              </div>
++            )
++          })}
++        </div>
++      </section>
++    </div>
++  )
++}
++
++// Custom Tooltip for Bar & Area Charts
++function CustomChartTooltip({ active, payload, label, timeRange }) {
++  if (!active || !payload || !payload.length) return null
++
++  const totalForDay = payload.reduce((sum, p) => sum + (Number(p.value) || 0), 0)
++
++  return (
++    <div className="bg-[#0E2A1F] text-white p-3 rounded-xl shadow-lg border border-[#1d4334] text-xs max-w-[200px]">
++      <div className="font-bold border-b border-[#244f3e] pb-1.5 mb-1.5 flex items-center justify-between">
++        <span>{label}</span>
++        <span className="text-[var(--color-accent)] font-extrabold">{totalForDay} items</span>
++      </div>
++      <div className="flex flex-col gap-1">
++        {payload.map((entry) => {
++          if (!entry.value && timeRange !== 'cumulative') return null
++          return (
++            <div key={entry.name} className="flex items-center justify-between gap-3">
++              <div className="flex items-center gap-1.5 truncate">
++                <span
++                  className="w-2 h-2 rounded-full shrink-0"
++                  style={{ backgroundColor: entry.color || entry.fill }}
++                />
++                <span className="text-gray-200 truncate">{entry.name?.split('/')[0]}</span>
++              </div>
++              <span className="font-bold text-white tabular-nums">{entry.value}</span>
++            </div>
++          )
++        })}
++      </div>
++    </div>
++  )
++}
++
++// Custom Tooltip for Pie Chart
++function CustomPieTooltip({ active, payload }) {
++  if (!active || !payload || !payload.length) return null
++  const data = payload[0]
++
++  return (
++    <div className="bg-[#0E2A1F] text-white p-2.5 rounded-xl shadow-lg border border-[#1d4334] text-xs">
++      <div className="flex items-center gap-2">
++        <span
++          className="w-2.5 h-2.5 rounded-full"
++          style={{ backgroundColor: data.payload.color }}
++        />
++        <span className="font-bold text-white">{data.name}</span>
++      </div>
++      <div className="mt-1 text-gray-200">
++        <span className="font-extrabold text-[var(--color-accent)] tabular-nums">{data.value}</span> items sorted
++      </div>
++    </div>
++  )
++}
++
++export default WasteAnalyticsChart
+diff --git a/src/lib/sampleImages.js b/src/lib/sampleImages.js
+new file mode 100644
+index 0000000..9f4e327
+--- /dev/null
++++ b/src/lib/sampleImages.js
+@@ -0,0 +1,176 @@
++/**
++ * Generates lightweight sample waste item images on an offscreen canvas
++ * for instant testing of the TensorFlow.js classifier on any device.
++ */
++
++function createCanvas(width = 300, height = 300) {
++  const canvas = document.createElement('canvas')
++  canvas.width = width
++  canvas.height = height
++  return canvas
++}
++
++export async function createSampleWasteFile(type = 'bottle') {
++  const canvas = createCanvas(300, 300)
++  const ctx = canvas.getContext('2d')
++  if (!ctx) return null
++
++  // Clean studio background
++  ctx.fillStyle = '#FFFFFF'
++  ctx.fillRect(0, 0, 300, 300)
++
++  // Soft studio shadow beneath object
++  const shadowGrad = ctx.createRadialGradient(150, 245, 10, 150, 245, 80)
++  shadowGrad.addColorStop(0, 'rgba(0, 0, 0, 0.18)')
++  shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
++  ctx.fillStyle = shadowGrad
++  ctx.beginPath()
++  ctx.ellipse(150, 245, 75, 16, 0, 0, Math.PI * 2)
++  ctx.fill()
++
++  if (type === 'bottle') {
++    // Recyclable Plastic Bottle
++    ctx.save()
++    // Bottle neck & cap
++    ctx.fillStyle = '#0284C7' // Blue cap
++    ctx.beginPath()
++    ctx.roundRect(138, 45, 24, 18, 4)
++    ctx.fill()
++
++    // Neck
++    ctx.fillStyle = '#E0F2FE'
++    ctx.fillRect(142, 63, 16, 20)
++
++    // Body
++    const bodyGrad = ctx.createLinearGradient(110, 0, 190, 0)
++    bodyGrad.addColorStop(0, '#BAE6FD')
++    bodyGrad.addColorStop(0.3, '#E0F2FE')
++    bodyGrad.addColorStop(0.7, '#F0F9FF')
++    bodyGrad.addColorStop(1, '#7DD3FC')
++
++    ctx.fillStyle = bodyGrad
++    ctx.beginPath()
++    ctx.roundRect(115, 83, 70, 145, [14, 14, 18, 18])
++    ctx.fill()
++
++    // Label
++    ctx.fillStyle = '#0284C7'
++    ctx.fillRect(115, 130, 70, 45)
++    ctx.fillStyle = '#FFFFFF'
++    ctx.font = 'bold 11px sans-serif'
++    ctx.textAlign = 'center'
++    ctx.fillText('PURE WATER', 150, 152)
++    ctx.font = '8px sans-serif'
++    ctx.fillText('100% RECYCLABLE', 150, 164)
++
++    // Highlights & Reflections
++    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'
++    ctx.lineWidth = 3
++    ctx.beginPath()
++    ctx.moveTo(125, 95)
++    ctx.lineTo(125, 215)
++    ctx.stroke()
++    ctx.restore()
++  } else if (type === 'organic') {
++    // Organic Banana Peel / Fruit Scrap
++    ctx.save()
++    ctx.lineWidth = 14
++    ctx.lineCap = 'round'
++    ctx.lineJoin = 'round'
++
++    // Banana peel skin (Yellow with brown specks)
++    const peelGrad = ctx.createLinearGradient(80, 80, 220, 220)
++    peelGrad.addColorStop(0, '#84CC16') // Green tip
++    peelGrad.addColorStop(0.3, '#EAB308') // Golden yellow
++    peelGrad.addColorStop(0.8, '#FACC15')
++    peelGrad.addColorStop(1, '#A16207') // Brown stem
++
++    ctx.strokeStyle = peelGrad
++    ctx.beginPath()
++    ctx.moveTo(85, 220)
++    ctx.bezierCurveTo(110, 130, 190, 110, 215, 80)
++    ctx.stroke()
++
++    // Second flap
++    ctx.beginPath()
++    ctx.moveTo(85, 220)
++    ctx.bezierCurveTo(140, 170, 180, 180, 225, 190)
++    ctx.stroke()
++
++    // Center pulpy flesh
++    ctx.lineWidth = 8
++    ctx.strokeStyle = '#FEF08A'
++    ctx.beginPath()
++    ctx.moveTo(100, 210)
++    ctx.quadraticCurveTo(150, 145, 195, 105)
++    ctx.stroke()
++
++    // Natural brown spots
++    ctx.fillStyle = '#713F12'
++    const spots = [[130, 140, 3], [160, 120, 4], [145, 180, 3], [190, 175, 4]]
++    spots.forEach(([x, y, r]) => {
++      ctx.beginPath()
++      ctx.arc(x, y, r, 0, Math.PI * 2)
++      ctx.fill()
++    })
++    ctx.restore()
++  } else if (type === 'battery') {
++    // Hazardous / E-Waste AA Battery
++    ctx.save()
++    // Positive terminal pip
++    ctx.fillStyle = '#94A3B8'
++    ctx.beginPath()
++    ctx.roundRect(144, 45, 12, 12, 2)
++    ctx.fill()
++
++    // Upper gold/copper band
++    const copperGrad = ctx.createLinearGradient(120, 0, 180, 0)
++    copperGrad.addColorStop(0, '#B45309')
++    copperGrad.addColorStop(0.4, '#F59E0B')
++    copperGrad.addColorStop(0.7, '#D97706')
++    copperGrad.addColorStop(1, '#92400E')
++
++    ctx.fillStyle = copperGrad
++    ctx.beginPath()
++    ctx.roundRect(125, 57, 50, 50, [6, 6, 0, 0])
++    ctx.fill()
++
++    // Lower black body
++    const blackGrad = ctx.createLinearGradient(120, 0, 180, 0)
++    blackGrad.addColorStop(0, '#1E293B')
++    blackGrad.addColorStop(0.4, '#334155')
++    blackGrad.addColorStop(0.7, '#1E293B')
++    blackGrad.addColorStop(1, '#0F172A')
++
++    ctx.fillStyle = blackGrad
++    ctx.beginPath()
++    ctx.roundRect(125, 107, 50, 125, [0, 0, 6, 6])
++    ctx.fill()
++
++    // Battery markings
++    ctx.fillStyle = '#F59E0B'
++    ctx.font = 'bold 12px sans-serif'
++    ctx.textAlign = 'center'
++    ctx.fillText('+', 150, 78)
++
++    ctx.fillStyle = '#FFFFFF'
++    ctx.font = 'bold 10px sans-serif'
++    ctx.fillText('1.5V AA', 150, 145)
++
++    ctx.fillStyle = '#EF4444'
++    ctx.font = 'bold 8px sans-serif'
++    ctx.fillText('HAZARD', 150, 170)
++    ctx.restore()
++  }
++
++  return new Promise((resolve) => {
++    canvas.toBlob((blob) => {
++      if (!blob) {
++        resolve(null)
++        return
++      }
++      const file = new File([blob], `sample_${type}.jpg`, { type: 'image/jpeg' })
++      resolve(file)
++    }, 'image/jpeg', 0.9)
++  })
++}
+diff --git a/src/lib/tm.js b/src/lib/tm.js
+index a0f120d..7fc4775 100644
+--- a/src/lib/tm.js
++++ b/src/lib/tm.js
+@@ -18,6 +18,14 @@ const METADATA_URL = `${BASE}model/metadata.json`
+  * Returns { model, metadata } where metadata.labels maps output indices to class IDs.
+  */
+ export async function loadModel() {
++  if (!globalThis.tf) {
++    try {
++      const tfModule = await import('@tensorflow/tfjs')
++      globalThis.tf = tfModule.default || tfModule
++    } catch (e) {
++      console.warn('Fallback to @tensorflow/tfjs npm import failed:', e)
++    }
++  }
+   const tf = getTf()
+   const [model, metadata] = await Promise.all([
+     tf.loadGraphModel(MODEL_URL),
+diff --git a/src/styles/index.css b/src/styles/index.css
+index 2df631c..279bee7 100644
+--- a/src/styles/index.css
++++ b/src/styles/index.css
+@@ -1,4 +1,5 @@
+ @import '@fontsource-variable/inter';
++@import '@fontsource-variable/manrope';
+ @import './tokens.css';
+ @import './components.css';
+ 
+@@ -7,15 +8,15 @@
+ @tailwind utilities;
+ 
+ :root {
+-  font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+-  color-scheme: dark;
++  font-family: 'Manrope Variable', 'Inter Variable', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
++  color-scheme: light;
+ }
+ 
+ body {
+   margin: 0;
+   padding: 0;
+-  background-color: var(--forest-900);
+-  color: var(--color-text-primary);
++  background-color: var(--color-bg);
++  color: var(--color-text);
+   min-height: 100dvh;
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+@@ -23,12 +24,16 @@ body {
+ 
+ /* Custom scrollbars */
+ ::-webkit-scrollbar {
+-  width: 4px;
++  width: 6px;
++  height: 6px;
+ }
+ ::-webkit-scrollbar-track {
+   background: transparent;
+ }
+ ::-webkit-scrollbar-thumb {
+-  background: rgba(255, 255, 255, 0.2);
+-  border-radius: 4px;
++  background: var(--color-border-strong);
++  border-radius: 9999px;
++}
++::-webkit-scrollbar-thumb:hover {
++  background: var(--color-text-disabled);
+ }
+diff --git a/vite.config.js b/vite.config.js
+index 8c1ce77..464fd2c 100644
+--- a/vite.config.js
++++ b/vite.config.js
+@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
+ export default defineConfig({
+   plugins: [react()],
+   server: {
+-    host: true,
++    host: '0.0.0.0',
+     port: 3000,
+     watch: {
+       ignored: ['**/dist/**', '**/*.png', '**/*.jpg', '**/*.jpeg'],
+-- 
+2.34.1
+

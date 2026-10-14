@@ -1,5 +1,6 @@
 @import '@fontsource-variable/manrope';
 @import '@fontsource-variable/inter';
+@import '@fontsource-variable/manrope';
 @import './tokens.css';
 @import './components.css';
 
@@ -21,6 +22,8 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   background-color: var(--color-bg);
   color: var(--color-text);
   min-height: 100dvh;
