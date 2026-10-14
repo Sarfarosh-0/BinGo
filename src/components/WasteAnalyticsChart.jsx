@@ -29,16 +29,19 @@ import {
 import { localDateKey } from '../lib/date'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
 
-// Exact brand category colors
+// Brand category colors, mapped to design tokens
 const CATEGORY_COLORS = {
-  recyclable: '#1565C0',
-  organic: '#2E7D32',
-  ewaste: '#6A3DB8',
-  hazardous: '#C62828',
-  general: '#5F6B63',
+  recyclable: 'var(--cat-recyclable)',
+  organic: 'var(--cat-organic)',
+  ewaste: 'var(--cat-ewaste)',
+  hazardous: 'var(--cat-hazardous)',
+  general: 'var(--cat-general)',
 }
 
 const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
+
+// Shared look for chart axes
+const AXIS_TICK = { fontSize: 12, fill: 'var(--color-text-muted)' }
 
 // Sample timeline for starter/demo mode to showcase gamified visualization immediately
 function generateSampleHistory() {
@@ -252,7 +255,7 @@ export function WasteAnalyticsChart({
     }).filter((item) => item.value > 0)
   }, [impactStats])
 
-  // Gamification Milestones
+  // Gamification Milestones (color strings are presentation only)
   const milestones = useMemo(() => {
     const total = impactStats.total
     const organics = impactStats.counts.organic || 0
@@ -269,7 +272,8 @@ export function WasteAnalyticsChart({
         current: total,
         unlocked: total >= 1,
         icon: Leaf,
-        color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+        color:
+          'text-[var(--color-primary-strong)] bg-[var(--color-primary-soft)] border-[color-mix(in_srgb,var(--color-primary-strong)_25%,transparent)]',
       },
       {
         id: 'streak_3',
@@ -279,7 +283,8 @@ export function WasteAnalyticsChart({
         current: activeStreak,
         unlocked: activeStreak >= 3,
         icon: Zap,
-        color: 'text-amber-700 bg-amber-50 border-amber-200',
+        color:
+          'text-[var(--color-warning)] bg-[var(--color-warning-soft)] border-[color-mix(in_srgb,var(--color-warning)_25%,transparent)]',
       },
       {
         id: 'organic_5',
@@ -289,7 +294,8 @@ export function WasteAnalyticsChart({
         current: organics,
         unlocked: organics >= 5,
         icon: Sparkles,
-        color: 'text-green-700 bg-green-50 border-green-200',
+        color:
+          'text-[var(--cat-organic)] bg-[var(--cat-organic-soft)] border-[color-mix(in_srgb,var(--cat-organic)_25%,transparent)]',
       },
       {
         id: 'recycling_5',
@@ -299,7 +305,8 @@ export function WasteAnalyticsChart({
         current: recyclables,
         unlocked: recyclables >= 5,
         icon: Award,
-        color: 'text-blue-700 bg-blue-50 border-blue-200',
+        color:
+          'text-[var(--cat-recyclable)] bg-[var(--cat-recyclable-soft)] border-[color-mix(in_srgb,var(--cat-recyclable)_25%,transparent)]',
       },
       {
         id: 'toxic_shield',
@@ -309,204 +316,204 @@ export function WasteAnalyticsChart({
         current: toxics,
         unlocked: toxics >= 1,
         icon: ShieldCheck,
-        color: 'text-purple-700 bg-purple-50 border-purple-200',
+        color:
+          'text-[var(--cat-ewaste)] bg-[var(--cat-ewaste-soft)] border-[color-mix(in_srgb,var(--cat-ewaste)_25%,transparent)]',
       },
     ]
   }, [impactStats, streak, useSampleData])
 
+  // Shared segmented-control classes
+  const segBtn = (active) =>
+    `h-9 min-w-[40px] rounded-[var(--radius-xs)] px-3 text-xs transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)] ${active
+      ? 'bg-[var(--color-surface)] font-bold text-[var(--color-text)] shadow-[var(--shadow-sm)]'
+      : 'font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
+    }`
+
+  const iconSegBtn = (active) =>
+    `flex h-9 w-9 items-center justify-center rounded-[var(--radius-xs)] transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-focus-ring)] ${active
+      ? 'bg-[var(--color-surface)] text-[var(--color-primary-strong)] shadow-[var(--shadow-sm)]'
+      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+    }`
+
   return (
     <div className="flex flex-col gap-4" aria-label="Visual Waste Analytics and Gamification Section">
-      {/* Gamification Level Hero Card */}
-      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0F9D58] to-[#0B7A44] text-white flex items-center justify-center shadow-xs shrink-0">
-              <Trophy className="w-6 h-6 text-white" />
+      {/* Level Hero Card */}
+      <section className="card p-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3.5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[var(--radius-lg)] bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-strong)] text-white shadow-[var(--shadow-scan-btn)]">
+              <Trophy className="h-7 w-7 text-white" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2">
                 <span className="text-xs font-black uppercase tracking-wider text-[var(--color-primary-strong)]">
                   Level {level}
                 </span>
                 <span className="text-xs text-[var(--color-text-disabled)]">·</span>
-                <span className="text-xs font-semibold text-[var(--color-text-secondary)] tabular-nums">
+                <span className="text-xs font-semibold tabular-nums text-[var(--color-text-secondary)]">
                   {xp} Eco XP
                 </span>
               </div>
-              <h3 className="text-lg font-extrabold text-[var(--color-text)] tracking-tight">
+              <h3 className="truncate text-lg font-extrabold tracking-tight text-[var(--color-text)]">
                 {levelTitle}
               </h3>
             </div>
           </div>
 
-          {/* Sample Data Toggle Pill */}
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => setUseSampleData(!useSampleData)}
-              className={`text-xs px-2.5 py-1.5 rounded-lg border font-semibold transition-all flex items-center gap-1.5 ${
-                useSampleData
-                  ? 'bg-amber-50 text-amber-900 border-amber-300'
-                  : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]'
+          {/* Sample Data Toggle */}
+          <button
+            type="button"
+            onClick={() => setUseSampleData(!useSampleData)}
+            aria-pressed={useSampleData}
+            className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${useSampleData
+                ? 'border-[color-mix(in_srgb,var(--color-warning)_35%,transparent)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]'
+                : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]'
               }`}
-              title="Toggle sample trends vs live scan data"
-            >
-              <Info className="w-4 h-4 shrink-0" />
-              <span>{useSampleData ? 'Sample Mode' : 'Live Mode'}</span>
-            </button>
-          </div>
+            title="Toggle sample trends vs live scan data"
+          >
+            <Info className="h-4 w-4 shrink-0" />
+            <span>{useSampleData ? 'Sample Mode' : 'Live Mode'}</span>
+          </button>
         </div>
 
-        {/* Level XP Progress Bar */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
+        {/* XP Progress */}
+        <div className="mt-5">
+          <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold">
             <span className="text-[var(--color-text-secondary)]">Progress to Tier {level + 1}</span>
-            <span className="text-[var(--color-text)] tabular-nums font-bold">
+            <span className="font-bold tabular-nums text-[var(--color-text)]">
               {xp} / {nextLevelXp} XP ({xpProgressPct}%)
             </span>
           </div>
-          <div className="w-full h-2 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden border border-[var(--color-border)]">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-sunken)] ring-1 ring-inset ring-[var(--color-border)]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-[#0F9D58] to-[#34A853] transition-all duration-700 ease-out"
+              className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary-strong)] to-[var(--color-primary)] transition-all duration-700 ease-out"
               style={{ width: `${xpProgressPct}%` }}
             />
           </div>
         </div>
 
-        {/* Quick Gamified Eco Metrics */}
-        <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[var(--color-divider)]">
+        {/* Quick Eco Metrics */}
+        <div className="mt-5 grid grid-cols-3 gap-2 border-t border-[var(--color-divider)] pt-4">
           <div className="flex flex-col">
-            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">CO₂ Averted</span>
-            <span className="text-sm font-extrabold text-[var(--color-text)] tabular-nums mt-0.5">
-              ~{impactStats.co2AvoidedKg} <span className="text-[10px] font-medium text-[var(--color-text-muted)]">kg</span>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">CO₂ Averted</span>
+            <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-text)]">
+              ~{impactStats.co2AvoidedKg}{' '}
+              <span className="text-xs font-medium text-[var(--color-text-muted)]">kg</span>
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">Diversion Rate</span>
-            <span className="text-sm font-extrabold text-[var(--color-primary-strong)] tabular-nums mt-0.5">
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">Diversion</span>
+            <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-primary-strong)]">
               {impactStats.diversionRate}%
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">Soil Protected</span>
-            <span className="text-sm font-extrabold text-[var(--color-text)] tabular-nums mt-0.5">
-              {impactStats.soilAreaProtectedSqFt} <span className="text-[10px] font-medium text-[var(--color-text-muted)]">sq ft</span>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">Soil Protected</span>
+            <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-text)]">
+              {impactStats.soilAreaProtectedSqFt}{' '}
+              <span className="text-xs font-medium text-[var(--color-text-muted)]">sq ft</span>
             </span>
           </div>
         </div>
       </section>
 
-      {/* Main Visual Chart Section */}
-      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
-        {/* Chart Header & Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      {/* Main Chart Section */}
+      <section className="card p-5">
+        {/* Header & Controls */}
+        <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)] bg-[var(--color-primary-soft)]">
+                <BarChart3 className="h-[18px] w-[18px] text-[var(--color-primary-strong)]" />
+              </span>
               <h2 className="text-sm font-extrabold text-[var(--color-text)]">
                 Items Sorted Over Time
               </h2>
             </div>
-            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+            <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">
               {timeRange === '7d'
                 ? 'Daily activity across past 7 days'
                 : timeRange === '30d'
-                ? 'Daily trends over last 30 days'
-                : 'Cumulative waste diversion growth'}
+                  ? 'Daily trends over last 30 days'
+                  : 'Cumulative waste diversion growth'}
             </p>
           </div>
 
-          {/* Segmented Controls */}
-          <div className="flex flex-wrap items-center gap-1.5">
-            {/* Time Range Filter */}
-            <div className="flex items-center p-0.5 bg-[var(--color-surface-sunken)] rounded-lg border border-[var(--color-border)]">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Time Range */}
+            <div className="flex items-center gap-0.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-0.5">
               <button
                 type="button"
                 onClick={() => setTimeRange('7d')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                  timeRange === '7d'
-                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
-                }`}
+                aria-pressed={timeRange === '7d'}
+                className={segBtn(timeRange === '7d')}
               >
                 7D
               </button>
               <button
                 type="button"
                 onClick={() => setTimeRange('30d')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                  timeRange === '30d'
-                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
-                }`}
+                aria-pressed={timeRange === '30d'}
+                className={segBtn(timeRange === '30d')}
               >
                 30D
               </button>
               <button
                 type="button"
                 onClick={() => setTimeRange('cumulative')}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
-                  timeRange === 'cumulative'
-                    ? 'bg-white text-[var(--color-text)] shadow-xs font-bold'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
-                }`}
+                aria-pressed={timeRange === 'cumulative'}
+                className={segBtn(timeRange === 'cumulative')}
               >
                 Total
               </button>
             </div>
 
-            {/* Visual Presentation Mode */}
-            <div className="flex items-center p-0.5 bg-[var(--color-surface-sunken)] rounded-lg border border-[var(--color-border)]">
+            {/* Chart Type */}
+            <div className="flex items-center gap-0.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-0.5">
               <button
                 type="button"
                 onClick={() => setChartType('bar')}
                 title="Stacked Bar Chart"
-                className={`p-1.5 rounded-md transition-all ${
-                  chartType === 'bar'
-                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-                }`}
+                aria-label="Stacked bar chart"
+                aria-pressed={chartType === 'bar'}
+                className={iconSegBtn(chartType === 'bar')}
               >
-                <BarChart3 className="w-4 h-4 shrink-0" />
+                <BarChart3 className="h-4 w-4 shrink-0" />
               </button>
               <button
                 type="button"
                 onClick={() => setChartType('area')}
                 title="Trend Area Chart"
-                className={`p-1.5 rounded-md transition-all ${
-                  chartType === 'area'
-                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-                }`}
+                aria-label="Trend area chart"
+                aria-pressed={chartType === 'area'}
+                className={iconSegBtn(chartType === 'area')}
               >
-                <TrendingUp className="w-4 h-4 shrink-0" />
+                <TrendingUp className="h-4 w-4 shrink-0" />
               </button>
               <button
                 type="button"
                 onClick={() => setChartType('pie')}
                 title="Category Distribution"
-                className={`p-1.5 rounded-md transition-all ${
-                  chartType === 'pie'
-                    ? 'bg-white text-[var(--color-primary-strong)] shadow-xs'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
-                }`}
+                aria-label="Category distribution chart"
+                aria-pressed={chartType === 'pie'}
+                className={iconSegBtn(chartType === 'pie')}
               >
-                <PieIcon className="w-4 h-4 shrink-0" />
+                <PieIcon className="h-4 w-4 shrink-0" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-1.5 mb-3 pb-3 border-b border-[var(--color-divider)]">
+        <div className="no-scrollbar -mx-1 mb-3 flex items-center gap-1.5 overflow-x-auto border-b border-[var(--color-divider)] px-1 pb-3">
           <button
             type="button"
             onClick={() => setCategoryFilter('all')}
-            className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
-              categoryFilter === 'all'
-                ? 'bg-[var(--color-text)] text-white border-[var(--color-text)]'
-                : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] border-[var(--color-border)] hover:bg-[var(--color-surface-alt)]'
-            }`}
+            aria-pressed={categoryFilter === 'all'}
+            className={`h-9 shrink-0 rounded-full border px-3.5 text-xs font-semibold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${categoryFilter === 'all'
+                ? 'border-[var(--color-text)] bg-[var(--color-text)] text-white'
+                : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]'
+              }`}
           >
             All Categories
           </button>
@@ -520,15 +527,15 @@ export function WasteAnalyticsChart({
                 key={catKey}
                 type="button"
                 onClick={() => setCategoryFilter(isSelected ? 'all' : catKey)}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all flex items-center gap-1.5 ${
-                  isSelected
-                    ? 'text-white shadow-xs'
-                    : 'bg-[var(--color-surface)] text-[var(--color-text)] border-[var(--color-border)] hover:bg-[var(--color-surface-sunken)]'
-                }`}
+                aria-pressed={isSelected}
+                className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${isSelected
+                    ? 'text-white shadow-[var(--shadow-sm)]'
+                    : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:bg-[var(--color-surface-sunken)]'
+                  }`}
                 style={isSelected ? { backgroundColor: color, borderColor: color } : {}}
               >
                 <span
-                  className="w-2 h-2 rounded-full"
+                  className="h-2 w-2 rounded-full"
                   style={{ backgroundColor: isSelected ? '#FFFFFF' : color }}
                 />
                 <span>{theme.label.split('/')[0].trim()}</span>
@@ -537,11 +544,11 @@ export function WasteAnalyticsChart({
           })}
         </div>
 
-        {/* Chart Rendering Area */}
-        <div className="w-full h-64 sm:h-72 mt-2">
+        {/* Chart Area */}
+        <div className="mt-2 h-64 w-full sm:h-72">
           {chartType === 'pie' ? (
-            <div className="w-full h-full flex flex-col sm:flex-row items-center justify-center gap-4">
-              <div className="w-full sm:w-1/2 h-48 sm:h-full">
+            <div className="flex h-full w-full flex-col items-center justify-center gap-4 sm:flex-row">
+              <div className="h-48 w-full sm:h-full sm:w-1/2">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Tooltip content={<CustomPieTooltip />} />
@@ -554,6 +561,7 @@ export function WasteAnalyticsChart({
                       innerRadius={46}
                       outerRadius={74}
                       paddingAngle={3}
+                      stroke="none"
                     >
                       {pieData.map((entry) => (
                         <Cell key={`cell-${entry.key}`} fill={entry.color} />
@@ -563,8 +571,8 @@ export function WasteAnalyticsChart({
                 </ResponsiveContainer>
               </div>
 
-              {/* Pie Legend Details */}
-              <div className="w-full sm:w-1/2 flex flex-col gap-1.5">
+              {/* Pie Legend */}
+              <div className="flex w-full flex-col gap-1 sm:w-1/2">
                 {pieData.map((item) => {
                   const pct =
                     impactStats.total > 0
@@ -573,18 +581,18 @@ export function WasteAnalyticsChart({
                   return (
                     <div
                       key={item.key}
-                      className="flex items-center justify-between text-xs font-semibold py-1 px-2 rounded-md hover:bg-[var(--color-surface-sunken)] transition-colors"
+                      className="flex items-center justify-between gap-2 rounded-[var(--radius-xs)] px-2 py-1.5 text-xs font-semibold transition-colors hover:bg-[var(--color-surface-sunken)]"
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex min-w-0 items-center gap-2">
                         <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
                           style={{ backgroundColor: item.color }}
                         />
-                        <span className="text-[var(--color-text)]">{item.name}</span>
+                        <span className="truncate text-[var(--color-text)]">{item.name}</span>
                       </div>
-                      <div className="flex items-center gap-2 tabular-nums">
+                      <div className="flex shrink-0 items-center gap-2 tabular-nums">
                         <span className="text-[var(--color-text-muted)]">{item.value} items</span>
-                        <span className="text-[var(--color-text)] font-bold">{pct}%</span>
+                        <span className="font-bold text-[var(--color-text)]">{pct}%</span>
                       </div>
                     </div>
                   )
@@ -602,8 +610,8 @@ export function WasteAnalyticsChart({
                     </linearGradient>
                   ))}
                   <linearGradient id="grad-total" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0F9D58" stopOpacity={0.5} />
-                    <stop offset="95%" stopColor="#0F9D58" stopOpacity={0.05} />
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-divider)" />
@@ -611,13 +619,14 @@ export function WasteAnalyticsChart({
                   dataKey="displayDate"
                   tickLine={false}
                   axisLine={{ stroke: 'var(--color-border)' }}
-                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                  tick={AXIS_TICK}
+                  interval="preserveStartEnd"
                 />
                 <YAxis
                   allowDecimals={false}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--color-border)' }}
-                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                  tick={AXIS_TICK}
                 />
                 <Tooltip content={<CustomChartTooltip timeRange={timeRange} />} />
                 {timeRange === 'cumulative' ? (
@@ -626,7 +635,7 @@ export function WasteAnalyticsChart({
                       type="monotone"
                       dataKey="cumulativeTotal"
                       name="Total Cumulative"
-                      stroke="#0F9D58"
+                      stroke="var(--color-primary)"
                       strokeWidth={2.5}
                       fillOpacity={1}
                       fill="url(#grad-total)"
@@ -677,21 +686,25 @@ export function WasteAnalyticsChart({
                   dataKey="displayDate"
                   tickLine={false}
                   axisLine={{ stroke: 'var(--color-border)' }}
-                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                  tick={AXIS_TICK}
+                  interval="preserveStartEnd"
                 />
                 <YAxis
                   allowDecimals={false}
                   tickLine={false}
                   axisLine={{ stroke: 'var(--color-border)' }}
-                  tick={{ fontSize: 11, fill: 'var(--color-text-muted)' }}
+                  tick={AXIS_TICK}
                 />
-                <Tooltip content={<CustomChartTooltip timeRange={timeRange} />} />
+                <Tooltip
+                  cursor={{ fill: 'var(--color-surface-sunken)', opacity: 0.7 }}
+                  content={<CustomChartTooltip timeRange={timeRange} />}
+                />
                 {timeRange === 'cumulative' ? (
                   categoryFilter === 'all' ? (
                     <Bar
                       dataKey="cumulativeTotal"
                       name="Total Cumulative"
-                      fill="#0F9D58"
+                      fill="var(--color-primary)"
                       radius={[6, 6, 0, 0]}
                     />
                   ) : (
@@ -727,11 +740,11 @@ export function WasteAnalyticsChart({
         </div>
 
         {/* Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mt-4 pt-3 border-t border-[var(--color-divider)] text-xs text-[var(--color-text-secondary)]">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-[var(--color-divider)] pt-4 text-xs text-[var(--color-text-secondary)]">
           {CATEGORY_KEYS.map((k) => (
             <div key={k} className="flex items-center gap-1.5">
               <span
-                className="w-2.5 h-2.5 rounded-xs shrink-0"
+                className="h-2.5 w-2.5 shrink-0 rounded-[3px]"
                 style={{ backgroundColor: CATEGORY_COLORS[k] }}
               />
               <span className="font-medium">{CATEGORY_THEME[k]?.label.split('/')[0]}</span>
@@ -740,56 +753,58 @@ export function WasteAnalyticsChart({
         </div>
       </section>
 
-      {/* Gamified Achievements & Milestones */}
-      <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
-        <div className="flex items-center justify-between mb-3">
+      {/* Milestones */}
+      <section className="card p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)] bg-[var(--color-primary-soft)]">
+              <Award className="h-[18px] w-[18px] shrink-0 text-[var(--color-primary-strong)]" />
+            </span>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text)]">
               Milestone Badges
             </h3>
           </div>
-          <span className="text-xs font-semibold text-[var(--color-text-muted)]">
+          <span className="rounded-full bg-[var(--color-surface-sunken)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text-secondary)]">
             {milestones.filter((m) => m.unlocked).length} / {milestones.length} Unlocked
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {milestones.map((m) => {
             const Icon = m.icon
             return (
               <div
                 key={m.id}
-                className={`p-3 rounded-xl border flex items-start gap-3 transition-all ${
-                  m.unlocked
-                    ? 'bg-[var(--color-surface-alt)] border-[var(--color-primary-soft)]'
-                    : 'bg-[var(--color-surface-sunken)] border-[var(--color-border)] opacity-70'
-                }`}
+                className={`flex items-start gap-3 rounded-[var(--radius-md)] border p-3.5 transition-all duration-150 ${m.unlocked
+                    ? 'border-[color-mix(in_srgb,var(--color-primary-strong)_18%,transparent)] bg-[var(--color-surface-alt)]'
+                    : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] opacity-75'
+                  }`}
               >
                 <div
-                  className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 border ${
-                    m.unlocked ? m.color : 'text-[var(--color-text-muted)] bg-white border-gray-200'
-                  }`}
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border ${m.unlocked
+                      ? m.color
+                      : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-muted)]'
+                    }`}
                 >
-                  <Icon className="w-5 h-5 shrink-0" />
+                  <Icon className="h-5 w-5 shrink-0" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[var(--color-text)] truncate">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-bold text-[var(--color-text)]">
                       {m.title}
                     </span>
                     {m.unlocked ? (
-                      <span className="text-[10px] font-bold text-[var(--color-primary-strong)] flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-[var(--color-primary-strong)]">
+                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
                         Done
                       </span>
                     ) : (
-                      <span className="text-[10px] font-semibold text-[var(--color-text-muted)] tabular-nums">
+                      <span className="shrink-0 text-xs font-semibold tabular-nums text-[var(--color-text-muted)]">
                         {m.current}/{m.target}
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
+                  <p className="mt-0.5 text-xs leading-snug text-[var(--color-text-secondary)]">
                     {m.desc}
                   </p>
                 </div>
@@ -809,24 +824,24 @@ function CustomChartTooltip({ active, payload, label, timeRange }) {
   const totalForDay = payload.reduce((sum, p) => sum + (Number(p.value) || 0), 0)
 
   return (
-    <div className="bg-[#0E2A1F] text-white p-3 rounded-xl shadow-lg border border-[#1d4334] text-xs max-w-[200px]">
-      <div className="font-bold border-b border-[#244f3e] pb-1.5 mb-1.5 flex items-center justify-between">
+    <div className="max-w-[220px] rounded-[var(--radius-md)] border border-white/10 bg-[var(--color-text)] p-3 text-xs text-white shadow-[var(--shadow-lg)]">
+      <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/15 pb-2 font-bold">
         <span>{label}</span>
-        <span className="text-[var(--color-accent)] font-extrabold">{totalForDay} items</span>
+        <span className="font-extrabold text-[var(--color-accent)]">{totalForDay} items</span>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1.5">
         {payload.map((entry) => {
           if (!entry.value && timeRange !== 'cumulative') return null
           return (
             <div key={entry.name} className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 truncate">
                 <span
-                  className="w-2 h-2 rounded-full shrink-0"
+                  className="h-2 w-2 shrink-0 rounded-full"
                   style={{ backgroundColor: entry.color || entry.fill }}
                 />
-                <span className="text-gray-200 truncate">{entry.name?.split('/')[0]}</span>
+                <span className="truncate text-white/80">{entry.name?.split('/')[0]}</span>
               </div>
-              <span className="font-bold text-white tabular-nums">{entry.value}</span>
+              <span className="font-bold tabular-nums text-white">{entry.value}</span>
             </div>
           )
         })}
@@ -841,16 +856,16 @@ function CustomPieTooltip({ active, payload }) {
   const data = payload[0]
 
   return (
-    <div className="bg-[#0E2A1F] text-white p-2.5 rounded-xl shadow-lg border border-[#1d4334] text-xs">
+    <div className="rounded-[var(--radius-md)] border border-white/10 bg-[var(--color-text)] p-3 text-xs text-white shadow-[var(--shadow-lg)]">
       <div className="flex items-center gap-2">
         <span
-          className="w-2.5 h-2.5 rounded-full"
+          className="h-2.5 w-2.5 rounded-full"
           style={{ backgroundColor: data.payload.color }}
         />
         <span className="font-bold text-white">{data.name}</span>
       </div>
-      <div className="mt-1 text-gray-200">
-        <span className="font-extrabold text-[var(--color-accent)] tabular-nums">{data.value}</span> items sorted
+      <div className="mt-1 text-white/80">
+        <span className="font-extrabold tabular-nums text-[var(--color-accent)]">{data.value}</span> items sorted
       </div>
     </div>
   )

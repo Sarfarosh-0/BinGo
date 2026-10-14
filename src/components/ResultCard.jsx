@@ -82,26 +82,30 @@ export function ResultCard({
   }
 
   return (
-    <div className="flex flex-col min-h-full pb-8 animate-in fade-in duration-200" aria-live="polite">
+    <div className="view-enter-fast flex min-h-full flex-col pb-8" aria-live="polite">
       <TopBar title={STRINGS.result.title} onBack={onBack} />
 
-      <div className="flex flex-col gap-3.5 pt-3">
+      <div className="flex flex-col gap-4 pt-4">
         {/* ── CONFIDENT ── */}
         {isConfident && (
           <>
             {/* Hero */}
-            <section className="card card-hero p-5 relative overflow-hidden">
-              {/* Category accent strip */}
+            <section
+              className="card card-hero relative overflow-hidden p-5"
+              style={{
+                background: `linear-gradient(135deg, ${theme.soft} 0%, var(--color-surface) 65%)`,
+              }}
+            >
               <div
-                className="absolute top-0 left-0 bottom-0 w-1"
+                className="absolute bottom-0 left-0 top-0 w-1.5"
                 style={{ backgroundColor: theme.ink }}
               />
 
-              <div className="flex items-center justify-between gap-4 pl-1">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CategoryIcon categoryId={categoryId} size={26} />
-                    <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight truncate">
+              <div className="flex items-center justify-between gap-4 pl-2">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1.5 flex items-center gap-2.5">
+                    <CategoryIcon categoryId={categoryId} size={28} />
+                    <h2 className="truncate text-2xl font-extrabold tracking-tight text-[var(--color-text)]">
                       {categoryRules.label}
                     </h2>
                   </div>
@@ -116,7 +120,7 @@ export function ResultCard({
                     aria-valuenow={confidencePct}
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    className="w-full h-1.5 rounded-full bg-[var(--color-surface-sunken)] mt-3 overflow-hidden"
+                    className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface)]/70 ring-1 ring-inset ring-[var(--color-border)]"
                   >
                     <div
                       className="h-full rounded-full transition-all duration-700 ease-out"
@@ -130,14 +134,14 @@ export function ResultCard({
 
                 {/* Preview */}
                 {result.previewUrl && (
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-[var(--color-surface-sunken)] shadow-sm">
+                  <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-[var(--radius-lg)] border-2 border-[var(--color-surface)] bg-[var(--color-surface-sunken)] shadow-[var(--shadow-md)] sm:h-28 sm:w-28">
                     <img
                       src={result.previewUrl}
                       alt={categoryRules.label}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
-                    <div className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full bg-white border border-[var(--color-primary-strong)] flex items-center justify-center shadow-sm">
-                      <Check className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" strokeWidth={3} />
+                    <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--color-primary-strong)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
+                      <Check className="h-4 w-4 shrink-0 text-[var(--color-primary-strong)]" strokeWidth={3} />
                     </div>
                   </div>
                 )}
@@ -145,44 +149,44 @@ export function ResultCard({
             </section>
 
             {/* Disposal steps */}
-            <section className="card p-5 border border-[var(--color-border)]">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
+            <section className="card p-5">
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
                 {STRINGS.result.howToDispose}
               </span>
 
-              <ol className="mt-3.5 flex flex-col gap-3">
+              <ol className="mt-4 flex flex-col gap-3.5">
                 {categoryRules.steps.map((step, idx) => (
                   <li key={idx} className="flex items-start gap-3 text-sm text-[var(--color-text)]">
                     <span
-                      className="w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5 text-white"
+                      className="mt-px flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                       style={{ backgroundColor: theme.ink }}
                     >
                       {idx + 1}
                     </span>
-                    <span className="leading-snug">{step}</span>
+                    <span className="leading-relaxed">{step}</span>
                   </li>
                 ))}
               </ol>
             </section>
 
             {/* SDG fact */}
-            <section className="card card-mint p-4 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                <Leaf className="w-4.5 h-4.5 text-[var(--color-primary-strong)] shrink-0" />
+            <section className="card card-mint flex items-start gap-3 p-4">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
+                <Leaf className="h-[18px] w-[18px] shrink-0 text-[var(--color-primary-strong)]" />
               </div>
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--color-primary-strong)]">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-[var(--color-primary-strong)]">
                   {STRINGS.result.sdgOverline}
                 </span>
-                <p className="text-xs text-[var(--color-text)] mt-1 leading-relaxed">
+                <p className="mt-1 text-sm leading-relaxed text-[var(--color-text)]">
                   {categoryRules.sdgFact}
                 </p>
               </div>
             </section>
 
             {/* Feedback row */}
-            <section className="card p-4 flex items-center justify-between border border-[var(--color-border)]">
-              <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
+            <section className="card flex items-center justify-between gap-3 p-4">
+              <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
                 {feedback ? STRINGS.result.feedbackThanks : STRINGS.result.wasCorrect}
               </span>
 
@@ -192,26 +196,24 @@ export function ResultCard({
                   onClick={() => handleThumbClick('up')}
                   aria-label="Thumbs up"
                   aria-pressed={feedback === 'up'}
-                  className={`btn-icon flex items-center justify-center rounded-xl transition-all ${
-                    feedback === 'up'
-                      ? 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)]'
-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
-                  }`}
+                  className={`btn-icon flex items-center justify-center rounded-full border transition-all duration-150 ${feedback === 'up'
+                      ? 'border-[var(--color-success)] bg-[var(--color-success-soft)] text-[var(--color-success)]'
+                      : 'border-transparent bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                    }`}
                 >
-                  <ThumbsUp className="w-4.5 h-4.5 shrink-0" />
+                  <ThumbsUp className="h-[18px] w-[18px] shrink-0" />
                 </button>
                 <button
                   type="button"
                   onClick={() => handleThumbClick('down')}
                   aria-label="Thumbs down"
                   aria-pressed={feedback === 'down'}
-                  className={`btn-icon flex items-center justify-center rounded-xl transition-all ${
-                    feedback === 'down'
-                      ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)]'
-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
-                  }`}
+                  className={`btn-icon flex items-center justify-center rounded-full border transition-all duration-150 ${feedback === 'down'
+                      ? 'border-[var(--color-warning)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]'
+                      : 'border-transparent bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                    }`}
                 >
-                  <ThumbsDown className="w-4.5 h-4.5 shrink-0" />
+                  <ThumbsDown className="h-[18px] w-[18px] shrink-0" />
                 </button>
               </div>
             </section>
@@ -221,9 +223,9 @@ export function ResultCard({
               <button
                 type="button"
                 onClick={onScanAnother}
-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base"
+                className="btn btn-primary w-full gap-2.5 text-base"
               >
-                <Camera className="w-5 h-5" />
+                <Camera className="h-5 w-5" />
                 <span>{STRINGS.result.scanAnother}</span>
               </button>
             </div>
@@ -233,45 +235,49 @@ export function ResultCard({
         {/* ── NOT SURE ── */}
         {!isConfident && (
           <>
-            <section className="card card-hero p-5 border border-[#FFE082] bg-[var(--color-warning-soft)]">
+            <section className="card card-hero border-[color-mix(in_srgb,var(--color-warning)_25%,transparent)] bg-[var(--color-warning-soft)] p-5">
               <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <CircleHelp className="w-6 h-6 text-[var(--color-warning)]" />
-                    <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1.5 flex items-center gap-2.5">
+                    <CircleHelp className="h-7 w-7 shrink-0 text-[var(--color-warning)]" />
+                    <h2 className="text-2xl font-extrabold tracking-tight text-[var(--color-text)]">
                       {STRINGS.result.notSureTitle}
                     </h2>
                   </div>
-                  <p className="text-sm font-semibold text-[var(--color-text-secondary)]">
+                  <p className="text-sm font-semibold leading-snug text-[var(--color-text-secondary)]">
                     {STRINGS.result.notSureMessage}
                   </p>
                 </div>
 
                 {result.previewUrl && (
-                  <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-white shadow-sm">
+                  <div className="h-24 w-24 shrink-0 overflow-hidden rounded-[var(--radius-lg)] border-2 border-[var(--color-surface)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] sm:h-28 sm:w-28">
                     <img
                       src={result.previewUrl}
                       alt="Captured item"
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                 )}
               </div>
             </section>
 
-            <section className="card p-5 border border-[var(--color-border)]">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
+            <section className="card p-5">
+              <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
                 Scanning Tips
               </span>
 
-              <ul className="mt-3.5 flex flex-col gap-2.5">
-                <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4.5 h-4.5 text-[var(--color-warning)] shrink-0 mt-0.5" />
-                  <span>{STRINGS.result.tipAnotherAngle}</span>
+              <ul className="mt-4 flex flex-col gap-3">
+                <li className="flex items-start gap-3 text-sm text-[var(--color-text)]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-warning-soft)]">
+                    <Lightbulb className="h-4 w-4 text-[var(--color-warning)]" />
+                  </span>
+                  <span className="pt-1 leading-relaxed">{STRINGS.result.tipAnotherAngle}</span>
                 </li>
-                <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4.5 h-4.5 text-[var(--color-warning)] shrink-0 mt-0.5" />
-                  <span>{STRINGS.result.tipOneItem}</span>
+                <li className="flex items-start gap-3 text-sm text-[var(--color-text)]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--color-warning-soft)]">
+                    <Lightbulb className="h-4 w-4 text-[var(--color-warning)]" />
+                  </span>
+                  <span className="pt-1 leading-relaxed">{STRINGS.result.tipOneItem}</span>
                 </li>
               </ul>
             </section>
@@ -280,9 +286,9 @@ export function ResultCard({
               <button
                 type="button"
                 onClick={onScanAnother}
-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base"
+                className="btn btn-primary w-full gap-2.5 text-base"
               >
-                <Camera className="w-5 h-5" />
+                <Camera className="h-5 w-5" />
                 <span>{STRINGS.result.scanAnother}</span>
               </button>
             </div>

@@ -3,39 +3,35 @@ import { RefreshCw, X, TriangleAlert, Info } from 'lucide-react'
 
 export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
   const isError = tone === 'error'
+
+  // Presentation-only: buttons inherit the tone color and tint on hover
+  const actionBtn =
+    'flex h-11 w-11 items-center justify-center rounded-[var(--radius-sm)] transition-all duration-150 hover:bg-[color-mix(in_srgb,currentColor_10%,transparent)] active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-current'
+
   return (
     <div
       role="alert"
-      className={`rounded-2xl px-4 py-3 flex items-start gap-3 border animate-in slide-in-from-top-2 fade-in duration-200 ${
-        isError
-          ? 'border-[var(--color-error)]/20 bg-[var(--color-error-soft)] text-[var(--color-error)]'
-          : 'border-[var(--color-info)]/20 bg-[var(--color-info-soft)] text-[var(--color-info)]'
-      }`}
+      className={`view-enter-fast flex items-start gap-3 rounded-[var(--radius-lg)] border py-3 pl-4 pr-2 shadow-[var(--shadow-xs)] ${isError
+          ? 'border-[color-mix(in_srgb,var(--color-error)_25%,transparent)] bg-[var(--color-error-soft)] text-[var(--color-error)]'
+          : 'border-[color-mix(in_srgb,var(--color-info)_25%,transparent)] bg-[var(--color-info-soft)] text-[var(--color-info)]'
+        }`}
     >
       {isError
-        ? <TriangleAlert className="w-5 h-5 shrink-0 mt-0.5" />
-        : <Info className="w-5 h-5 shrink-0 mt-0.5" />
+        ? <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0" />
+        : <Info className="mt-0.5 h-5 w-5 shrink-0" />
       }
-      <p className="flex-1 text-sm font-medium leading-snug">{message}</p>
-      <div className="flex items-center gap-1 shrink-0">
+      <p className="flex-1 py-0.5 text-sm font-medium leading-snug text-[var(--color-text)]">
+        {message}
+      </p>
+      <div className="-my-1.5 flex shrink-0 items-center">
         {onRetry && (
-          <button
-            type="button"
-            onClick={onRetry}
-            className="w-8.5 h-8.5 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
-            aria-label="Retry"
-          >
-            <RefreshCw className="w-4 h-4 shrink-0" />
+          <button type="button" onClick={onRetry} className={actionBtn} aria-label="Retry">
+            <RefreshCw className="h-4 w-4 shrink-0" />
           </button>
         )}
         {onDismiss && (
-          <button
-            type="button"
-            onClick={onDismiss}
-            className="w-8.5 h-8.5 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
-            aria-label="Dismiss"
-          >
-            <X className="w-4 h-4 shrink-0" />
+          <button type="button" onClick={onDismiss} className={actionBtn} aria-label="Dismiss">
+            <X className="h-4 w-4 shrink-0" />
           </button>
         )}
       </div>

@@ -24,51 +24,51 @@ export function ScanSheet({
       role="dialog"
       aria-modal="true"
       aria-labelledby="scansheet-title"
-      className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center p-0 md:items-center md:p-4"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#0E2A1F]/40 backdrop-blur-[2px] transition-opacity"
+        className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text)_45%,transparent)] backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Sheet */}
-      <div className="relative z-10 w-full max-w-[420px] bg-[var(--color-surface)] rounded-t-3xl md:rounded-2xl p-6 shadow-xl border border-[var(--color-border)] animate-in fade-in slide-in-from-bottom-4 duration-200">
+      <div className="view-enter-fast relative z-10 w-full max-w-[420px] rounded-t-[var(--radius-2xl)] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3 shadow-[var(--shadow-lg)] sm:px-6 md:rounded-[var(--radius-xl)] md:pb-6 md:pt-6">
         {/* Drag handle (mobile) */}
-        <div className="w-8 h-1 rounded-full bg-[var(--color-border-strong)] mx-auto mb-5 md:hidden" />
+        <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[var(--color-border-strong)] md:hidden" />
 
-        <div className="flex items-center justify-between mb-1">
+        <div className="mb-1 flex items-center justify-between gap-3">
           <h2
             id="scansheet-title"
-            className="text-lg font-extrabold text-[var(--color-text)] tracking-tight"
+            className="text-xl font-extrabold tracking-tight text-[var(--color-text)]"
           >
             {STRINGS.scanSheet.title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-90 text-[var(--color-text-secondary)] transition-all shrink-0"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all duration-150 hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)] active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
             aria-label="Close sheet"
           >
-            <X className="w-5 h-5 shrink-0" />
+            <X className="h-5 w-5 shrink-0" />
           </button>
         </div>
 
-        <p className="text-sm text-[var(--color-text-secondary)] mb-5 leading-snug">
+        <p className="mb-6 text-sm leading-snug text-[var(--color-text-secondary)]">
           {STRINGS.home.scanSubtitle}
         </p>
 
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-3">
           <button
             type="button"
             onClick={() => {
               onClose()
               onTakePhoto()
             }}
-            className="btn btn-primary w-full flex items-center justify-center gap-3 text-base shadow-xs"
+            className="btn btn-primary w-full gap-3 text-base"
           >
-            <Camera className="w-5 h-5 text-white shrink-0" />
+            <Camera className="h-5 w-5 shrink-0 text-white" />
             <span>{STRINGS.scanSheet.takePhoto}</span>
           </button>
 
@@ -78,9 +78,9 @@ export function ScanSheet({
               onClose()
               onChooseGallery()
             }}
-            className="btn btn-tonal w-full flex items-center justify-center gap-3 text-base"
+            className="btn btn-tonal w-full gap-3 text-base"
           >
-            <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
+            <ImageIcon className="h-5 w-5 shrink-0 text-[var(--color-primary-strong)]" />
             <span>{STRINGS.scanSheet.chooseGallery}</span>
           </button>
         </div>

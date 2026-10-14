@@ -87,49 +87,55 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
 
   if (!isOpen) return null
 
+  const glassBtn =
+    'flex items-center justify-center rounded-full border border-white/15 bg-white/15 text-white backdrop-blur-md transition-all duration-150 hover:bg-white/25 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Live Camera Scanner"
-      className="fixed inset-0 z-50 bg-black flex flex-col justify-between overflow-hidden animate-in fade-in duration-150"
+      className="view-enter-fast fixed inset-0 z-50 flex flex-col justify-between overflow-hidden bg-black"
     >
       {/* Top Controls */}
-      <header className="relative z-20 flex items-center justify-between p-4 bg-gradient-to-b from-black/80 to-transparent">
+      <header className="relative z-20 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
         <button
           type="button"
           onClick={() => {
             stopStream()
             onClose()
           }}
-          className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-all"
+          className={`h-11 w-11 ${glassBtn}`}
           aria-label="Close camera"
         >
-          <X className="w-5 h-5" />
+          <X className="h-5 w-5" />
         </button>
 
-        <span className="text-white text-xs font-bold tracking-wider uppercase px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
+        <span className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-primary)]" aria-hidden="true" />
           Live AI Scanner
         </span>
 
         <button
           type="button"
           onClick={toggleCamera}
-          className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-all"
+          className={`h-11 w-11 ${glassBtn}`}
           aria-label="Flip camera"
           title="Switch camera"
         >
-          <RefreshCw className="w-5 h-5" />
+          <RefreshCw className="h-5 w-5" />
         </button>
       </header>
 
-      {/* Camera Viewport Area */}
-      <div className="relative flex-1 flex items-center justify-center overflow-hidden bg-black">
+      {/* Camera Viewport */}
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
         {cameraError ? (
-          <div className="p-6 max-w-sm text-center text-white flex flex-col items-center gap-3">
-            <AlertCircle className="w-12 h-12 text-amber-400" />
-            <h3 className="text-lg font-bold">Camera Unavailable</h3>
-            <p className="text-xs text-white/80 leading-relaxed">{cameraError}</p>
+          <div className="flex max-w-sm flex-col items-center gap-3 p-6 text-center text-white">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
+              <AlertCircle className="h-10 w-10 text-amber-400" />
+            </div>
+            <h3 className="mt-1 text-lg font-bold">Camera Unavailable</h3>
+            <p className="text-sm leading-relaxed text-white/80">{cameraError}</p>
             {onFallbackFilePicker && (
               <button
                 type="button"
@@ -138,9 +144,9 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
                   onClose()
                   onFallbackFilePicker()
                 }}
-                className="btn btn-primary mt-3 flex items-center gap-2 text-xs font-bold py-2.5 px-4 rounded-xl"
+                className="btn btn-primary mt-3 h-12 gap-2 px-5 text-sm"
               >
-                <ImageIcon className="w-4 h-4 text-white" />
+                <ImageIcon className="h-4 w-4 text-white" />
                 <span>Upload From Device</span>
               </button>
             )}
@@ -152,18 +158,17 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
               playsInline
               muted
               autoPlay
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
 
-            {/* Viewfinder Overlay Frame */}
-            <div className="relative z-10 w-64 h-64 sm:w-72 sm:h-72 rounded-3xl border-2 border-white/40 pointer-events-none flex items-center justify-center shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]">
-              {/* Reticles */}
-              <div className="absolute top-2 left-2 w-5 h-5 border-t-3 border-l-3 border-[#0F9D58] rounded-tl-sm" />
-              <div className="absolute top-2 right-2 w-5 h-5 border-t-3 border-r-3 border-[#0F9D58] rounded-tr-sm" />
-              <div className="absolute bottom-2 left-2 w-5 h-5 border-b-3 border-l-3 border-[#0F9D58] rounded-bl-sm" />
-              <div className="absolute bottom-2 right-2 w-5 h-5 border-b-3 border-r-3 border-[#0F9D58] rounded-br-sm" />
+            {/* Viewfinder Frame */}
+            <div className="pointer-events-none relative z-10 flex h-64 w-64 items-center justify-center rounded-[var(--radius-xl)] border-2 border-white/40 shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] sm:h-72 sm:w-72">
+              <div className="absolute left-2.5 top-2.5 h-6 w-6 rounded-tl-md border-l-[3px] border-t-[3px] border-[var(--color-primary)]" />
+              <div className="absolute right-2.5 top-2.5 h-6 w-6 rounded-tr-md border-r-[3px] border-t-[3px] border-[var(--color-primary)]" />
+              <div className="absolute bottom-2.5 left-2.5 h-6 w-6 rounded-bl-md border-b-[3px] border-l-[3px] border-[var(--color-primary)]" />
+              <div className="absolute bottom-2.5 right-2.5 h-6 w-6 rounded-br-md border-b-[3px] border-r-[3px] border-[var(--color-primary)]" />
 
-              <span className="text-[11px] font-bold text-white/90 bg-black/60 px-3 py-1 rounded-full backdrop-blur-xs">
+              <span className="rounded-full bg-black/60 px-3.5 py-1.5 text-xs font-bold text-white/95 backdrop-blur-sm">
                 Center item in box
               </span>
             </div>
@@ -171,8 +176,8 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
         )}
       </div>
 
-      {/* Bottom Shutter Action Bar */}
-      <footer className="relative z-20 flex items-center justify-around p-6 bg-gradient-to-t from-black/90 to-transparent">
+      {/* Bottom Shutter Bar */}
+      <footer className="relative z-20 flex items-center justify-around bg-gradient-to-t from-black/90 to-transparent px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-8">
         {onFallbackFilePicker ? (
           <button
             type="button"
@@ -181,29 +186,30 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
               onClose()
               onFallbackFilePicker()
             }}
-            className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md flex items-center justify-center text-white active:scale-95 transition-all"
+            className={`h-12 w-12 ${glassBtn}`}
             title="Upload from gallery"
+            aria-label="Upload from gallery"
           >
-            <ImageIcon className="w-5 h-5" />
+            <ImageIcon className="h-5 w-5" />
           </button>
         ) : (
-          <div className="w-12 h-12" />
+          <div className="h-12 w-12" />
         )}
 
-        {/* Shutter Button */}
+        {/* Shutter */}
         <button
           type="button"
           onClick={handleCapture}
           disabled={!isStreaming}
-          className="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center active:scale-90 transition-transform shadow-lg disabled:opacity-40"
+          className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white shadow-[var(--shadow-lg)] transition-transform duration-150 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
           aria-label="Capture waste photo"
         >
-          <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center">
-            <Camera className="w-7 h-7 text-[#0F9D58]" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white">
+            <Camera className="h-7 w-7 text-[var(--color-primary-strong)]" />
           </div>
         </button>
 
-        <div className="w-12 h-12" />
+        <div className="h-12 w-12" />
       </footer>
     </div>
   )

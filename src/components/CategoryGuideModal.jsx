@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { X, Check, AlertTriangle, Leaf, ChevronRight, Recycle, Info } from 'lucide-react'
+import { X, Check, AlertTriangle, Leaf, Recycle } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
 
@@ -129,25 +129,28 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
       role="dialog"
       aria-modal="true"
       aria-labelledby="guide-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5"
+      className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-5"
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-[#0E2A1F]/55 backdrop-blur-xs transition-opacity duration-200"
+        className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text)_50%,transparent)] backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Modal Dialog */}
-      <div className="relative z-10 w-full max-w-[620px] max-h-[90vh] bg-[var(--color-surface)] rounded-3xl p-5 sm:p-6 shadow-2xl border border-[var(--color-border)] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      {/* Modal Dialog (bottom sheet on mobile, centered card on sm+) */}
+      <div className="view-enter-fast relative z-10 flex max-h-[92dvh] w-full max-w-[620px] flex-col overflow-hidden rounded-t-[var(--radius-2xl)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-lg)] sm:max-h-[90dvh] sm:rounded-[var(--radius-2xl)]">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[var(--color-divider)]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)] flex items-center justify-center">
-              <Recycle className="w-5 h-5" />
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-divider)] px-5 pb-4 pt-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--color-primary-strong)_16%,transparent)] bg-[var(--color-surface-alt)] text-[var(--color-primary-strong)]">
+              <Recycle className="h-5 w-5" />
             </div>
-            <div>
-              <h2 id="guide-title" className="text-base font-extrabold text-[var(--color-text)] tracking-tight">
+            <div className="min-w-0">
+              <h2
+                id="guide-title"
+                className="text-base font-extrabold tracking-tight text-[var(--color-text)]"
+              >
                 What Goes Where Guide
               </h2>
               <p className="text-xs text-[var(--color-text-secondary)]">
@@ -159,15 +162,15 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           <button
             type="button"
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all shrink-0"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all duration-150 hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
             aria-label="Close guide"
           >
-            <X className="w-5 h-5 shrink-0" />
+            <X className="h-5 w-5 shrink-0" />
           </button>
         </div>
 
-        {/* Category Horizontal Segmented Tabs */}
-        <div className="flex items-center gap-1.5 py-3 overflow-x-auto no-scrollbar shrink-0">
+        {/* Category Tabs */}
+        <div className="no-scrollbar flex shrink-0 items-center gap-2 overflow-x-auto px-5 py-3">
           {CATEGORY_KEYS.map((k) => {
             const isCur = selectedKey === k
             const th = CATEGORY_THEME[k]
@@ -176,11 +179,11 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
                 key={k}
                 type="button"
                 onClick={() => setSelectedKey(k)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 ${
-                  isCur
-                    ? 'shadow-xs text-white'
-                    : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)]'
-                }`}
+                aria-pressed={isCur}
+                className={`flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-bold transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${isCur
+                    ? 'border-transparent text-white shadow-[var(--shadow-sm)]'
+                    : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)] hover:text-[var(--color-text)]'
+                  }`}
                 style={isCur ? { backgroundColor: th.ink } : {}}
               >
                 <CategoryIcon categoryId={k} size={16} inheritColor={isCur} />
@@ -190,55 +193,58 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           })}
         </div>
 
-        {/* Scrollable Category Content Area */}
-        <div className="flex-1 overflow-y-auto pr-1 space-y-4 pt-1">
-          {/* Hero Banner for Category */}
+        {/* Scrollable Content */}
+        <div className="flex-1 space-y-5 overflow-y-auto px-5 pb-5 pt-1">
+          {/* Hero */}
           <div
-            className="p-4 rounded-2xl border transition-all"
+            className="rounded-[var(--radius-lg)] border p-4 transition-all duration-150"
             style={{
-              backgroundColor: `${theme.soft}40`,
-              borderColor: `${theme.ink}30`,
+              backgroundColor: `color-mix(in srgb, ${theme.soft} 70%, var(--color-surface))`,
+              borderColor: `color-mix(in srgb, ${theme.ink} 25%, transparent)`,
             }}
           >
-            <div className="flex items-start justify-between gap-2">
-              <div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
                 <span
-                  className="text-[11px] font-black uppercase tracking-wider block"
+                  className="block text-xs font-black uppercase tracking-wider"
                   style={{ color: theme.ink }}
                 >
                   {active.binColor}
                 </span>
-                <h3 className="text-lg font-black text-[var(--color-text)] mt-0.5">
+                <h3 className="mt-1 text-lg font-black leading-snug text-[var(--color-text)]">
                   {active.title}
                 </h3>
               </div>
               <div
-                className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-xs"
-                style={{ backgroundColor: '#FFFFFF', border: `1px solid ${theme.ink}30` }}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]"
+                style={{ border: `1px solid color-mix(in srgb, ${theme.ink} 25%, transparent)` }}
               >
-                <CategoryIcon categoryId={selectedKey} size={22} />
+                <CategoryIcon categoryId={selectedKey} size={24} />
               </div>
             </div>
 
-            <p className="text-xs text-[var(--color-text-secondary)] mt-2 leading-relaxed">
+            <p className="mt-3 text-sm leading-relaxed text-[var(--color-text-secondary)]">
               {active.tips}
             </p>
           </div>
 
-          {/* Accepted Items List */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-success)] flex items-center gap-1.5">
-              <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} />
+          {/* Accepted */}
+          <div className="space-y-2.5">
+            <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var(--color-success)]">
+              <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
               <span>What Goes In This Bin</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {active.accepted.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 rounded-xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text)] font-medium flex items-start gap-2"
+                  className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-3 text-sm font-medium leading-snug text-[var(--color-text)]"
                 >
-                  <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    ✓
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)]"
+                    aria-hidden="true"
+                  >
+                    <Check className="h-3 w-3" strokeWidth={3} />
                   </span>
                   <span>{item}</span>
                 </div>
@@ -246,20 +252,23 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
             </div>
           </div>
 
-          {/* Common Contaminants to Avoid */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-warning)] flex items-center gap-1.5">
-              <AlertTriangle className="w-4 h-4 shrink-0" strokeWidth={2.25} />
+          {/* Not accepted */}
+          <div className="space-y-2.5">
+            <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var(--color-warning)]">
+              <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2.25} />
               <span>Do Not Put In This Bin</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {active.notAccepted.map((item, idx) => (
                 <div
                   key={idx}
-                  className="p-2.5 rounded-xl bg-amber-50/50 border border-amber-200/60 text-xs text-amber-950 font-medium flex items-start gap-2"
+                  className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[color-mix(in_srgb,var(--color-warning)_22%,transparent)] bg-[var(--color-warning-soft)] p-3 text-sm font-medium leading-snug text-[var(--color-text)]"
                 >
-                  <span className="w-4 h-4 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    ✕
+                  <span
+                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-warning)_18%,transparent)] text-[var(--color-warning)]"
+                    aria-hidden="true"
+                  >
+                    <X className="h-3 w-3" strokeWidth={3} />
                   </span>
                   <span>{item}</span>
                 </div>
@@ -268,13 +277,15 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           </div>
 
           {/* Ecological Fact */}
-          <div className="p-3.5 rounded-2xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs text-[var(--color-text)] flex items-start gap-2.5">
-            <Leaf className="w-4.5 h-4.5 text-[var(--color-primary-strong)] shrink-0 mt-0.5" />
+          <div className="card-mint flex items-start gap-3 p-4">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
+              <Leaf className="h-[18px] w-[18px] text-[var(--color-primary-strong)]" />
+            </div>
             <div>
-              <span className="font-extrabold text-[var(--color-primary-strong)] block text-[11px] uppercase tracking-wider">
+              <span className="block text-xs font-extrabold uppercase tracking-wider text-[var(--color-primary-strong)]">
                 SDG 15 Conservation Impact
               </span>
-              <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] leading-relaxed">
+              <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
                 {active.sdgFact}
               </p>
             </div>
@@ -282,11 +293,11 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
         </div>
 
         {/* Footer */}
-        <div className="pt-3 border-t border-[var(--color-divider)] flex justify-end">
+        <div className="flex shrink-0 justify-end border-t border-[var(--color-divider)] bg-[var(--color-surface)] px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
           <button
             type="button"
             onClick={onClose}
-            className="btn btn-primary px-5 py-2 text-xs font-bold"
+            className="btn btn-primary h-11 w-full px-6 text-sm sm:w-auto"
           >
             Got it, thanks
           </button>

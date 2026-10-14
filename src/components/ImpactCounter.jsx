@@ -44,42 +44,46 @@ export function ImpactCounter({
   }, [history])
 
   return (
-    <div className="flex-1 flex flex-col gap-4 pb-36 animate-in fade-in duration-200">
+    <div className="view-enter-fast flex flex-1 flex-col gap-4 pb-36">
       <TopBar title={STRINGS.impact.title} />
 
       {/* Hero Metric Tile */}
-      <div className="card card-hero p-5 sm:p-6 flex flex-col gap-4 border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-primary-soft)] border border-[color-mix(in_srgb,var(--color-primary-strong)_18%,transparent)]">
-            <Leaf className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" />
-            <span className="text-[11px] font-bold text-[var(--color-primary-strong)] tracking-wide">
+      <div className="card card-hero relative flex flex-col gap-4 overflow-hidden p-5 sm:p-6">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-[var(--color-primary-soft)] opacity-70 blur-2xl"
+        />
+
+        <div className="relative flex flex-wrap items-center justify-between gap-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--color-primary-strong)_18%,transparent)] bg-[var(--color-primary-soft)] px-3 py-1.5">
+            <Leaf className="h-4 w-4 shrink-0 text-[var(--color-primary-strong)]" />
+            <span className="text-xs font-bold tracking-wide text-[var(--color-primary-strong)]">
               SDG 15 · LIFE ON LAND
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)]">
+          <div className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 shadow-[var(--shadow-xs)]">
             <Flame
-              className={`w-4 h-4 shrink-0 ${
-                streak > 0 ? 'text-orange-500 fill-orange-500' : 'text-[var(--color-text-muted)]'
-              }`}
+              className={`h-4 w-4 shrink-0 ${streak > 0 ? 'fill-orange-500 text-orange-500' : 'text-[var(--color-text-muted)]'
+                }`}
               strokeWidth={streak > 0 ? 0 : 2}
             />
-            <span className="text-xs font-bold text-[var(--color-text)] tabular-nums">
+            <span className="text-xs font-bold tabular-nums text-[var(--color-text)]">
               {streak} {STRINGS.impact.dayStreak.toLowerCase()}
             </span>
           </div>
         </div>
 
-        <div>
-          <div className="text-4xl sm:text-5xl font-extrabold tracking-tight text-[var(--color-text)] tabular-nums leading-none">
+        <div className="relative">
+          <div className="text-5xl font-extrabold leading-none tracking-tight tabular-nums text-[var(--color-text)] sm:text-6xl">
             {totalSorted}
           </div>
-          <div className="text-xs sm:text-sm font-semibold text-[var(--color-text-secondary)] mt-1.5">
+          <div className="mt-2 text-sm font-semibold text-[var(--color-text-secondary)]">
             {STRINGS.impact.heroCaption}
           </div>
         </div>
 
-        <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] leading-relaxed">
+        <p className="relative text-sm leading-relaxed text-[var(--color-text-secondary)]">
           {totalSorted > 0
             ? 'Every item safely sorted prevents landfill expansion, halts toxic leachate, and preserves biodiversity on land.'
             : 'Start sorting today to keep recyclable and compostable materials out of landfills.'}
@@ -89,59 +93,57 @@ export function ImpactCounter({
           <button
             type="button"
             onClick={onOpenScanSheet}
-            className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-sm h-11"
+            className="btn btn-primary relative w-full gap-2.5 text-sm"
           >
-            <ScanLine className="w-5 h-5 text-white shrink-0" strokeWidth={2.25} />
+            <ScanLine className="h-5 w-5 shrink-0 text-white" strokeWidth={2.25} />
             <span>{STRINGS.impact.startStreak}</span>
           </button>
         )}
       </div>
 
-      {/* Last 7 Days Timeline Strip */}
-      <div className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
-        <div className="flex items-center justify-between mb-4">
+      {/* Last 7 Days Strip */}
+      <div className="card p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-[var(--color-text)]">
             {STRINGS.impact.last7Days}
           </h2>
-          <span className="text-xs text-[var(--color-text-muted)]">
+          <span className="text-xs font-medium text-[var(--color-text-muted)]">
             {streak > 0 ? `${streak} day active streak 🔥` : STRINGS.impact.startStreak}
           </span>
         </div>
 
         <div className="flex items-center justify-between gap-1">
           {last7Days.map((d) => (
-            <div key={d.key} className="flex flex-col items-center gap-1.5 flex-1">
+            <div key={d.key} className="flex flex-1 flex-col items-center gap-2">
               <div
-                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all ${
-                  d.active
-                    ? 'bg-[var(--color-primary-strong)] text-white shadow-xs'
-                    : 'bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-muted)]'
-                } ${d.isToday ? 'ring-2 ring-[var(--color-primary)] ring-offset-2' : ''}`}
+                className={`flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] transition-all duration-150 sm:h-10 sm:w-10 ${d.active
+                    ? 'bg-[var(--color-primary-strong)] text-white shadow-[var(--shadow-sm)]'
+                    : 'border border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)]'
+                  } ${d.isToday ? 'ring-2 ring-[var(--color-primary)] ring-offset-2 ring-offset-[var(--color-surface)]' : ''}`}
                 title={d.key}
               >
                 {d.active ? (
-                  <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                  <Check className="h-4 w-4 text-white" strokeWidth={2.5} />
                 ) : (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-border-strong)] opacity-60" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-border-strong)]" />
                 )}
               </div>
-              <span className={`text-[10px] font-semibold ${
-                d.isToday
-                  ? 'text-[var(--color-primary-strong)]'
-                  : 'text-[var(--color-text-muted)]'
-              }`}>
+              <span
+                className={`text-xs font-semibold ${d.isToday ? 'text-[var(--color-primary-strong)]' : 'text-[var(--color-text-muted)]'
+                  }`}
+              >
                 {d.dayLetter}
               </span>
             </div>
           ))}
         </div>
 
-        <p className="text-xs text-[var(--color-text-muted)] mt-4 leading-relaxed">
+        <p className="mt-4 text-xs leading-relaxed text-[var(--color-text-muted)]">
           {STRINGS.impact.streakDesc}
         </p>
       </div>
 
-      {/* Gamified Visual Waste Analytics Section (Recharts) */}
+      {/* Analytics (Recharts) */}
       <WasteAnalyticsChart
         history={history}
         streak={streak}
@@ -150,9 +152,9 @@ export function ImpactCounter({
         onOpenScanSheet={onOpenScanSheet}
       />
 
-      {/* Category Activity Breakdown */}
-      <div className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
-        <div className="flex items-center justify-between mb-4">
+      {/* Category Breakdown */}
+      <div className="card p-5">
+        <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-[var(--color-text)]">
             {STRINGS.impact.breakdownTitle}
           </h2>
@@ -160,10 +162,10 @@ export function ImpactCounter({
             <button
               type="button"
               onClick={onGoToHistory}
-              className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline"
+              className="-mr-2 flex min-h-[44px] items-center gap-1.5 rounded-[var(--radius-sm)] px-2 text-sm font-bold text-[var(--color-primary-strong)] transition-colors duration-150 hover:bg-[var(--color-primary-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
             >
               <span>{STRINGS.impact.seeScans}</span>
-              <ArrowRight className="w-4 h-4 shrink-0" />
+              <ArrowRight className="h-4 w-4 shrink-0" />
             </button>
           )}
         </div>
@@ -176,20 +178,26 @@ export function ImpactCounter({
 
             return (
               <div key={catKey} className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-xs font-semibold">
-                  <div className="flex items-center gap-2.5">
-                    <CategoryIcon categoryId={catKey} size={18} />
-                    <span className="text-[var(--color-text)]">{theme.label}</span>
+                <div className="flex items-center justify-between gap-3 text-sm font-semibold">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)]"
+                      style={{ backgroundColor: theme.soft }}
+                    >
+                      <CategoryIcon categoryId={catKey} size={18} />
+                    </span>
+                    <span className="truncate text-[var(--color-text)]">{theme.label}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-[var(--color-text-muted)] tabular-nums">
+                  <div className="flex shrink-0 items-center gap-2 tabular-nums text-[var(--color-text-muted)]">
                     <span>{count}</span>
-                    <span className="text-[var(--color-text)] font-bold w-7 text-right">{pct}%</span>
+                    <span className="w-9 text-right font-bold text-[var(--color-text)]">{pct}%</span>
                   </div>
                 </div>
 
                 <div
-                  className="w-full h-1.5 rounded-full bg-[var(--color-surface-sunken)] overflow-hidden"
+                  className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-surface-sunken)]"
                   role="progressbar"
+                  aria-label={theme.label}
                   aria-valuenow={pct}
                   aria-valuemin={0}
                   aria-valuemax={100}

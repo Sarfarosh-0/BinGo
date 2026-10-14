@@ -11,6 +11,34 @@ import {
 } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 
+// Presentation data for the quick-try tiles. Handler keys are unchanged.
+const SAMPLES = [
+  {
+    key: 'bottle',
+    emoji: '🥤',
+    label: 'Water Bottle',
+    title: 'Test classification with a plastic water bottle',
+    border: 'hover:border-[var(--cat-recyclable)]',
+    text: 'group-hover:text-[var(--cat-recyclable)]',
+  },
+  {
+    key: 'organic',
+    emoji: '🍌',
+    label: 'Banana Peel',
+    title: 'Test classification with banana peel scraps',
+    border: 'hover:border-[var(--cat-organic)]',
+    text: 'group-hover:text-[var(--cat-organic)]',
+  },
+  {
+    key: 'battery',
+    emoji: '🔋',
+    label: 'AA Battery',
+    title: 'Test classification with a household battery',
+    border: 'hover:border-[var(--cat-hazardous)]',
+    text: 'group-hover:text-[var(--cat-hazardous)]',
+  },
+]
+
 export function Scanner({
   ready = true,
   loadingText = STRINGS.home.loadingModel,
@@ -49,65 +77,66 @@ export function Scanner({
   return (
     <section
       aria-label="Scan Station"
-      className="card card-hero p-5 sm:p-6 flex flex-col items-center text-center relative overflow-hidden border border-[var(--color-border)] shadow-sm bg-[var(--color-surface)]"
+      className="card card-hero relative flex flex-col items-center overflow-hidden p-5 text-center sm:p-6"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Drag & Drop Visual Overlay */}
+      {/* Drag & Drop Overlay */}
       {isDragOver && (
-        <div className="absolute inset-0 z-30 bg-[#0F9D58]/95 text-white flex flex-col items-center justify-center p-6 backdrop-blur-xs">
-          <UploadCloud className="w-14 h-14 animate-bounce mb-3 text-white" />
-          <h3 className="text-xl font-black tracking-tight">Drop your waste photo here</h3>
-          <p className="text-xs text-white/90 mt-1">Our on-device AI will identify the material instantly</p>
+        <div className="absolute inset-0 z-30 bg-[color-mix(in_srgb,var(--color-primary-strong)_94%,transparent)] p-3 text-white backdrop-blur-sm">
+          <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--radius-xl)] border-2 border-dashed border-white/70 p-6">
+            <UploadCloud className="mb-3 h-14 w-14 animate-bounce text-white" />
+            <h3 className="text-xl font-black tracking-tight">Drop your waste photo here</h3>
+            <p className="mt-1 text-sm text-white/90">
+              Our on-device AI will identify the material instantly
+            </p>
+          </div>
         </div>
       )}
 
-      {/* Interactive Scan Aperture */}
+      {/* Scan Aperture */}
       <button
         type="button"
         onClick={ready && onCameraClick ? onCameraClick : undefined}
         disabled={!ready}
         aria-label={STRINGS.home.scanTitle}
-        className="relative w-40 h-40 sm:w-44 sm:h-44 my-2 flex items-center justify-center rounded-[24px] bg-[var(--color-surface-sunken)] border border-[var(--color-border)] cursor-pointer group disabled:cursor-default focus-visible:outline-2 focus-visible:outline-[var(--color-focus-ring)] transition-all hover:border-[var(--color-primary)] hover:shadow-md active:scale-95"
+        className="group relative my-2 flex h-40 w-40 cursor-pointer items-center justify-center rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[radial-gradient(circle_at_50%_35%,var(--color-surface)_0%,var(--color-surface-sunken)_100%)] shadow-[var(--shadow-xs)] transition-all duration-150 hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-md)] active:scale-95 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] sm:h-44 sm:w-44"
       >
-        {/* Corner Reticle Brackets */}
-        <span className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[var(--color-primary-strong)] rounded-tl-md opacity-60 group-hover:opacity-100 transition-opacity" />
-        <span className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-[var(--color-primary-strong)] rounded-tr-md opacity-60 group-hover:opacity-100 transition-opacity" />
-        <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-[var(--color-primary-strong)] rounded-bl-md opacity-60 group-hover:opacity-100 transition-opacity" />
-        <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-[var(--color-primary-strong)] rounded-br-md opacity-60 group-hover:opacity-100 transition-opacity" />
+        {/* Corner brackets */}
+        <span className="absolute left-3.5 top-3.5 h-4 w-4 rounded-tl-md border-l-2 border-t-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
+        <span className="absolute right-3.5 top-3.5 h-4 w-4 rounded-tr-md border-r-2 border-t-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
+        <span className="absolute bottom-3.5 left-3.5 h-4 w-4 rounded-bl-md border-b-2 border-l-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
+        <span className="absolute bottom-3.5 right-3.5 h-4 w-4 rounded-br-md border-b-2 border-r-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
 
-        {/* Center Emblem */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-white flex items-center justify-center shadow-xs border border-[var(--color-border)] group-hover:scale-105 transition-transform">
-            <ScanLine
-              className="w-8 h-8 text-[var(--color-primary-strong)]"
-              strokeWidth={2}
-            />
+        {/* Center emblem */}
+        <div className="flex flex-col items-center gap-2.5">
+          <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-transform duration-150 group-hover:scale-105 sm:h-[72px] sm:w-[72px]">
+            <ScanLine className="h-8 w-8 text-[var(--color-primary-strong)]" strokeWidth={2} />
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-text-muted)] group-hover:text-[var(--color-primary-strong)] transition-colors">
+          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-strong)]">
             Tap or drop photo
           </span>
         </div>
       </button>
 
       {/* Heading */}
-      <h2 className="text-xl sm:text-2xl font-bold text-[var(--color-text)] tracking-tight mt-2">
+      <h2 className="mt-3 text-xl font-extrabold tracking-tight text-[var(--color-text)] sm:text-2xl">
         {STRINGS.home.scanTitle}
       </h2>
-      <p className="text-xs sm:text-sm text-[var(--color-text-secondary)] mt-1 max-w-[320px] leading-snug">
+      <p className="mt-1.5 max-w-[320px] text-sm leading-snug text-[var(--color-text-secondary)]">
         {STRINGS.home.scanSubtitle}
       </p>
 
       {/* Action Buttons */}
-      <div className="w-full flex flex-col sm:flex-row gap-2.5 mt-4">
+      <div className="mt-5 flex w-full flex-col gap-2.5 sm:flex-row">
         <button
           type="button"
           onClick={onCameraClick}
           disabled={!ready}
-          className="btn btn-primary flex-1 flex items-center justify-center gap-2.5 text-sm font-bold shadow-xs active:scale-[0.98] transition-all"
+          className="btn btn-primary flex-1 gap-2.5 text-sm"
         >
-          <Camera className="w-5 h-5 text-white shrink-0" />
+          <Camera className="h-5 w-5 shrink-0 text-white" />
           <span>{STRINGS.home.btnCamera}</span>
         </button>
 
@@ -115,91 +144,68 @@ export function Scanner({
           type="button"
           onClick={onGalleryClick}
           disabled={!ready}
-          className="btn btn-tonal flex-1 flex items-center justify-center gap-2.5 text-sm font-bold active:scale-[0.98] transition-all"
+          className="btn btn-tonal flex-1 gap-2.5 text-sm"
         >
-          <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
+          <ImageIcon className="h-5 w-5 shrink-0 text-[var(--color-primary-strong)]" />
           <span>{STRINGS.home.btnGallery}</span>
         </button>
       </div>
 
-      {/* Interactive Quick-Try Sample Items */}
+      {/* Quick-Try Samples */}
       {onSelectSample && (
-        <div className="w-full mt-4 pt-3.5 border-t border-[var(--color-divider)]">
-          <div className="flex items-center justify-between text-xs mb-2">
-            <span className="font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] text-[10px]">
-              No photo nearby? Try an instant sample
+        <div className="mt-5 w-full border-t border-[var(--color-divider)] pt-4">
+          <div className="mb-2.5 flex items-center justify-between gap-2">
+            <span className="text-left text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
+              No photo nearby? Try a sample
             </span>
-            <span className="text-[10px] font-semibold text-[var(--color-primary-strong)] flex items-center gap-1">
-              <Zap className="w-3.5 h-3.5 shrink-0" />
-              1-Click Test
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--color-primary-strong)]">
+              <Zap className="h-3.5 w-3.5 shrink-0" />
+              1-Click
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-2">
-            <button
-              type="button"
-              onClick={() => onSelectSample('bottle')}
-              disabled={!ready}
-              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#1565C0] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
-              title="Test classification with a plastic water bottle"
-            >
-              <span className="text-base">🥤</span>
-              <span className="text-[11px] group-hover:text-[#1565C0] truncate w-full text-center">
-                Water Bottle
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSelectSample('organic')}
-              disabled={!ready}
-              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#2E7D32] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
-              title="Test classification with banana peel scraps"
-            >
-              <span className="text-base">🍌</span>
-              <span className="text-[11px] group-hover:text-[#2E7D32] truncate w-full text-center">
-                Banana Peel
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onSelectSample('battery')}
-              disabled={!ready}
-              className="py-2 px-2.5 rounded-xl bg-[var(--color-surface-sunken)] hover:bg-[var(--color-surface-alt)] border border-[var(--color-border)] hover:border-[#C62828] active:scale-95 text-xs font-semibold text-[var(--color-text)] transition-all flex flex-col items-center gap-1 group"
-              title="Test classification with a household battery"
-            >
-              <span className="text-base">🔋</span>
-              <span className="text-[11px] group-hover:text-[#C62828] truncate w-full text-center">
-                AA Battery
-              </span>
-            </button>
+            {SAMPLES.map((s) => (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => onSelectSample(s.key)}
+                disabled={!ready}
+                title={s.title}
+                className={`group flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-2 py-2.5 text-[var(--color-text)] transition-all duration-150 hover:bg-[var(--color-surface-alt)] active:scale-95 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${s.border}`}
+              >
+                <span className="text-xl leading-none" aria-hidden="true">{s.emoji}</span>
+                <span className={`w-full truncate text-center text-xs font-semibold transition-colors ${s.text}`}>
+                  {s.label}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Trust & Speed Badges */}
-      <div className="w-full mt-3.5 flex items-center justify-center gap-4 text-[11px] text-[var(--color-text-muted)] font-medium">
+      {/* Trust Badges */}
+      <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-[var(--color-text-muted)]">
         <span className="flex items-center gap-1.5">
-          <Shield className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
+          <Shield className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
           <span>100% Private</span>
         </span>
-        <span aria-hidden="true">·</span>
+        <span className="hidden xs:inline" aria-hidden="true">·</span>
         <span className="flex items-center gap-1.5">
-          <Zap className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
+          <Zap className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
           <span>Zero Server Lag</span>
         </span>
-        <span aria-hidden="true">·</span>
+        <span className="hidden xs:inline" aria-hidden="true">·</span>
         <span className="flex items-center gap-1.5">
-          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
           <span>SDG 15 Verified</span>
         </span>
       </div>
 
       {/* Model loading chip */}
       {!ready && (
-        <div className="inline-flex items-center gap-2 mt-3.5 px-3 py-1.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs font-semibold text-[var(--color-primary-strong)] animate-pulse">
-          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+        <div className="mt-4 inline-flex animate-pulse items-center gap-2 rounded-full border border-[color-mix(in_srgb,var(--color-primary-strong)_20%,transparent)] bg-[var(--color-surface-alt)] px-3.5 py-1.5 text-xs font-semibold text-[var(--color-primary-strong)]">
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
           <span>{loadingText}</span>
         </div>
       )}
