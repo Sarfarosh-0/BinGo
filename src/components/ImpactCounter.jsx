@@ -44,14 +44,14 @@ export function ImpactCounter({
   }, [history])
 
   return (
-    <div className="flex-1 flex flex-col gap-4 pb-28 animate-in fade-in duration-200">
+    <div className="flex-1 flex flex-col gap-4 pb-36 animate-in fade-in duration-200">
       <TopBar title={STRINGS.impact.title} />
 
       {/* Hero Metric Tile */}
       <div className="card card-hero p-5 sm:p-6 flex flex-col gap-4 border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xs">
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-primary-soft)] border border-[color-mix(in_srgb,var(--color-primary-strong)_18%,transparent)]">
-            <Leaf className="w-3.5 h-3.5 text-[var(--color-primary-strong)]" />
+            <Leaf className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" />
             <span className="text-[11px] font-bold text-[var(--color-primary-strong)] tracking-wide">
               SDG 15 · LIFE ON LAND
             </span>
@@ -59,7 +59,7 @@ export function ImpactCounter({
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)]">
             <Flame
-              className={`w-3.5 h-3.5 ${
+              className={`w-4 h-4 shrink-0 ${
                 streak > 0 ? 'text-orange-500 fill-orange-500' : 'text-[var(--color-text-muted)]'
               }`}
               strokeWidth={streak > 0 ? 0 : 2}
@@ -89,9 +89,9 @@ export function ImpactCounter({
           <button
             type="button"
             onClick={onOpenScanSheet}
-            className="btn btn-primary w-full flex items-center justify-center gap-2 text-sm h-11"
+            className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-sm h-11"
           >
-            <ScanLine className="w-4 h-4 text-white" />
+            <ScanLine className="w-5 h-5 text-white shrink-0" strokeWidth={2.25} />
             <span>{STRINGS.impact.startStreak}</span>
           </button>
         )}
@@ -160,10 +160,10 @@ export function ImpactCounter({
             <button
               type="button"
               onClick={onGoToHistory}
-              className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+              className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline"
             >
               <span>{STRINGS.impact.seeScans}</span>
-              <ArrowRight className="w-3 h-3" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
           )}
         </div>
@@ -177,8 +177,8 @@ export function ImpactCounter({
             return (
               <div key={catKey} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between text-xs font-semibold">
-                  <div className="flex items-center gap-2">
-                    <CategoryIcon categoryId={catKey} size={14} />
+                  <div className="flex items-center gap-2.5">
+                    <CategoryIcon categoryId={catKey} size={18} />
                     <span className="text-[var(--color-text)]">{theme.label}</span>
                   </div>
                   <div className="flex items-center gap-2 text-[var(--color-text-muted)] tabular-nums">

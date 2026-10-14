@@ -105,9 +105,9 @@ export function Scanner({
           type="button"
           onClick={onCameraClick}
           disabled={!ready}
-          className="btn btn-primary flex-1 flex items-center justify-center gap-2 text-sm font-bold shadow-xs active:scale-[0.98] transition-all"
+          className="btn btn-primary flex-1 flex items-center justify-center gap-2.5 text-sm font-bold shadow-xs active:scale-[0.98] transition-all"
         >
-          <Camera className="w-4 h-4 text-white" />
+          <Camera className="w-5 h-5 text-white shrink-0" />
           <span>{STRINGS.home.btnCamera}</span>
         </button>
 
@@ -115,9 +115,9 @@ export function Scanner({
           type="button"
           onClick={onGalleryClick}
           disabled={!ready}
-          className="btn btn-tonal flex-1 flex items-center justify-center gap-2 text-sm font-bold active:scale-[0.98] transition-all"
+          className="btn btn-tonal flex-1 flex items-center justify-center gap-2.5 text-sm font-bold active:scale-[0.98] transition-all"
         >
-          <ImageIcon className="w-4 h-4 text-[var(--color-primary-strong)]" />
+          <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
           <span>{STRINGS.home.btnGallery}</span>
         </button>
       </div>
@@ -129,8 +129,8 @@ export function Scanner({
             <span className="font-extrabold uppercase tracking-wider text-[var(--color-text-muted)] text-[10px]">
               No photo nearby? Try an instant sample
             </span>
-            <span className="text-[10px] font-semibold text-[var(--color-primary-strong)] flex items-center gap-0.5">
-              <Zap className="w-3 h-3" />
+            <span className="text-[10px] font-semibold text-[var(--color-primary-strong)] flex items-center gap-1">
+              <Zap className="w-3.5 h-3.5 shrink-0" />
               1-Click Test
             </span>
           </div>
@@ -180,18 +180,18 @@ export function Scanner({
 
       {/* Trust & Speed Badges */}
       <div className="w-full mt-3.5 flex items-center justify-center gap-4 text-[11px] text-[var(--color-text-muted)] font-medium">
-        <span className="flex items-center gap-1">
-          <Shield className="w-3 h-3 text-[var(--color-primary-strong)]" />
+        <span className="flex items-center gap-1.5">
+          <Shield className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
           <span>100% Private</span>
         </span>
         <span aria-hidden="true">·</span>
-        <span className="flex items-center gap-1">
-          <Zap className="w-3 h-3 text-[var(--color-primary-strong)]" />
+        <span className="flex items-center gap-1.5">
+          <Zap className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
           <span>Zero Server Lag</span>
         </span>
         <span aria-hidden="true">·</span>
-        <span className="flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3 text-[var(--color-primary-strong)]" />
+        <span className="flex items-center gap-1.5">
+          <CheckCircle2 className="w-3.5 h-3.5 text-[var(--color-primary-strong)] shrink-0" />
           <span>SDG 15 Verified</span>
         </span>
       </div>
@@ -199,7 +199,7 @@ export function Scanner({
       {/* Model loading chip */}
       {!ready && (
         <div className="inline-flex items-center gap-2 mt-3.5 px-3 py-1.5 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs font-semibold text-[var(--color-primary-strong)] animate-pulse">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          <Loader2 className="w-4 h-4 animate-spin shrink-0" />
           <span>{loadingText}</span>
         </div>
       )}

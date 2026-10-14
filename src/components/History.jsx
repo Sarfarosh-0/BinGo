@@ -24,9 +24,9 @@ export function History({ items = [], onOpenItem, onScan }) {
           <button
             type="button"
             onClick={onScan}
-            className="btn btn-primary mt-5 flex items-center gap-2 text-xs font-bold py-2 px-5 h-auto shadow-xs"
+            className="btn btn-primary mt-5 flex items-center gap-2.5 text-xs font-bold py-2.5 px-5 h-auto shadow-xs"
           >
-            <Camera className="w-4 h-4 text-white" />
+            <Camera className="w-4.5 h-4.5 text-white shrink-0" />
             <span>Scan First Item</span>
           </button>
         )}
@@ -68,7 +68,7 @@ export function History({ items = [], onOpenItem, onScan }) {
                   loading="lazy"
                 />
               ) : (
-                <Recycle className="w-5 h-5 text-[var(--color-text-muted)]" />
+                <Recycle className="w-6 h-6 text-[var(--color-text-muted)] shrink-0" />
               )}
             </div>
 
@@ -89,16 +89,16 @@ export function History({ items = [], onOpenItem, onScan }) {
             {/* Feedback indicator or chevron */}
             <div className="shrink-0 flex items-center gap-1.5">
               {item.feedback === 'up' && (
-                <div className="w-7 h-7 rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] flex items-center justify-center">
-                  <ThumbsUp className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] flex items-center justify-center shrink-0">
+                  <ThumbsUp className="w-4 h-4 shrink-0" />
                 </div>
               )}
               {item.feedback === 'down' && (
-                <div className="w-7 h-7 rounded-full bg-[var(--color-warning-soft)] text-[var(--color-warning)] flex items-center justify-center">
-                  <ThumbsDown className="w-3.5 h-3.5" />
+                <div className="w-7 h-7 rounded-full bg-[var(--color-warning-soft)] text-[var(--color-warning)] flex items-center justify-center shrink-0">
+                  <ThumbsDown className="w-4 h-4 shrink-0" />
                 </div>
               )}
-              <ChevronRight className="w-4 h-4 text-[var(--color-text-disabled)] group-hover:text-[var(--color-text-muted)] transition-colors" />
+              <ChevronRight className="w-4.5 h-4.5 text-[var(--color-text-disabled)] group-hover:text-[var(--color-text-muted)] transition-colors shrink-0" />
             </div>
           </div>
         )

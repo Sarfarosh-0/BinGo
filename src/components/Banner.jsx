@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import { RefreshCw, X, TriangleAlert, Info } from 'lucide-react'
 
 export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
@@ -13,8 +13,8 @@ export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
       }`}
     >
       {isError
-        ? <TriangleAlert className="w-4.5 h-4.5 shrink-0 mt-0.5" />
-        : <Info className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+        ? <TriangleAlert className="w-5 h-5 shrink-0 mt-0.5" />
+        : <Info className="w-5 h-5 shrink-0 mt-0.5" />
       }
       <p className="flex-1 text-sm font-medium leading-snug">{message}</p>
       <div className="flex items-center gap-1 shrink-0">
@@ -22,20 +22,20 @@ export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
           <button
             type="button"
             onClick={onRetry}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
+            className="w-8.5 h-8.5 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
             aria-label="Retry"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
+            <RefreshCw className="w-4 h-4 shrink-0" />
           </button>
         )}
         {onDismiss && (
           <button
             type="button"
             onClick={onDismiss}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
+            className="w-8.5 h-8.5 flex items-center justify-center rounded-lg hover:bg-black/8 active:scale-90 transition-all"
             aria-label="Dismiss"
           >
-            <X className="w-3.5 h-3.5" />
+            <X className="w-4 h-4 shrink-0" />
           </button>
         )}
       </div>

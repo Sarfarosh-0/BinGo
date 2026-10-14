@@ -39,17 +39,18 @@ export function Header({ onOpenGuide }) {
             <button
               type="button"
               onClick={onOpenGuide}
-              className="px-3 py-1.5 rounded-xl bg-[var(--color-surface-alt)] hover:bg-[var(--color-surface-sunken)] border border-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-xs"
+              className="min-h-[44px] h-11 px-3.5 sm:px-4 py-2 rounded-xl bg-[var(--color-surface-alt)] hover:bg-[var(--color-primary-soft)] border border-[color-mix(in_srgb,var(--color-primary-strong)_24%,transparent)] text-[var(--color-primary-strong)] text-xs sm:text-sm font-bold flex items-center gap-2 transition-all active:scale-95 shadow-xs"
               title="Explore sorting rules for all 5 bins"
+              aria-label="Open sorting guide for all bins"
             >
-              <BookOpen className="w-3.5 h-3.5" />
+              <BookOpen className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" strokeWidth={2.25} />
               <span className="hidden xs:inline">Sorting Guide</span>
               <span className="xs:hidden">Guide</span>
             </button>
           )}
 
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-muted)] text-[11px] font-semibold">
-            <Sparkles className="w-3 h-3 text-[var(--color-primary-strong)]" />
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-[var(--color-text-muted)] text-xs font-semibold">
+            <Sparkles className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" />
             <span>On-Device AI</span>
           </div>
         </div>

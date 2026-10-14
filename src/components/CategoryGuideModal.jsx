@@ -159,10 +159,10 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-95 text-[var(--color-text-secondary)] transition-all shrink-0"
             aria-label="Close guide"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5 shrink-0" />
           </button>
         </div>
 
@@ -183,7 +183,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
                 }`}
                 style={isCur ? { backgroundColor: th.ink } : {}}
               >
-                <CategoryIcon categoryId={k} size={14} inheritColor={isCur} />
+                <CategoryIcon categoryId={k} size={16} inheritColor={isCur} />
                 <span>{th.label.split('/')[0].trim()}</span>
               </button>
             )
@@ -228,7 +228,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           {/* Accepted Items List */}
           <div className="space-y-2">
             <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-success)] flex items-center gap-1.5">
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-4 h-4 shrink-0" strokeWidth={2.5} />
               <span>What Goes In This Bin</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -249,7 +249,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           {/* Common Contaminants to Avoid */}
           <div className="space-y-2">
             <h4 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-warning)] flex items-center gap-1.5">
-              <AlertTriangle className="w-3.5 h-3.5" />
+              <AlertTriangle className="w-4 h-4 shrink-0" strokeWidth={2.25} />
               <span>Do Not Put In This Bin</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -269,7 +269,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
 
           {/* Ecological Fact */}
           <div className="p-3.5 rounded-2xl bg-[var(--color-surface-alt)] border border-[var(--color-primary-soft)] text-xs text-[var(--color-text)] flex items-start gap-2.5">
-            <Leaf className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0 mt-0.5" />
+            <Leaf className="w-4.5 h-4.5 text-[var(--color-primary-strong)] shrink-0 mt-0.5" />
             <div>
               <span className="font-extrabold text-[var(--color-primary-strong)] block text-[11px] uppercase tracking-wider">
                 SDG 15 Conservation Impact

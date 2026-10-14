@@ -24,7 +24,7 @@ export function Sidebar({
       {isActive && (
         <span className="absolute left-0 top-2 bottom-2 w-0.5 bg-[var(--color-primary-strong)] rounded-r-full" />
       )}
-      <Icon className="w-[18px] h-[18px] shrink-0" strokeWidth={isActive ? 2.5 : 2} />
+      <Icon className="w-5 h-5 shrink-0" strokeWidth={isActive ? 2.5 : 2} />
       <span>{label}</span>
     </button>
   )
@@ -59,9 +59,9 @@ export function Sidebar({
           type="button"
           onClick={onOpenScanSheet}
           disabled={scanDisabled}
-          className="btn btn-primary w-full flex items-center justify-center gap-2 mb-6 text-sm h-11 shadow-xs"
+          className="btn btn-primary w-full flex items-center justify-center gap-2.5 mb-6 text-sm h-11 shadow-xs"
         >
-          <ScanLine className="w-4 h-4 text-white" />
+          <ScanLine className="w-5 h-5 text-white shrink-0" strokeWidth={2.25} />
           <span>Scan an item</span>
         </button>
 
@@ -76,7 +76,7 @@ export function Sidebar({
       {/* Sustainable Mission Note */}
       <div className="p-3.5 rounded-2xl bg-[var(--color-surface-sunken)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] leading-relaxed">
         <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--color-primary-strong)] mb-1">
-          <Leaf className="w-3.5 h-3.5" />
+          <Leaf className="w-4 h-4 shrink-0" />
           <span>SDG 15 Impact</span>
         </div>
         Every correctly sorted item protects soil quality and halts landfill runoff.

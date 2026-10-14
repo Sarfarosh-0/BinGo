@@ -409,10 +409,10 @@ export default function App() {
                           setSelectedGuideCategory('recyclable')
                           setIsGuideOpen(true)
                         }}
-                        className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                        className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline"
                       >
                         <span>Full Guide</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
+                        <ArrowRight className="w-4 h-4 shrink-0" />
                       </button>
                     </div>
 
@@ -438,7 +438,7 @@ export default function App() {
                             }}
                             title={`Click to view ${theme.label} disposal rules`}
                           >
-                            <CategoryIcon categoryId={catKey} size={15} />
+                            <CategoryIcon categoryId={catKey} size={16} />
                             <span className="font-bold text-xs">{theme.label}</span>
                           </button>
                         )
@@ -456,10 +456,10 @@ export default function App() {
                         <button
                           type="button"
                           onClick={() => setView('history')}
-                          className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                          className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline"
                         >
                           <span>{STRINGS.home.seeAll}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowRight className="w-4 h-4 shrink-0" />
                         </button>
                       </div>
                       <History

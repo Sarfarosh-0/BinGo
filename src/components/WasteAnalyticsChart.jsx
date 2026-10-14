@@ -351,7 +351,7 @@ export function WasteAnalyticsChart({
               }`}
               title="Toggle sample trends vs live scan data"
             >
-              <Info className="w-3.5 h-3.5" />
+              <Info className="w-4 h-4 shrink-0" />
               <span>{useSampleData ? 'Sample Mode' : 'Live Mode'}</span>
             </button>
           </div>
@@ -402,7 +402,7 @@ export function WasteAnalyticsChart({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-[var(--color-primary-strong)]" />
+              <BarChart3 className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
               <h2 className="text-sm font-extrabold text-[var(--color-text)]">
                 Items Sorted Over Time
               </h2>
@@ -467,7 +467,7 @@ export function WasteAnalyticsChart({
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
                 }`}
               >
-                <BarChart3 className="w-3.5 h-3.5" />
+                <BarChart3 className="w-4 h-4 shrink-0" />
               </button>
               <button
                 type="button"
@@ -479,7 +479,7 @@ export function WasteAnalyticsChart({
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
                 }`}
               >
-                <TrendingUp className="w-3.5 h-3.5" />
+                <TrendingUp className="w-4 h-4 shrink-0" />
               </button>
               <button
                 type="button"
@@ -491,7 +491,7 @@ export function WasteAnalyticsChart({
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
                 }`}
               >
-                <PieIcon className="w-3.5 h-3.5" />
+                <PieIcon className="w-4 h-4 shrink-0" />
               </button>
             </div>
           </div>
@@ -744,7 +744,7 @@ export function WasteAnalyticsChart({
       <section className="card p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-[var(--color-primary-strong)]" />
+            <Award className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text)]">
               Milestone Badges
             </h3>
@@ -771,7 +771,7 @@ export function WasteAnalyticsChart({
                     m.unlocked ? m.color : 'text-[var(--color-text-muted)] bg-white border-gray-200'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-5 h-5 shrink-0" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
@@ -779,8 +779,8 @@ export function WasteAnalyticsChart({
                       {m.title}
                     </span>
                     {m.unlocked ? (
-                      <span className="text-[10px] font-bold text-[var(--color-primary-strong)] flex items-center gap-0.5">
-                        <CheckCircle2 className="w-3 h-3" />
+                      <span className="text-[10px] font-bold text-[var(--color-primary-strong)] flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                         Done
                       </span>
                     ) : (

@@ -18,10 +18,10 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
           <button
             type="button"
             onClick={onViewAnalytics}
-            className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline transition-all"
+            className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline transition-all"
           >
             <span>Analytics</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4 shrink-0" />
           </button>
         )}
       </div>
@@ -33,7 +33,7 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
             <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">
               {STRINGS.home.itemsSorted}
             </span>
-            <Award className="w-4 h-4 text-[var(--color-primary-strong)]" />
+            <Award className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
           </div>
 
           <div className="mt-2 flex items-baseline gap-1.5">
@@ -65,11 +65,11 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
             <span className="text-[11px] font-semibold text-[var(--color-text-muted)]">
               {STRINGS.home.dayStreak}
             </span>
-            <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
               streak > 0 ? 'bg-orange-100 text-orange-600' : 'bg-black/5 text-[var(--color-text-muted)]'
             }`}>
               <Flame
-                className={`w-3.5 h-3.5 ${
+                className={`w-4 h-4 shrink-0 ${
                   streak > 0 ? 'text-orange-500 fill-orange-500' : 'text-[var(--color-text-disabled)]'
                 }`}
                 strokeWidth={streak > 0 ? 0 : 2}

@@ -48,10 +48,10 @@ export function ScanSheet({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-90 text-[var(--color-text-secondary)] transition-all"
+            className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-[var(--color-surface-sunken)] active:scale-90 text-[var(--color-text-secondary)] transition-all shrink-0"
             aria-label="Close sheet"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5 shrink-0" />
           </button>
         </div>
 
@@ -68,7 +68,7 @@ export function ScanSheet({
             }}
             className="btn btn-primary w-full flex items-center justify-center gap-3 text-base shadow-xs"
           >
-            <Camera className="w-5 h-5 text-white" />
+            <Camera className="w-5 h-5 text-white shrink-0" />
             <span>{STRINGS.scanSheet.takePhoto}</span>
           </button>
 
@@ -80,7 +80,7 @@ export function ScanSheet({
             }}
             className="btn btn-tonal w-full flex items-center justify-center gap-3 text-base"
           >
-            <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)]" />
+            <ImageIcon className="w-5 h-5 text-[var(--color-primary-strong)] shrink-0" />
             <span>{STRINGS.scanSheet.chooseGallery}</span>
           </button>
         </div>

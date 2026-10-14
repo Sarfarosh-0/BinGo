@@ -1,4 +1,4 @@
-﻿import React from 'react'
+import React from 'react'
 import {
   Check,
   CircleHelp,
@@ -100,7 +100,7 @@ export function ResultCard({
               <div className="flex items-center justify-between gap-4 pl-1">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <CategoryIcon categoryId={categoryId} size={22} />
+                    <CategoryIcon categoryId={categoryId} size={26} />
                     <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight truncate">
                       {categoryRules.label}
                     </h2>
@@ -137,7 +137,7 @@ export function ResultCard({
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full bg-white border border-[var(--color-primary-strong)] flex items-center justify-center shadow-sm">
-                      <Check className="w-3.5 h-3.5 text-[var(--color-primary-strong)]" strokeWidth={3} />
+                      <Check className="w-4 h-4 text-[var(--color-primary-strong)] shrink-0" strokeWidth={3} />
                     </div>
                   </div>
                 )}
@@ -168,7 +168,7 @@ export function ResultCard({
             {/* SDG fact */}
             <section className="card card-mint p-4 flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
-                <Leaf className="w-4 h-4 text-[var(--color-primary-strong)]" />
+                <Leaf className="w-4.5 h-4.5 text-[var(--color-primary-strong)] shrink-0" />
               </div>
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--color-primary-strong)]">
@@ -198,7 +198,7 @@ export function ResultCard({
                       : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
                   }`}
                 >
-                  <ThumbsUp className="w-4 h-4" />
+                  <ThumbsUp className="w-4.5 h-4.5 shrink-0" />
                 </button>
                 <button
                   type="button"
@@ -211,7 +211,7 @@ export function ResultCard({
                       : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
                   }`}
                 >
-                  <ThumbsDown className="w-4 h-4" />
+                  <ThumbsDown className="w-4.5 h-4.5 shrink-0" />
                 </button>
               </div>
             </section>
@@ -266,11 +266,11 @@ export function ResultCard({
 
               <ul className="mt-3.5 flex flex-col gap-2.5">
                 <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0 mt-0.5" />
+                  <Lightbulb className="w-4.5 h-4.5 text-[var(--color-warning)] shrink-0 mt-0.5" />
                   <span>{STRINGS.result.tipAnotherAngle}</span>
                 </li>
                 <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0 mt-0.5" />
+                  <Lightbulb className="w-4.5 h-4.5 text-[var(--color-warning)] shrink-0 mt-0.5" />
                   <span>{STRINGS.result.tipOneItem}</span>
                 </li>
               </ul>
