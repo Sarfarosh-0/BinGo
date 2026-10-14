@@ -358,72 +358,7 @@ export default function App() {
 
           {/* ================= HOME VIEW REDESIGN ================= */}
           {view === 'home' && (
-<<<<<<< HEAD
-            <div className="flex flex-col gap-4 view-enter">
-              {/* Brand Header */}
-              <Header />
-
-              {/* Hero Scan Tile */}
-              <Scanner
-                ready={ready}
-                loadingText={
-                  modelStatus === 'error'
-                    ? STRINGS.errors.modelLoadFail
-                    : STRINGS.home.loadingModel
-                }
-                onGalleryClick={handleOpenGallery}
-                onCameraClick={handleOpenCamera}
-              />
-
-              {/* Stats strip */}
-              <ImpactBar totalSorted={totalSorted} streak={streak} />
-
-              {/* What Goes Where */}
-              <section className="card p-4">
-                <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-muted)]">
-                  {STRINGS.home.whatGoesWhere}
-                </span>
-                <div className="flex flex-wrap gap-2 mt-3 overflow-x-hidden">
-                  {STATIC_CATEGORIES.map((catKey) => {
-                    const theme = CATEGORY_THEME[catKey]
-                    return (
-                      <div
-                        key={catKey}
-                        className="chip"
-                        style={{
-                          '--chip-ink': theme.ink,
-                          '--chip-soft': theme.soft,
-                        }}
-                      >
-                        <CategoryIcon categoryId={catKey} size={13} />
-                        <span>{theme.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
-
-              {/* Recent scans */}
-              {history.length > 0 && (
-                <section className="card p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-muted)]">
-                      {STRINGS.home.recentScans}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setView('history')}
-                      className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
-                    >
-                      <span>{STRINGS.home.seeAll}</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                  <History
-                    items={history.slice(0, 3)}
-                    onOpenItem={handleOpenHistoryItem}
-=======
-            <div className="flex flex-col gap-4 sm:gap-6 animate-in fade-in duration-200">
+            <div className="flex flex-col gap-4 sm:gap-6 view-enter">
               {/* Brand Header Banner */}
               <Header onOpenGuide={() => {
                 setSelectedGuideCategory('recyclable')
@@ -445,7 +380,6 @@ export default function App() {
                     onCameraClick={handleOpenCamera}
                     onDropFile={processFile}
                     onSelectSample={handleSelectSample}
->>>>>>> a0ebd175229679f65590e079dcbb9306dfc8a255
                   />
                 </div>
 
