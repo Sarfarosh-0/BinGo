@@ -9,6 +9,7 @@ import { Scanner } from './components/Scanner'
 import { History } from './components/History'
 import { ImpactCounter } from './components/ImpactCounter'
 import { ScanSheet } from './components/ScanSheet'
+import { CategoryGuideModal } from './components/CategoryGuideModal'
 import { AnalyzingView } from './components/AnalyzingView'
 import { ResultCard } from './components/ResultCard'
 import { Banner } from './components/Banner'
@@ -19,9 +20,10 @@ import { useModel } from './hooks/useModel'
 import { loadRules } from './lib/rules'
 import { processImageFile } from './lib/image'
 import { classify } from './lib/classify'
+import { createSampleWasteFile } from './lib/sampleImages'
 import { STRINGS } from './lib/strings'
 import { CATEGORY_THEME } from './lib/categoryTheme'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, BookOpen, Sparkles } from 'lucide-react'
 
 const STATIC_CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
@@ -34,6 +36,8 @@ export default function App() {
   const [currentFeedback, setCurrentFeedback] = useState(null)
   const [rules, setRules] = useState(null)
   const [isScanSheetOpen, setIsScanSheetOpen] = useState(false)
+  const [isGuideOpen, setIsGuideOpen] = useState(false)
+  const [selectedGuideCategory, setSelectedGuideCategory] = useState('recyclable')
 
   const { totalSorted, streak, byCategory, recordConfidentScan } = useStreak()
   const { history, addEntry, setFeedback } = useHistory()
@@ -135,12 +139,9 @@ export default function App() {
     setView(originTab)
   }, [originTab])
 
-  const handleFileSelect = async (e) => {
-    const file = e.target.files?.[0]
+  // Unified file processor for inputs, drag & drop, and sample waste items
+  const processFile = useCallback(async (file) => {
     if (!file) return
-    e.target.value = '' // Allow same file again
-
-    // Guard: don't start while already analyzing
     if (view === 'analyzing') return
     if (!ready || !model || !metadata || !rules) return
 
@@ -241,6 +242,23 @@ export default function App() {
         setBanner({ tone: 'error', message: STRINGS.errors.readFail })
       }
     }
+  }, [view, ready, model, metadata, rules, addEntry, recordConfidentScan])
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (file) processFile(file)
+  }
+
+  const handleSelectSample = async (type) => {
+    try {
+      const file = await createSampleWasteFile(type)
+      if (file) {
+        processFile(file)
+      }
+    } catch (e) {
+      console.error('Failed to create sample item file:', e)
+    }
   }
 
   const handleFeedback = (val) => {
@@ -327,8 +345,8 @@ export default function App() {
           />
         )}
 
-        {/* Main responsive container (centered 480px on mobile, responsive bento) */}
-        <main className="w-full max-w-[480px] lg:max-w-[720px] mx-auto flex-1 flex flex-col px-4 pt-4 pb-36 gap-4">
+        {/* Responsive container: 480px on phone, 1020px on desktop bento grid */}
+        <main className="w-full max-w-[480px] lg:max-w-[1020px] xl:max-w-[1120px] mx-auto flex-1 flex flex-col px-4 pt-4 sm:pt-6 pb-36 gap-4 sm:gap-6">
           {banner && (
             <Banner
               tone={banner.tone}
@@ -338,78 +356,169 @@ export default function App() {
             />
           )}
 
-          {/* Home View */}
+          {/* ================= HOME VIEW REDESIGN ================= */}
           {view === 'home' && (
-            <div className="flex flex-col gap-4 animate-in fade-in duration-200">
+            <div className="flex flex-col gap-4 sm:gap-6 animate-in fade-in duration-200">
               {/* Brand Header Banner */}
-              <Header />
+              <Header onOpenGuide={() => {
+                setSelectedGuideCategory('recyclable')
+                setIsGuideOpen(true)
+              }} />
 
-              {/* Hero Scan Tile */}
-              <Scanner
-                ready={ready}
-                loadingText={
-                  modelStatus === 'error'
-                    ? STRINGS.errors.modelLoadFail
-                    : STRINGS.home.loadingModel
-                }
-                onGalleryClick={handleOpenGallery}
-                onCameraClick={handleOpenCamera}
-              />
-
-              {/* Stat Strip (Side-by-side tiles) */}
-              <ImpactBar totalSorted={totalSorted} streak={streak} />
-
-              {/* What Goes Where Legend Tile */}
-              <section className="card p-4 border border-[var(--color-border)] shadow-sm">
-                <span className="text-xs font-bold text-[var(--color-text)]">
-                  {STRINGS.home.whatGoesWhere}
-                </span>
-                <div className="flex flex-wrap gap-2 mt-2.5">
-                  {STATIC_CATEGORIES.map((catKey) => {
-                    const theme = CATEGORY_THEME[catKey]
-                    return (
-                      <div
-                        key={catKey}
-                        className="chip"
-                        style={{
-                          '--chip-ink': theme.ink,
-                          '--chip-soft': theme.soft,
-                        }}
-                      >
-                        <CategoryIcon categoryId={catKey} size={14} />
-                        <span>{theme.label}</span>
-                      </div>
-                    )
-                  })}
-                </div>
-              </section>
-
-              {/* Recent Scans Tile (2-3 newest entries; hidden if empty) */}
-              {history.length > 0 && (
-                <section className="card p-4 border border-[var(--color-border)] shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-[var(--color-text)]">
-                      {STRINGS.home.recentScans}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setView('history')}
-                      className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
-                    >
-                      <span>{STRINGS.home.seeAll}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <History
-                    items={history.slice(0, 3)}
-                    onOpenItem={handleOpenHistoryItem}
+              {/* Responsive Bento Grid: 2 columns on desktop/tablet (7 cols left, 5 cols right), 1 column on phone */}
+              <div className="flex flex-col lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
+                {/* Left Column: Smart Scan Station (7 cols on desktop) */}
+                <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5">
+                  <Scanner
+                    ready={ready}
+                    loadingText={
+                      modelStatus === 'error'
+                        ? STRINGS.errors.modelLoadFail
+                        : STRINGS.home.loadingModel
+                    }
+                    onGalleryClick={handleOpenGallery}
+                    onCameraClick={handleOpenCamera}
+                    onDropFile={processFile}
+                    onSelectSample={handleSelectSample}
                   />
-                </section>
-              )}
+                </div>
+
+                {/* Right Column: Impact Stats, Interactive Guide & Activity (5 cols on desktop) */}
+                <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-5 mt-4 lg:mt-0">
+                  {/* Stat & Streak Bento Tile */}
+                  <ImpactBar
+                    totalSorted={totalSorted}
+                    streak={streak}
+                    onViewAnalytics={() => setView('impact')}
+                  />
+
+                  {/* Interactive "What Goes Where" Legend Tile */}
+                  <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                        {STRINGS.home.whatGoesWhere}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGuideCategory('recyclable')
+                          setIsGuideOpen(true)
+                        }}
+                        className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                      >
+                        <span>Full Guide</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <p className="text-[11px] text-[var(--color-text-muted)] mb-3 leading-relaxed">
+                      Click any bin category to explore accepted items & rules:
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {STATIC_CATEGORIES.map((catKey) => {
+                        const theme = CATEGORY_THEME[catKey]
+                        return (
+                          <button
+                            key={catKey}
+                            type="button"
+                            onClick={() => {
+                              setSelectedGuideCategory(catKey)
+                              setIsGuideOpen(true)
+                            }}
+                            className="chip py-1.5 px-3 transition-all hover:scale-105 active:scale-95 cursor-pointer border shadow-xs"
+                            style={{
+                              '--chip-ink': theme.ink,
+                              '--chip-soft': theme.soft,
+                            }}
+                            title={`Click to view ${theme.label} disposal rules`}
+                          >
+                            <CategoryIcon categoryId={catKey} size={15} />
+                            <span className="font-bold text-xs">{theme.label}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </section>
+
+                  {/* Recent Scans Tile OR 3-Step "How BinGo Works" Guide */}
+                  {history.length > 0 ? (
+                    <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                          {STRINGS.home.recentScans}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setView('history')}
+                          className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1 hover:underline"
+                        >
+                          <span>{STRINGS.home.seeAll}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <History
+                        items={history.slice(0, 3)}
+                        onOpenItem={handleOpenHistoryItem}
+                        onScan={() => setIsScanSheetOpen(true)}
+                      />
+                    </section>
+                  ) : (
+                    <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                          How BinGo Works
+                        </span>
+                        <span className="text-[11px] font-semibold text-[var(--color-primary-strong)]">
+                          3 Simple Steps
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
+                            1
+                          </span>
+                          <div>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">Snap or Upload</h4>
+                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                              Point your camera or drop any waste photo onto the scan lens.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
+                            2
+                          </span>
+                          <div>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">Instant AI Detection</h4>
+                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                              Neural network classifies materials into 5 categories in 0.2s on-device.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <span className="w-6 h-6 rounded-lg bg-[var(--color-primary-soft)] text-[var(--color-primary-strong)] text-xs font-black flex items-center justify-center shrink-0 mt-0.5">
+                            3
+                          </span>
+                          <div>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">Sort & Protect Land</h4>
+                            <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
+                              Follow exact disposal steps to halt toxic runoff and advance SDG 15.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
-          {/* Impact Counter View */}
+          {/* ================= IMPACT VIEW ================= */}
           {view === 'impact' && (
             <ImpactCounter
               totalSorted={totalSorted}
@@ -421,15 +530,19 @@ export default function App() {
             />
           )}
 
-          {/* History View */}
+          {/* ================= HISTORY VIEW ================= */}
           {view === 'history' && (
             <div className="flex-1 flex flex-col animate-in fade-in duration-200">
               <TopBar title={STRINGS.history.title} />
-              <History items={history} onOpenItem={handleOpenHistoryItem} />
+              <History
+                items={history}
+                onOpenItem={handleOpenHistoryItem}
+                onScan={() => setIsScanSheetOpen(true)}
+              />
             </div>
           )}
 
-          {/* Result View */}
+          {/* ================= RESULT VIEW ================= */}
           {view === 'result' && activeResult && (
             <ResultCard
               result={activeResult}
@@ -461,6 +574,13 @@ export default function App() {
         onClose={() => setIsScanSheetOpen(false)}
         onTakePhoto={handleOpenCamera}
         onChooseGallery={handleOpenGallery}
+      />
+
+      {/* Category Guide Modal */}
+      <CategoryGuideModal
+        isOpen={isGuideOpen}
+        initialCategory={selectedGuideCategory}
+        onClose={() => setIsGuideOpen(false)}
       />
     </div>
   )

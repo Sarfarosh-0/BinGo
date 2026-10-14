@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -14,7 +14,8 @@
     "@tensorflow/tfjs": "^4.22.0",
     "lucide-react": "^0.395.0",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
