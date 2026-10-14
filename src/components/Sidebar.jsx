@@ -34,7 +34,7 @@ export function Sidebar({
   return (
     <aside
       aria-label="Desktop Navigation"
-      className="sticky top-0 hidden h-screen w-[var(--sidebar-w)] shrink-0 select-none flex-col justify-between border-r border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 lg:flex"
+      className="fixed left-0 top-0 bottom-0 z-30 hidden h-screen w-[var(--sidebar-w)] shrink-0 select-none flex-col justify-between overflow-y-auto border-r border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 lg:flex"
     >
       <div>
         {/* Brand */}

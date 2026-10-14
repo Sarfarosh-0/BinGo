@@ -16,6 +16,7 @@ export function ImpactCounter({
   history = [],
   onOpenScanSheet,
   onGoToHistory,
+  onBackToHome,
 }) {
   // Derive 7-day strip from history timestamps
   const last7Days = useMemo(() => {
@@ -44,8 +45,8 @@ export function ImpactCounter({
   }, [history])
 
   return (
-    <div className="view-enter-fast flex flex-1 flex-col gap-4 pb-36">
-      <TopBar title={STRINGS.impact.title} />
+    <div className="view-enter-fast flex flex-1 flex-col gap-4 pb-6 lg:pb-0">
+      <TopBar title={STRINGS.impact.title} onBack={onBackToHome} />
 
       {/* Hero Metric Tile */}
       <div className="card card-hero relative flex flex-col gap-4 overflow-hidden p-5 sm:p-6">

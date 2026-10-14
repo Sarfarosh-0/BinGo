@@ -21,15 +21,9 @@ export function BottomNav({
           : 'bg-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)]'
         }`}
     >
-      {isActive && (
-        <span
-          className="absolute left-1/2 top-1 h-1 w-5 -translate-x-1/2 rounded-full bg-[var(--color-primary-strong)]"
-          aria-hidden="true"
-        />
-      )}
       <Icon
         className={`h-[22px] w-[22px] shrink-0 transition-transform duration-150 ${isActive
-            ? 'mt-1 scale-105 text-[var(--color-primary-strong)]'
+            ? 'scale-105 text-[var(--color-primary-strong)]'
             : 'text-[var(--color-text-muted)]'
           }`}
         strokeWidth={isActive ? 2.5 : 1.9}
@@ -57,7 +51,7 @@ export function BottomNav({
           onClick={onOpenScanSheet}
           disabled={scanDisabled}
           aria-label={STRINGS.nav.scan}
-          className="flex h-12 items-center justify-center gap-2.5 rounded-full bg-[var(--color-primary-strong)] px-6 text-white shadow-[var(--shadow-scan-btn)] transition-all duration-150 hover:-translate-y-0.5 hover:bg-[var(--color-primary-hover)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
+          className="flex h-12 items-center justify-center gap-2.5 rounded-full bg-[var(--color-primary-strong)] px-6 text-white shadow-[var(--shadow-scan-btn)] transition-all duration-150 enabled:hover:-translate-y-0.5 enabled:hover:bg-[var(--color-primary-hover)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
         >
           <ScanLine className="h-5 w-5 shrink-0 text-white" strokeWidth={2.25} />
           <span className="text-sm font-bold tracking-wide">{STRINGS.nav.scan}</span>

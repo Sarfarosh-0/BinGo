@@ -305,7 +305,7 @@ export default function App() {
 
   const dismissBanner = () => setBanner(null)
 
-  const isFullScreenView = view === 'analyzing' || view === 'result'
+  const isFullScreenView = view === 'analyzing'
 
   return (
     <div className="relative min-h-[100dvh] flex bg-[var(--color-bg)] text-[var(--color-text)] font-sans antialiased overflow-x-hidden">
@@ -341,7 +341,7 @@ export default function App() {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-[var(--sidebar-w)]">
         {/* Full-screen Analyzing overlay */}
         {view === 'analyzing' && (
           <AnalyzingView
@@ -351,7 +351,7 @@ export default function App() {
         )}
 
         {/* Responsive container: 480px on phone, 1020px on desktop bento grid */}
-        <main className="w-full max-w-[480px] lg:max-w-[1020px] xl:max-w-[1120px] mx-auto flex-1 flex flex-col px-4 pt-4 sm:pt-6 pb-36 gap-4 sm:gap-6">
+        <main className="w-full max-w-[480px] lg:max-w-[1020px] xl:max-w-[1120px] mx-auto flex-1 flex flex-col px-4 pt-4 sm:pt-6 pb-24 lg:pb-10 gap-4 sm:gap-6">
           {banner && (
             <Banner
               tone={banner.tone}
@@ -532,13 +532,14 @@ export default function App() {
               history={history}
               onOpenScanSheet={() => setIsScanSheetOpen(true)}
               onGoToHistory={() => setView('history')}
+              onBackToHome={() => setView('home')}
             />
           )}
 
           {/* ================= HISTORY VIEW ================= */}
           {view === 'history' && (
             <div className="flex-1 flex flex-col view-enter">
-              <TopBar title={STRINGS.history.title} />
+              <TopBar title={STRINGS.history.title} onBack={() => setView('home')} />
               <History
                 items={history}
                 onOpenItem={handleOpenHistoryItem}
@@ -561,7 +562,7 @@ export default function App() {
         </main>
 
         {/* Floating Bottom Nav (Mobile/Tablet) — hidden on full-screen analyzing and result views */}
-        {!isFullScreenView && (
+        {!isFullScreenView && view !== 'result' && (
           <BottomNav
             active={view === 'impact' ? 'impact' : view === 'history' ? 'history' : 'home'}
             onHome={() => setView('home')}
