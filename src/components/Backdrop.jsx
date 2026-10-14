@@ -2,16 +2,22 @@ import React, { memo } from 'react'
 
 function BackdropComponent() {
   return (
-    <div 
-      className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[var(--color-bg)]" 
+    <div
+      className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-[var(--color-bg)]"
       aria-hidden="true"
     >
-      {/* Top subtle tone band */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-72 bg-[var(--color-bg-band)] pointer-events-none"
+      {/* Soft top-center radial glow — gives depth without noise */}
+      <div
+        className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
         style={{
-          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(15,157,88,0.07) 0%, transparent 70%)',
+        }}
+      />
+      {/* Subtle top tone band */}
+      <div
+        className="absolute top-0 left-0 right-0 h-60 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, var(--color-bg-band) 0%, transparent 100%)',
         }}
       />
     </div>

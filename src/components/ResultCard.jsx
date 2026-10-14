@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import {
   Check,
   CircleHelp,
@@ -77,47 +77,40 @@ export function ResultCard({
   const theme = getCategoryTheme(categoryId)
   const confidencePct = Math.round((result.confidence || 0) * 100)
 
-  // Feedback undo: tap active thumb again clears it (D7)
   const handleThumbClick = (val) => {
-    if (feedback === val) {
-      onFeedback(null)
-    } else {
-      onFeedback(val)
-    }
+    onFeedback(feedback === val ? null : val)
   }
 
   return (
-    <div className="flex flex-col min-h-full pb-8" aria-live="polite">
-      {/* Top Bar with Back Arrow */}
+    <div className="flex flex-col min-h-full pb-8 animate-in fade-in duration-200" aria-live="polite">
       <TopBar title={STRINGS.result.title} onBack={onBack} />
 
-      <div className="flex flex-col gap-4 pt-3">
-        {/* ================= CONFIDENT RESULT STATE ================= */}
+      <div className="flex flex-col gap-3.5 pt-3">
+        {/* ── CONFIDENT ── */}
         {isConfident && (
           <>
-            {/* Primary Result Hero Card */}
-            <section className="card card-hero p-5 border border-[var(--color-border)] shadow-md relative overflow-hidden">
-              {/* Category-tone 4px accent indicator */}
+            {/* Hero */}
+            <section className="card card-hero p-5 relative overflow-hidden">
+              {/* Category accent strip */}
               <div
-                className="absolute top-0 left-0 bottom-0 w-1.5"
+                className="absolute top-0 left-0 bottom-0 w-1"
                 style={{ backgroundColor: theme.ink }}
               />
 
               <div className="flex items-center justify-between gap-4 pl-1">
-                {/* Left: Category, confidence & bar */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <CategoryIcon categoryId={categoryId} size={24} />
+                    <CategoryIcon categoryId={categoryId} size={22} />
                     <h2 className="text-2xl font-extrabold text-[var(--color-text)] tracking-tight truncate">
                       {categoryRules.label}
                     </h2>
                   </div>
 
-                  <p className="text-sm font-bold text-[var(--color-primary-strong)]">
-                    {confidencePct}% sure
+                  <p className="text-sm font-bold" style={{ color: theme.ink }}>
+                    {confidencePct}% confident
                   </p>
 
-                  {/* Confidence progress bar */}
+                  {/* Confidence bar */}
                   <div
                     role="progressbar"
                     aria-valuenow={confidencePct}
@@ -128,14 +121,14 @@ export function ResultCard({
                     <div
                       className="h-full rounded-full transition-all duration-700 ease-out"
                       style={{
-                        width: `${Math.min(100, Math.max(10, confidencePct))}%`,
+                        width: `${Math.min(100, Math.max(8, confidencePct))}%`,
                         backgroundColor: theme.ink,
                       }}
                     />
                   </div>
                 </div>
 
-                {/* Right: 112x112 photo preview with mint check badge */}
+                {/* Preview */}
                 {result.previewUrl && (
                   <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shrink-0 border border-[var(--color-border)] bg-[var(--color-surface-sunken)] shadow-sm">
                     <img
@@ -143,7 +136,7 @@ export function ResultCard({
                       alt={categoryRules.label}
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-[var(--color-surface-alt)] border border-[var(--color-primary-strong)] flex items-center justify-center shadow-sm">
+                    <div className="absolute bottom-1.5 right-1.5 w-6 h-6 rounded-full bg-white border border-[var(--color-primary-strong)] flex items-center justify-center shadow-sm">
                       <Check className="w-3.5 h-3.5 text-[var(--color-primary-strong)]" strokeWidth={3} />
                     </div>
                   </div>
@@ -151,17 +144,20 @@ export function ResultCard({
               </div>
             </section>
 
-            {/* How to Dispose Steps Card */}
-            <section className="card p-5 border border-[var(--color-border)] shadow-sm">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+            {/* Disposal steps */}
+            <section className="card p-5 border border-[var(--color-border)]">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
                 {STRINGS.result.howToDispose}
               </span>
 
-              <ol className="mt-3 space-y-3">
-                {categoryRules.steps.map((step, index) => (
-                  <li key={index} className="flex items-start gap-3 text-sm text-[var(--color-text)]">
-                    <span className="w-5 h-5 rounded-full bg-[var(--color-surface-sunken)] border border-[var(--color-border-strong)] text-[var(--color-text)] text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
-                      {index + 1}
+              <ol className="mt-3.5 flex flex-col gap-3">
+                {categoryRules.steps.map((step, idx) => (
+                  <li key={idx} className="flex items-start gap-3 text-sm text-[var(--color-text)]">
+                    <span
+                      className="w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5 text-white"
+                      style={{ backgroundColor: theme.ink }}
+                    >
+                      {idx + 1}
                     </span>
                     <span className="leading-snug">{step}</span>
                   </li>
@@ -169,13 +165,13 @@ export function ResultCard({
               </ol>
             </section>
 
-            {/* SDG 15 Impact Fact Card (.card-mint) */}
-            <section className="card card-mint p-4 flex items-start gap-3 border border-transparent">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-xs">
+            {/* SDG fact */}
+            <section className="card card-mint p-4 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                 <Leaf className="w-4 h-4 text-[var(--color-primary-strong)]" />
               </div>
               <div>
-                <span className="text-[11px] font-extrabold uppercase tracking-wider text-[var(--color-primary-strong)]">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[var(--color-primary-strong)]">
                   {STRINGS.result.sdgOverline}
                 </span>
                 <p className="text-xs text-[var(--color-text)] mt-1 leading-relaxed">
@@ -184,8 +180,8 @@ export function ResultCard({
               </div>
             </section>
 
-            {/* Feedback Row */}
-            <section className="card p-4 flex items-center justify-between border border-[var(--color-border)] shadow-xs">
+            {/* Feedback row */}
+            <section className="card p-4 flex items-center justify-between border border-[var(--color-border)]">
               <span className="text-xs font-semibold text-[var(--color-text-secondary)]">
                 {feedback ? STRINGS.result.feedbackThanks : STRINGS.result.wasCorrect}
               </span>
@@ -196,10 +192,10 @@ export function ResultCard({
                   onClick={() => handleThumbClick('up')}
                   aria-label="Thumbs up"
                   aria-pressed={feedback === 'up'}
-                  className={`btn-icon flex items-center justify-center transition-all ${
+                  className={`btn-icon flex items-center justify-center rounded-xl transition-all ${
                     feedback === 'up'
-                      ? 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)] ring-1 ring-[var(--color-success)]'
-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                      ? 'bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)]'
+                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
                   }`}
                 >
                   <ThumbsUp className="w-4 h-4" />
@@ -209,10 +205,10 @@ export function ResultCard({
                   onClick={() => handleThumbClick('down')}
                   aria-label="Thumbs down"
                   aria-pressed={feedback === 'down'}
-                  className={`btn-icon flex items-center justify-center transition-all ${
+                  className={`btn-icon flex items-center justify-center rounded-xl transition-all ${
                     feedback === 'down'
-                      ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)] ring-1 ring-[var(--color-warning)]'
-                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                      ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)]'
+                      : 'bg-[var(--color-surface-sunken)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent'
                   }`}
                 >
                   <ThumbsDown className="w-4 h-4" />
@@ -220,24 +216,24 @@ export function ResultCard({
               </div>
             </section>
 
-            {/* Primary Action Button */}
-            <div className="pt-2">
+            {/* CTA */}
+            <div className="pt-1">
               <button
                 type="button"
                 onClick={onScanAnother}
-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base shadow-sm"
+                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base"
               >
-                <Camera className="w-5 h-5 text-white" />
+                <Camera className="w-5 h-5" />
                 <span>{STRINGS.result.scanAnother}</span>
               </button>
             </div>
           </>
         )}
 
-        {/* ================= NOT SURE / LOW CONFIDENCE STATE ================= */}
+        {/* ── NOT SURE ── */}
         {!isConfident && (
           <>
-            <section className="card card-hero p-5 border border-[#FFE082] bg-[var(--color-warning-soft)] shadow-md">
+            <section className="card card-hero p-5 border border-[#FFE082] bg-[var(--color-warning-soft)]">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
@@ -263,32 +259,30 @@ export function ResultCard({
               </div>
             </section>
 
-            {/* Tips Card */}
-            <section className="card p-5 border border-[var(--color-border)] shadow-sm">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+            <section className="card p-5 border border-[var(--color-border)]">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
                 Scanning Tips
               </span>
 
-              <ul className="mt-3 space-y-2.5">
-                <li className="flex items-center gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0" />
+              <ul className="mt-3.5 flex flex-col gap-2.5">
+                <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
+                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0 mt-0.5" />
                   <span>{STRINGS.result.tipAnotherAngle}</span>
                 </li>
-                <li className="flex items-center gap-2.5 text-sm text-[var(--color-text)]">
-                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0" />
+                <li className="flex items-start gap-2.5 text-sm text-[var(--color-text)]">
+                  <Lightbulb className="w-4 h-4 text-[var(--color-warning)] shrink-0 mt-0.5" />
                   <span>{STRINGS.result.tipOneItem}</span>
                 </li>
               </ul>
             </section>
 
-            {/* Primary Action Button */}
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="button"
                 onClick={onScanAnother}
-                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base shadow-sm"
+                className="btn btn-primary w-full flex items-center justify-center gap-2.5 text-base"
               >
-                <Camera className="w-5 h-5 text-white" />
+                <Camera className="w-5 h-5" />
                 <span>{STRINGS.result.scanAnother}</span>
               </button>
             </div>

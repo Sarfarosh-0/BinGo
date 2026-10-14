@@ -1,3 +1,4 @@
+@import '@fontsource-variable/manrope';
 @import '@fontsource-variable/inter';
 @import './tokens.css';
 @import './components.css';
@@ -7,28 +8,67 @@
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: dark;
+  font-family: var(--font-sans);
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--forest-900);
-  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* Custom scrollbars */
+/* Refined scrollbars */
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-disabled);
+}
+
+/* Focus ring reset — handled per-component */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Smooth view transitions */
+@media (prefers-reduced-motion: no-preference) {
+  .view-enter {
+    animation: viewEnter var(--dur-base) var(--ease-out) both;
+  }
+  .view-enter-fast {
+    animation: viewEnter var(--dur-fast) var(--ease-out) both;
+  }
+}
+
+@keyframes viewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

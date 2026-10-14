@@ -75,10 +75,15 @@
   --sidebar-w: 240px;
   --sidebar-w-collapsed: 72px;
 
+  /* Glass surfaces */
+  --color-surface-glass: rgba(255, 255, 255, 0.88);
+
   /* Motion */
   --ease-standard: cubic-bezier(.4, 0, .2, 1);
   --ease-out: cubic-bezier(.22, 1, .36, 1);
-  --dur-fast: 120ms;
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-xfast: 80ms;
+  --dur-fast: 130ms;
   --dur-base: 200ms;
   --dur-slow: 320ms;
 

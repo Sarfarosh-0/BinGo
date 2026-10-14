@@ -1,47 +1,34 @@
-import React from 'react'
-import { Leaf } from 'lucide-react'
+﻿import React from 'react'
 import { STRINGS } from '../lib/strings'
 
 export function Header() {
   return (
-    <header className="w-full bg-[#FFFFFF] rounded-2xl md:rounded-3xl p-4 sm:p-5 border border-[#DCE8DF] shadow-[0_4px_24px_rgba(15,157,88,0.06)] relative overflow-hidden transition-all">
+    <header className="w-full bg-white rounded-2xl p-4 sm:p-5 border border-[var(--color-border)] shadow-[0_2px_16px_rgba(15,157,88,0.05)] relative overflow-hidden">
+      <div className="relative z-10 flex items-center gap-3.5 sm:gap-4 min-w-0">
+        {/* Logo */}
+        <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden shadow-[0_3px_10px_rgba(15,157,88,0.22)] border border-[var(--color-border)] shrink-0">
+          <img
+            src="/logo.png"
+            alt="BinGo recycling leaf logo"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
-
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Left Section: Logo + Brand Name + SDG Badge + Tagline */}
-        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-          {/* Rounded-Square Green Logo Container */}
-          <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden shadow-[0_4px_14px_rgba(15,157,88,0.25)] border border-[#C6D9CC] shrink-0">
-            <img
-              src="/logo.png"
-              alt="BinGo recycling leaf logo"
-              className="w-full h-full object-cover"
-            />
+        {/* Typography */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+              <span className="text-[var(--color-text)]">Bin</span>
+              <span className="text-[var(--color-primary-strong)]">Go</span>
+            </h1>
+            <span className="hidden xs:flex items-center h-4 w-px bg-[var(--color-border-strong)]" aria-hidden="true" />
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-[var(--color-text-muted)] shrink-0">
+              Life on Land
+            </span>
           </div>
-
-          {/* Typography block */}
-          <div className="min-w-0">
-            {/* Top row: Brand + Divider + SDG 15 Badge + Life on Land */}
-            <div className="flex items-center flex-wrap gap-y-1 gap-x-2">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
-                <span className="text-[#0E2A1F]">Bin</span>
-                <span className="text-[#0F9D58]">Go</span>
-              </h1>
-
-              {/* Vertical divider */}
-              <span className="h-4 w-px bg-[#C6D9CC] mx-0.5 hidden xs:inline-block" aria-hidden="true" />
-
-              {/* LIFE ON LAND caption */}
-              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-[#52665A] shrink-0">
-                LIFE ON LAND
-              </span>
-            </div>
-
-            {/* Tagline */}
-            <p className="text-xs sm:text-sm font-medium text-[#52665A] mt-1 tracking-normal">
-              {STRINGS.app.tagline}
-            </p>
-          </div>
+          <p className="text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] mt-0.5 tracking-normal leading-snug">
+            {STRINGS.app.tagline}
+          </p>
         </div>
       </div>
     </header>
