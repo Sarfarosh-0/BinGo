@@ -189,7 +189,6 @@ export const STRINGS = {
     errGeneric: 'Unable to access camera. Please choose an image from your device.',
   },
   scanner: {
-    tapOrDrop: 'Tap or drop photo',
     dropHere: 'Drop your waste photo here',
     dropSubtitle: 'Our on-device AI will identify the material instantly',
     trustPrivate: '100% Private',

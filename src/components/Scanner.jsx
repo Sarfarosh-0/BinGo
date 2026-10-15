@@ -96,30 +96,23 @@ export function Scanner({
         </div>
       )}
 
-      {/* Scan Aperture */}
-      <button
-        type="button"
-        onClick={ready && onCameraClick ? onCameraClick : undefined}
-        disabled={!ready}
-        aria-label={STRINGS.home.scanTitle}
-        className="group relative my-2 flex h-40 w-40 cursor-pointer items-center justify-center rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[radial-gradient(circle_at_50%_35%,var(--color-surface)_0%,var(--color-surface-sunken)_100%)] shadow-[var(--shadow-xs)] transition-all duration-150 hover:border-[var(--color-primary)] hover:shadow-[var(--shadow-md)] active:scale-95 disabled:pointer-events-none disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] sm:h-44 sm:w-44"
+      {/* Scan Aperture — decorative lens. The labelled buttons below are the
+          only capture controls, matching Design-Document D4 / PRD §2. */}
+      <div
+        aria-hidden="true"
+        className="relative my-2 flex h-40 w-40 select-none items-center justify-center rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[radial-gradient(circle_at_50%_35%,var(--color-surface)_0%,var(--color-surface-sunken)_100%)] shadow-[var(--shadow-xs)] sm:h-44 sm:w-44"
       >
         {/* Corner brackets */}
-        <span className="absolute left-3.5 top-3.5 h-4 w-4 rounded-tl-md border-l-2 border-t-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
-        <span className="absolute right-3.5 top-3.5 h-4 w-4 rounded-tr-md border-r-2 border-t-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
-        <span className="absolute bottom-3.5 left-3.5 h-4 w-4 rounded-bl-md border-b-2 border-l-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
-        <span className="absolute bottom-3.5 right-3.5 h-4 w-4 rounded-br-md border-b-2 border-r-2 border-[var(--color-primary-strong)] opacity-60 transition-opacity group-hover:opacity-100" />
+        <span className="absolute left-3.5 top-3.5 h-4 w-4 rounded-tl-md border-l-2 border-t-2 border-[var(--color-primary-strong)] opacity-70" />
+        <span className="absolute right-3.5 top-3.5 h-4 w-4 rounded-tr-md border-r-2 border-t-2 border-[var(--color-primary-strong)] opacity-70" />
+        <span className="absolute bottom-3.5 left-3.5 h-4 w-4 rounded-bl-md border-b-2 border-l-2 border-[var(--color-primary-strong)] opacity-70" />
+        <span className="absolute bottom-3.5 right-3.5 h-4 w-4 rounded-br-md border-b-2 border-r-2 border-[var(--color-primary-strong)] opacity-70" />
 
         {/* Center emblem */}
-        <div className="flex flex-col items-center gap-2.5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] transition-transform duration-150 group-hover:scale-105 sm:h-[72px] sm:w-[72px]">
-            <ScanLine className="h-8 w-8 text-[var(--color-primary-strong)]" strokeWidth={2} />
-          </div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-strong)]">
-            {STRINGS.scanner.tapOrDrop}
-          </span>
+        <div className="flex h-16 w-16 items-center justify-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)] sm:h-[72px] sm:w-[72px]">
+          <ScanLine className="h-8 w-8 text-[var(--color-primary-strong)]" strokeWidth={2} />
         </div>
-      </button>
+      </div>
 
       {/* Heading */}
       <h2 className="mt-3 text-xl font-extrabold tracking-tight text-[var(--color-text)] sm:text-2xl">
