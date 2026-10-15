@@ -33,23 +33,23 @@ export function Sidebar({
 
   return (
     <aside
-      aria-label="Desktop Navigation"
+      aria-label={STRINGS.sidebar.navAria}
       className="fixed left-0 top-0 bottom-0 z-30 hidden h-screen w-[var(--sidebar-w)] shrink-0 select-none flex-col justify-between overflow-y-auto border-r border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-6 lg:flex"
     >
       <div>
         {/* Brand */}
         <div className="mb-8 flex items-center gap-3 px-1.5">
           <div className="h-10 w-10 shrink-0 overflow-hidden rounded-[var(--radius-sm)] border border-[var(--color-border)] shadow-[var(--shadow-sm)]">
-            <img src="/logo.png" alt="BinGo logo" className="h-full w-full object-cover" />
+            <img src="/logo.png" alt={STRINGS.app.logoAlt} className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0">
             <h1 className="flex items-center gap-2 text-lg font-black leading-none tracking-tight">
               <span>
-                <span className="text-[var(--color-text)]">Bin</span>
-                <span className="text-[var(--color-primary-strong)]">Go</span>
+                <span className="text-[var(--color-text)]">{STRINGS.app.brandFirst}</span>
+                <span className="text-[var(--color-primary-strong)]">{STRINGS.app.brandSecond}</span>
               </span>
               <span className="rounded-full bg-[var(--color-surface-alt)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary-strong)]">
-                SDG 15
+                {STRINGS.sidebar.sdgBadge}
               </span>
             </h1>
             <p className="mt-1 text-xs leading-tight text-[var(--color-text-muted)]">
@@ -66,7 +66,7 @@ export function Sidebar({
           className="btn btn-primary mb-6 h-11 w-full gap-2.5 text-sm shadow-[var(--shadow-scan-btn)]"
         >
           <ScanLine className="h-5 w-5 shrink-0 text-white" strokeWidth={2.25} />
-          <span>Scan an item</span>
+          <span>{STRINGS.sidebar.scanItem}</span>
         </button>
 
         {/* Nav */}
@@ -81,9 +81,9 @@ export function Sidebar({
       <div className="card-mint rounded-[var(--radius-lg)] p-4 text-xs leading-relaxed text-[var(--color-text-secondary)]">
         <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-[var(--color-primary-strong)]">
           <Leaf className="h-4 w-4 shrink-0" />
-          <span>SDG 15 Impact</span>
+          <span>{STRINGS.sidebar.missionTitle}</span>
         </div>
-        Every correctly sorted item protects soil quality and halts landfill runoff.
+        {STRINGS.sidebar.missionBody}
       </div>
     </aside>
   )

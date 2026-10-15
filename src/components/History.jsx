@@ -8,7 +8,7 @@ export function History({ items = [], onOpenItem, onScan }) {
   if (!items || items.length === 0) {
     return (
       <div
-        aria-label="Empty Scan History"
+        aria-label={STRINGS.a11y.emptyHistory}
         className="flex-1 flex flex-col items-center justify-center py-16 px-6 text-center"
       >
         <div className="w-16 h-16 rounded-2xl bg-[var(--color-surface-alt)] flex items-center justify-center mb-4 text-[var(--color-primary-strong)]">
@@ -27,7 +27,7 @@ export function History({ items = [], onOpenItem, onScan }) {
             className="btn btn-primary mt-5 flex items-center gap-2.5 text-xs font-bold py-2.5 px-5 h-auto shadow-xs"
           >
             <Camera className="w-4.5 h-4.5 text-white shrink-0" />
-            <span>Scan First Item</span>
+            <span>{STRINGS.history.scanFirst}</span>
           </button>
         )}
       </div>
@@ -36,7 +36,7 @@ export function History({ items = [], onOpenItem, onScan }) {
 
   return (
     <div
-      aria-label="Scan History List"
+      aria-label={STRINGS.a11y.historyList}
       className="flex flex-col gap-2 py-2"
     >
       {items.map((item) => {

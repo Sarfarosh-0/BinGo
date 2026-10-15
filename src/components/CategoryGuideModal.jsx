@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { X, Check, AlertTriangle, Leaf, Recycle } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
+import { STRINGS } from '../lib/strings'
 
 const CATEGORY_DETAILS = {
   recyclable: {
@@ -141,10 +142,10 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
                 id="guide-title"
                 className="text-base font-extrabold tracking-tight text-[var(--color-text)]"
               >
-                What Goes Where Guide
+                {STRINGS.guide.title}
               </h2>
               <p className="text-xs text-[var(--color-text-secondary)]">
-                Official sorting standards for SDG 15 (Life on Land)
+                {STRINGS.guide.subtitle}
               </p>
             </div>
           </div>
@@ -153,7 +154,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
             type="button"
             onClick={onClose}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all duration-150 hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-            aria-label="Close guide"
+            aria-label={STRINGS.guide.closeAria}
           >
             <X className="h-5 w-5 shrink-0" />
           </button>
@@ -222,7 +223,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           <div className="space-y-2.5">
             <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var(--color-success)]">
               <Check className="h-4 w-4 shrink-0" strokeWidth={2.5} />
-              <span>What Goes In This Bin</span>
+              <span>{STRINGS.guide.acceptedHeading}</span>
             </h4>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {active.accepted.map((item, idx) => (
@@ -246,7 +247,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
           <div className="space-y-2.5">
             <h4 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-[var(--color-warning)]">
               <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2.25} />
-              <span>Do Not Put In This Bin</span>
+              <span>{STRINGS.guide.rejectedHeading}</span>
             </h4>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {active.notAccepted.map((item, idx) => (
@@ -273,7 +274,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
             </div>
             <div>
               <span className="block text-xs font-extrabold uppercase tracking-wider text-[var(--color-primary-strong)]">
-                SDG 15 Conservation Impact
+                {STRINGS.guide.sdgHeading}
               </span>
               <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
                 {active.sdgFact}
@@ -289,7 +290,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
             onClick={onClose}
             className="btn btn-primary h-11 w-full px-6 text-sm sm:w-auto"
           >
-            Got it, thanks
+            {STRINGS.guide.footerCta}
           </button>
         </div>
       </div>

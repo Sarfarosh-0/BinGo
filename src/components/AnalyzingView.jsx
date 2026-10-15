@@ -7,7 +7,7 @@ export function AnalyzingView({ previewUrl, onClose }) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Image analysis in progress"
+      aria-label={STRINGS.a11y.analyzingDialog}
       className="view-enter-fast fixed inset-0 z-50 flex flex-col justify-between overflow-hidden bg-[var(--color-bg)] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6"
     >
       {/* Top Bar */}
@@ -15,7 +15,7 @@ export function AnalyzingView({ previewUrl, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          aria-label="Cancel analysis"
+          aria-label={STRINGS.a11y.cancelAnalysis}
           className="flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] shadow-[var(--shadow-xs)] transition-all duration-150 hover:bg-[var(--color-surface-alt)] active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
         >
           <X className="h-5 w-5" strokeWidth={2} />
@@ -37,7 +37,7 @@ export function AnalyzingView({ previewUrl, onClose }) {
           {previewUrl && (
             <img
               src={previewUrl}
-              alt="Scan preview"
+              alt={STRINGS.a11y.scanPreview}
               className="h-full w-full object-contain"
             />
           )}

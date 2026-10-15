@@ -411,13 +411,13 @@ export default function App() {
                         }}
                         className="text-xs font-bold text-[var(--color-primary-strong)] flex items-center gap-1.5 hover:underline"
                       >
-                        <span>Full Guide</span>
+                        <span>{STRINGS.home.fullGuide}</span>
                         <ArrowRight className="w-4 h-4 shrink-0" />
                       </button>
                     </div>
 
                     <p className="text-[11px] text-[var(--color-text-muted)] mb-3 leading-relaxed">
-                      Click any bin category to explore accepted items & rules:
+                      {STRINGS.home.whatGoesWhereHint}
                     </p>
 
                     <div className="flex flex-wrap gap-2">
@@ -436,7 +436,7 @@ export default function App() {
                               '--chip-ink': theme.ink,
                               '--chip-soft': theme.soft,
                             }}
-                            title={`Click to view ${theme.label} disposal rules`}
+                            title={STRINGS.home.guideChipTitle.replace('{label}', theme.label)}
                           >
                             <CategoryIcon categoryId={catKey} size={16} />
                             <span className="font-bold text-xs">{theme.label}</span>
@@ -472,10 +472,10 @@ export default function App() {
                     <section className="card p-4 sm:p-5 border border-[var(--color-border)] shadow-xs bg-[var(--color-surface)]">
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                          How BinGo Works
+                          {STRINGS.home.howItWorks}
                         </span>
                         <span className="text-[11px] font-semibold text-[var(--color-primary-strong)]">
-                          3 Simple Steps
+                          {STRINGS.home.howItWorksBadge}
                         </span>
                       </div>
 
@@ -485,9 +485,9 @@ export default function App() {
                             1
                           </span>
                           <div>
-                            <h4 className="text-xs font-bold text-[var(--color-text)]">Snap or Upload</h4>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">{STRINGS.home.stepOneTitle}</h4>
                             <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
-                              Point your camera or drop any waste photo onto the scan lens.
+                              {STRINGS.home.stepOneDesc}
                             </p>
                           </div>
                         </div>
@@ -497,9 +497,9 @@ export default function App() {
                             2
                           </span>
                           <div>
-                            <h4 className="text-xs font-bold text-[var(--color-text)]">Instant AI Detection</h4>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">{STRINGS.home.stepTwoTitle}</h4>
                             <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
-                              Neural network classifies materials into 5 categories in 0.2s on-device.
+                              {STRINGS.home.stepTwoDesc}
                             </p>
                           </div>
                         </div>
@@ -509,9 +509,9 @@ export default function App() {
                             3
                           </span>
                           <div>
-                            <h4 className="text-xs font-bold text-[var(--color-text)]">Sort & Protect Land</h4>
+                            <h4 className="text-xs font-bold text-[var(--color-text)]">{STRINGS.home.stepThreeTitle}</h4>
                             <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5 leading-relaxed">
-                              Follow exact disposal steps to halt toxic runoff and advance SDG 15.
+                              {STRINGS.home.stepThreeDesc}
                             </p>
                           </div>
                         </div>

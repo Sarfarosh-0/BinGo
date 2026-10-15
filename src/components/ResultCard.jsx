@@ -111,7 +111,7 @@ export function ResultCard({
                   </div>
 
                   <p className="text-sm font-bold" style={{ color: theme.ink }}>
-                    {confidencePct}% confident
+                    {confidencePct}% {STRINGS.result.confidentLabel}
                   </p>
 
                   {/* Confidence bar */}
@@ -194,7 +194,7 @@ export function ResultCard({
                 <button
                   type="button"
                   onClick={() => handleThumbClick('up')}
-                  aria-label="Thumbs up"
+                  aria-label={STRINGS.a11y.thumbsUp}
                   aria-pressed={feedback === 'up'}
                   className={`btn-icon flex items-center justify-center rounded-full border transition-all duration-150 ${feedback === 'up'
                       ? 'border-[var(--color-success)] bg-[var(--color-success-soft)] text-[var(--color-success)]'
@@ -206,7 +206,7 @@ export function ResultCard({
                 <button
                   type="button"
                   onClick={() => handleThumbClick('down')}
-                  aria-label="Thumbs down"
+                  aria-label={STRINGS.a11y.thumbsDown}
                   aria-pressed={feedback === 'down'}
                   className={`btn-icon flex items-center justify-center rounded-full border transition-all duration-150 ${feedback === 'down'
                       ? 'border-[var(--color-warning)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]'
@@ -253,7 +253,7 @@ export function ResultCard({
                   <div className="h-24 w-24 shrink-0 overflow-hidden rounded-[var(--radius-lg)] border-2 border-[var(--color-surface)] bg-[var(--color-surface)] shadow-[var(--shadow-md)] sm:h-28 sm:w-28">
                     <img
                       src={result.previewUrl}
-                      alt="Captured item"
+                      alt={STRINGS.result.capturedItemAlt}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -263,7 +263,7 @@ export function ResultCard({
 
             <section className="card p-5">
               <span className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)]">
-                Scanning Tips
+                {STRINGS.result.scanningTips}
               </span>
 
               <ul className="mt-4 flex flex-col gap-3">

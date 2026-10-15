@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { X, Camera, RefreshCw, AlertCircle, Image as ImageIcon } from 'lucide-react'
+import { STRINGS } from '../lib/strings'
 
 export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }) {
   const videoRef = useRef(null)
@@ -21,7 +22,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
     setCameraError(null)
 
     if (!navigator.mediaDevices?.getUserMedia) {
-      setCameraError('Camera access is not supported by your browser.')
+      setCameraError(STRINGS.camera.errUnsupported)
       return
     }
 
@@ -44,9 +45,9 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
     } catch (err) {
       console.warn('Camera stream error:', err)
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-        setCameraError('Camera permission was denied. Please allow camera access or upload a photo.')
+        setCameraError(STRINGS.camera.errDenied)
       } else {
-        setCameraError('Unable to access camera. Please choose an image from your device.')
+        setCameraError(STRINGS.camera.errGeneric)
       }
     }
   }, [facingMode, stopStream])
@@ -94,7 +95,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Live Camera Scanner"
+      aria-label={STRINGS.camera.dialogAria}
       className="view-enter-fast fixed inset-0 z-50 flex flex-col justify-between overflow-hidden bg-black"
     >
       {/* Top Controls */}
@@ -106,22 +107,22 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
             onClose()
           }}
           className={`h-11 w-11 ${glassBtn}`}
-          aria-label="Close camera"
+          aria-label={STRINGS.camera.closeAria}
         >
           <X className="h-5 w-5" />
         </button>
 
         <span className="flex items-center gap-2 rounded-full border border-white/15 bg-black/40 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-md">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-primary)]" aria-hidden="true" />
-          Live AI Scanner
+          {STRINGS.camera.liveScanner}
         </span>
 
         <button
           type="button"
           onClick={toggleCamera}
           className={`h-11 w-11 ${glassBtn}`}
-          aria-label="Flip camera"
-          title="Switch camera"
+          aria-label={STRINGS.camera.flipAria}
+          title={STRINGS.camera.switchTitle}
         >
           <RefreshCw className="h-5 w-5" />
         </button>
@@ -134,7 +135,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
               <AlertCircle className="h-10 w-10 text-amber-400" />
             </div>
-            <h3 className="mt-1 text-lg font-bold">Camera Unavailable</h3>
+            <h3 className="mt-1 text-lg font-bold">{STRINGS.camera.unavailableTitle}</h3>
             <p className="text-sm leading-relaxed text-white/80">{cameraError}</p>
             {onFallbackFilePicker && (
               <button
@@ -147,7 +148,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
                 className="btn btn-primary mt-3 h-12 gap-2 px-5 text-sm"
               >
                 <ImageIcon className="h-4 w-4 text-white" />
-                <span>Upload From Device</span>
+                <span>{STRINGS.camera.uploadDevice}</span>
               </button>
             )}
           </div>
@@ -169,7 +170,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
               <div className="absolute bottom-2.5 right-2.5 h-6 w-6 rounded-br-md border-b-[3px] border-r-[3px] border-[var(--color-primary)]" />
 
               <span className="rounded-full bg-black/60 px-3.5 py-1.5 text-xs font-bold text-white/95 backdrop-blur-sm">
-                Center item in box
+                {STRINGS.camera.centerItem}
               </span>
             </div>
           </>
@@ -187,8 +188,8 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
               onFallbackFilePicker()
             }}
             className={`h-12 w-12 ${glassBtn}`}
-            title="Upload from gallery"
-            aria-label="Upload from gallery"
+            title={STRINGS.camera.uploadGallery}
+            aria-label={STRINGS.camera.uploadGallery}
           >
             <ImageIcon className="h-5 w-5" />
           </button>
@@ -202,7 +203,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
           onClick={handleCapture}
           disabled={!isStreaming}
           className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white shadow-[var(--shadow-lg)] transition-transform duration-150 active:scale-90 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
-          aria-label="Capture waste photo"
+          aria-label={STRINGS.camera.captureAria}
         >
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white">
             <Camera className="h-7 w-7 text-[var(--color-primary-strong)]" />

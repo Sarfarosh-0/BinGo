@@ -77,7 +77,7 @@ export function Scanner({
 
   return (
     <section
-      aria-label="Scan Station"
+      aria-label={STRINGS.a11y.scanStation}
       className="card card-hero relative flex flex-col items-center overflow-hidden p-5 text-center sm:p-6"
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -88,9 +88,9 @@ export function Scanner({
         <div className="absolute inset-0 z-30 bg-[color-mix(in_srgb,var(--color-primary-strong)_94%,transparent)] p-3 text-white backdrop-blur-sm">
           <div className="flex h-full w-full flex-col items-center justify-center rounded-[var(--radius-xl)] border-2 border-dashed border-white/70 p-6">
             <UploadCloud className="mb-3 h-14 w-14 animate-bounce text-white" />
-            <h3 className="text-xl font-black tracking-tight">Drop your waste photo here</h3>
+            <h3 className="text-xl font-black tracking-tight">{STRINGS.scanner.dropHere}</h3>
             <p className="mt-1 text-sm text-white/90">
-              Our on-device AI will identify the material instantly
+              {STRINGS.scanner.dropSubtitle}
             </p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function Scanner({
             <ScanLine className="h-8 w-8 text-[var(--color-primary-strong)]" strokeWidth={2} />
           </div>
           <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-muted)] transition-colors group-hover:text-[var(--color-primary-strong)]">
-            Tap or drop photo
+            {STRINGS.scanner.tapOrDrop}
           </span>
         </div>
       </button>
@@ -199,17 +199,17 @@ export function Scanner({
       <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-[var(--color-text-muted)]">
         <span className="flex items-center gap-1.5">
           <Shield className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
-          <span>100% Private</span>
+          <span>{STRINGS.scanner.trustPrivate}</span>
         </span>
         <span className="hidden xs:inline" aria-hidden="true">·</span>
         <span className="flex items-center gap-1.5">
           <Zap className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
-          <span>Zero Server Lag</span>
+          <span>{STRINGS.scanner.trustZeroLag}</span>
         </span>
         <span className="hidden xs:inline" aria-hidden="true">·</span>
         <span className="flex items-center gap-1.5">
           <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[var(--color-primary-strong)]" />
-          <span>SDG 15 Verified</span>
+          <span>{STRINGS.scanner.trustSdg}</span>
         </span>
       </div>
 

@@ -41,7 +41,7 @@ export function BottomNav({
 
   return (
     <nav
-      aria-label="Main Navigation"
+      aria-label={STRINGS.a11y.mainNav}
       className="pointer-events-none fixed bottom-0 left-0 right-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden"
     >
       <div className="pointer-events-auto mx-auto flex max-w-[440px] flex-col items-center gap-2.5">

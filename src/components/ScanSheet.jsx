@@ -49,7 +49,7 @@ export function ScanSheet({
             type="button"
             onClick={onClose}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[var(--color-text-secondary)] transition-all duration-150 hover:bg-[var(--color-surface-sunken)] hover:text-[var(--color-text)] active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)]"
-            aria-label="Close sheet"
+            aria-label={STRINGS.scanSheet.closeAria}
           >
             <X className="h-5 w-5 shrink-0" />
           </button>

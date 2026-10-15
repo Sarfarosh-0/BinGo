@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { localDateKey } from '../lib/date'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
+import { STRINGS } from '../lib/strings'
 
 // Brand category colors, mapped to design tokens
 const CATEGORY_COLORS = {
@@ -121,11 +122,11 @@ export function WasteAnalyticsChart({
     }
 
     const tiers = [
-      { lvl: 1, title: 'Seedling Sorter', min: 0, max: 60 },
-      { lvl: 2, title: 'Soil Guardian', min: 60, max: 160 },
-      { lvl: 3, title: 'Forest Protector', min: 160, max: 320 },
-      { lvl: 4, title: 'Biodiversity Sentinel', min: 320, max: 550 },
-      { lvl: 5, title: 'Zero-Waste Master', min: 550, max: 99999 },
+      { lvl: 1, title: STRINGS.analytics.levels.seedling, min: 0, max: 60 },
+      { lvl: 2, title: STRINGS.analytics.levels.soilGuardian, min: 60, max: 160 },
+      { lvl: 3, title: STRINGS.analytics.levels.forestProtector, min: 160, max: 320 },
+      { lvl: 4, title: STRINGS.analytics.levels.sentinel, min: 320, max: 550 },
+      { lvl: 5, title: STRINGS.analytics.levels.zeroWasteMaster, min: 550, max: 99999 },
     ]
 
     const curTier = tiers.find((t) => earnedXp >= t.min && earnedXp < t.max) || tiers[tiers.length - 1]
@@ -266,8 +267,8 @@ export function WasteAnalyticsChart({
     return [
       {
         id: 'first_divert',
-        title: 'Pioneer Sorter',
-        desc: 'Sort your 1st waste item',
+        title: STRINGS.analytics.milestone.pioneerTitle,
+        desc: STRINGS.analytics.milestone.pioneerDesc,
         target: 1,
         current: total,
         unlocked: total >= 1,
@@ -277,8 +278,8 @@ export function WasteAnalyticsChart({
       },
       {
         id: 'streak_3',
-        title: 'Habit Igniter',
-        desc: 'Maintain a 3+ day streak',
+        title: STRINGS.analytics.milestone.habitTitle,
+        desc: STRINGS.analytics.milestone.habitDesc,
         target: 3,
         current: activeStreak,
         unlocked: activeStreak >= 3,
@@ -288,8 +289,8 @@ export function WasteAnalyticsChart({
       },
       {
         id: 'organic_5',
-        title: 'Soil Nourisher',
-        desc: 'Divert 5+ organic items',
+        title: STRINGS.analytics.milestone.soilTitle,
+        desc: STRINGS.analytics.milestone.soilDesc,
         target: 5,
         current: organics,
         unlocked: organics >= 5,
@@ -299,8 +300,8 @@ export function WasteAnalyticsChart({
       },
       {
         id: 'recycling_5',
-        title: 'Resource Looper',
-        desc: 'Sort 5+ recyclable items',
+        title: STRINGS.analytics.milestone.loopTitle,
+        desc: STRINGS.analytics.milestone.loopDesc,
         target: 5,
         current: recyclables,
         unlocked: recyclables >= 5,
@@ -310,8 +311,8 @@ export function WasteAnalyticsChart({
       },
       {
         id: 'toxic_shield',
-        title: 'Land Guardian',
-        desc: 'Safely divert E-Waste or Hazard',
+        title: STRINGS.analytics.milestone.guardianTitle,
+        desc: STRINGS.analytics.milestone.guardianDesc,
         target: 1,
         current: toxics,
         unlocked: toxics >= 1,
@@ -336,7 +337,7 @@ export function WasteAnalyticsChart({
     }`
 
   return (
-    <div className="flex flex-col gap-4" aria-label="Visual Waste Analytics and Gamification Section">
+    <div className="flex flex-col gap-4" aria-label={STRINGS.analytics.sectionAria}>
       {/* Level Hero Card */}
       <section className="card p-5">
         <div className="flex items-start justify-between gap-3">
@@ -347,11 +348,11 @@ export function WasteAnalyticsChart({
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-2">
                 <span className="text-xs font-black uppercase tracking-wider text-[var(--color-primary-strong)]">
-                  Level {level}
+                  {STRINGS.analytics.level} {level}
                 </span>
                 <span className="text-xs text-[var(--color-text-disabled)]">·</span>
                 <span className="text-xs font-semibold tabular-nums text-[var(--color-text-secondary)]">
-                  {xp} Eco XP
+                  {xp} {STRINGS.analytics.ecoXp}
                 </span>
               </div>
               <h3 className="truncate text-lg font-extrabold tracking-tight text-[var(--color-text)]">
@@ -369,19 +370,19 @@ export function WasteAnalyticsChart({
                 ? 'border-[color-mix(in_srgb,var(--color-warning)_35%,transparent)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]'
                 : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]'
               }`}
-            title="Toggle sample trends vs live scan data"
+            title={STRINGS.analytics.sampleToggleTitle}
           >
             <Info className="h-4 w-4 shrink-0" />
-            <span>{useSampleData ? 'Sample Mode' : 'Live Mode'}</span>
+            <span>{useSampleData ? STRINGS.analytics.sampleMode : STRINGS.analytics.liveMode}</span>
           </button>
         </div>
 
         {/* XP Progress */}
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold">
-            <span className="text-[var(--color-text-secondary)]">Progress to Tier {level + 1}</span>
+            <span className="text-[var(--color-text-secondary)]">{STRINGS.analytics.progressToTier} {level + 1}</span>
             <span className="font-bold tabular-nums text-[var(--color-text)]">
-              {xp} / {nextLevelXp} XP ({xpProgressPct}%)
+              {xp} / {nextLevelXp} {STRINGS.analytics.xpShort} ({xpProgressPct}%)
             </span>
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-[var(--color-surface-sunken)] ring-1 ring-inset ring-[var(--color-border)]">
@@ -395,23 +396,23 @@ export function WasteAnalyticsChart({
         {/* Quick Eco Metrics */}
         <div className="mt-5 grid grid-cols-3 gap-2 border-t border-[var(--color-divider)] pt-4">
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">CO₂ Averted</span>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">{STRINGS.analytics.co2Averted}</span>
             <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-text)]">
               ~{impactStats.co2AvoidedKg}{' '}
-              <span className="text-xs font-medium text-[var(--color-text-muted)]">kg</span>
+              <span className="text-xs font-medium text-[var(--color-text-muted)]">{STRINGS.analytics.kg}</span>
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">Diversion</span>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">{STRINGS.analytics.diversion}</span>
             <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-primary-strong)]">
               {impactStats.diversionRate}%
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">Soil Protected</span>
+            <span className="text-xs font-semibold text-[var(--color-text-muted)]">{STRINGS.analytics.soilProtected}</span>
             <span className="mt-1 text-base font-extrabold tabular-nums text-[var(--color-text)]">
               {impactStats.soilAreaProtectedSqFt}{' '}
-              <span className="text-xs font-medium text-[var(--color-text-muted)]">sq ft</span>
+              <span className="text-xs font-medium text-[var(--color-text-muted)]">{STRINGS.analytics.sqFt}</span>
             </span>
           </div>
         </div>
@@ -427,15 +428,15 @@ export function WasteAnalyticsChart({
                 <BarChart3 className="h-[18px] w-[18px] text-[var(--color-primary-strong)]" />
               </span>
               <h2 className="text-sm font-extrabold text-[var(--color-text)]">
-                Items Sorted Over Time
+                {STRINGS.analytics.itemsOverTime}
               </h2>
             </div>
             <p className="mt-1.5 text-xs text-[var(--color-text-muted)]">
               {timeRange === '7d'
-                ? 'Daily activity across past 7 days'
+                ? STRINGS.analytics.range7dDesc
                 : timeRange === '30d'
-                  ? 'Daily trends over last 30 days'
-                  : 'Cumulative waste diversion growth'}
+                  ? STRINGS.analytics.range30dDesc
+                  : STRINGS.analytics.rangeCumulativeDesc}
             </p>
           </div>
 
@@ -448,7 +449,7 @@ export function WasteAnalyticsChart({
                 aria-pressed={timeRange === '7d'}
                 className={segBtn(timeRange === '7d')}
               >
-                7D
+                {STRINGS.analytics.range7d}
               </button>
               <button
                 type="button"
@@ -456,7 +457,7 @@ export function WasteAnalyticsChart({
                 aria-pressed={timeRange === '30d'}
                 className={segBtn(timeRange === '30d')}
               >
-                30D
+                {STRINGS.analytics.range30d}
               </button>
               <button
                 type="button"
@@ -464,7 +465,7 @@ export function WasteAnalyticsChart({
                 aria-pressed={timeRange === 'cumulative'}
                 className={segBtn(timeRange === 'cumulative')}
               >
-                Total
+                {STRINGS.analytics.rangeTotal}
               </button>
             </div>
 
@@ -473,8 +474,8 @@ export function WasteAnalyticsChart({
               <button
                 type="button"
                 onClick={() => setChartType('bar')}
-                title="Stacked Bar Chart"
-                aria-label="Stacked bar chart"
+                title={STRINGS.analytics.chartStackedBar}
+                aria-label={STRINGS.analytics.chartStackedBar}
                 aria-pressed={chartType === 'bar'}
                 className={iconSegBtn(chartType === 'bar')}
               >
@@ -483,8 +484,8 @@ export function WasteAnalyticsChart({
               <button
                 type="button"
                 onClick={() => setChartType('area')}
-                title="Trend Area Chart"
-                aria-label="Trend area chart"
+                title={STRINGS.analytics.chartArea}
+                aria-label={STRINGS.analytics.chartArea}
                 aria-pressed={chartType === 'area'}
                 className={iconSegBtn(chartType === 'area')}
               >
@@ -493,8 +494,8 @@ export function WasteAnalyticsChart({
               <button
                 type="button"
                 onClick={() => setChartType('pie')}
-                title="Category Distribution"
-                aria-label="Category distribution chart"
+                title={STRINGS.analytics.chartPie}
+                aria-label={STRINGS.analytics.chartPie}
                 aria-pressed={chartType === 'pie'}
                 className={iconSegBtn(chartType === 'pie')}
               >
@@ -515,7 +516,7 @@ export function WasteAnalyticsChart({
                 : 'border-[var(--color-border)] bg-[var(--color-surface-sunken)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-alt)]'
               }`}
           >
-            All Categories
+            {STRINGS.analytics.allCategories}
           </button>
           {CATEGORY_KEYS.map((catKey) => {
             const theme = CATEGORY_THEME[catKey]
@@ -591,7 +592,7 @@ export function WasteAnalyticsChart({
                         <span className="truncate text-[var(--color-text)]">{item.name}</span>
                       </div>
                       <div className="flex shrink-0 items-center gap-2 tabular-nums">
-                        <span className="text-[var(--color-text-muted)]">{item.value} items</span>
+                        <span className="text-[var(--color-text-muted)]">{item.value} {STRINGS.analytics.itemsUnit}</span>
                         <span className="font-bold text-[var(--color-text)]">{pct}%</span>
                       </div>
                     </div>
@@ -634,7 +635,7 @@ export function WasteAnalyticsChart({
                     <Area
                       type="monotone"
                       dataKey="cumulativeTotal"
-                      name="Total Cumulative"
+                      name={STRINGS.analytics.totalCumulative}
                       stroke="var(--color-primary)"
                       strokeWidth={2.5}
                       fillOpacity={1}
@@ -703,7 +704,7 @@ export function WasteAnalyticsChart({
                   categoryFilter === 'all' ? (
                     <Bar
                       dataKey="cumulativeTotal"
-                      name="Total Cumulative"
+                      name={STRINGS.analytics.totalCumulative}
                       fill="var(--color-primary)"
                       radius={[6, 6, 0, 0]}
                     />
@@ -761,11 +762,11 @@ export function WasteAnalyticsChart({
               <Award className="h-[18px] w-[18px] shrink-0 text-[var(--color-primary-strong)]" />
             </span>
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-[var(--color-text)]">
-              Milestone Badges
+              {STRINGS.analytics.milestoneHeading}
             </h3>
           </div>
           <span className="rounded-full bg-[var(--color-surface-sunken)] px-2.5 py-1 text-xs font-semibold tabular-nums text-[var(--color-text-secondary)]">
-            {milestones.filter((m) => m.unlocked).length} / {milestones.length} Unlocked
+            {milestones.filter((m) => m.unlocked).length} / {milestones.length} {STRINGS.analytics.unlockedSuffix}
           </span>
         </div>
 
@@ -796,7 +797,7 @@ export function WasteAnalyticsChart({
                     {m.unlocked ? (
                       <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-[var(--color-primary-strong)]">
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
-                        Done
+                        {STRINGS.analytics.done}
                       </span>
                     ) : (
                       <span className="shrink-0 text-xs font-semibold tabular-nums text-[var(--color-text-muted)]">
@@ -827,7 +828,7 @@ function CustomChartTooltip({ active, payload, label, timeRange }) {
     <div className="max-w-[220px] rounded-[var(--radius-md)] border border-white/10 bg-[var(--color-text)] p-3 text-xs text-white shadow-[var(--shadow-lg)]">
       <div className="mb-2 flex items-center justify-between gap-3 border-b border-white/15 pb-2 font-bold">
         <span>{label}</span>
-        <span className="font-extrabold text-[var(--color-accent)]">{totalForDay} items</span>
+        <span className="font-extrabold text-[var(--color-accent)]">{totalForDay} {STRINGS.analytics.itemsUnit}</span>
       </div>
       <div className="flex flex-col gap-1.5">
         {payload.map((entry) => {
@@ -865,7 +866,7 @@ function CustomPieTooltip({ active, payload }) {
         <span className="font-bold text-white">{data.name}</span>
       </div>
       <div className="mt-1 text-white/80">
-        <span className="font-extrabold tabular-nums text-[var(--color-accent)]">{data.value}</span> items sorted
+        <span className="font-extrabold tabular-nums text-[var(--color-accent)]">{data.value}</span> {STRINGS.analytics.itemsSortedUnit}
       </div>
     </div>
   )

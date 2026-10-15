@@ -1,5 +1,6 @@
 import React from 'react'
 import { RefreshCw, X, TriangleAlert, Info } from 'lucide-react'
+import { STRINGS } from '../lib/strings'
 
 export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
   const isError = tone === 'error'
@@ -25,12 +26,12 @@ export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
       </p>
       <div className="-my-1.5 flex shrink-0 items-center">
         {onRetry && (
-          <button type="button" onClick={onRetry} className={actionBtn} aria-label="Retry">
+          <button type="button" onClick={onRetry} className={actionBtn} aria-label={STRINGS.errors.retry}>
             <RefreshCw className="h-4 w-4 shrink-0" />
           </button>
         )}
         {onDismiss && (
-          <button type="button" onClick={onDismiss} className={actionBtn} aria-label="Dismiss">
+          <button type="button" onClick={onDismiss} className={actionBtn} aria-label={STRINGS.errors.dismiss}>
             <X className="h-4 w-4 shrink-0" />
           </button>
         )}

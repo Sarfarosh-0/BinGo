@@ -59,7 +59,7 @@ export function ImpactCounter({
           <div className="inline-flex items-center gap-1.5 rounded-full border border-[color-mix(in_srgb,var(--color-primary-strong)_18%,transparent)] bg-[var(--color-primary-soft)] px-3 py-1.5">
             <Leaf className="h-4 w-4 shrink-0 text-[var(--color-primary-strong)]" />
             <span className="text-xs font-bold tracking-wide text-[var(--color-primary-strong)]">
-              SDG 15 · LIFE ON LAND
+              {STRINGS.impact.sdgBadge}
             </span>
           </div>
 
@@ -85,9 +85,7 @@ export function ImpactCounter({
         </div>
 
         <p className="relative text-sm leading-relaxed text-[var(--color-text-secondary)]">
-          {totalSorted > 0
-            ? 'Every item safely sorted prevents landfill expansion, halts toxic leachate, and preserves biodiversity on land.'
-            : 'Start sorting today to keep recyclable and compostable materials out of landfills.'}
+          {totalSorted > 0 ? STRINGS.impact.heroActive : STRINGS.impact.heroEmpty}
         </p>
 
         {totalSorted === 0 && (
@@ -109,7 +107,7 @@ export function ImpactCounter({
             {STRINGS.impact.last7Days}
           </h2>
           <span className="text-xs font-medium text-[var(--color-text-muted)]">
-            {streak > 0 ? `${streak} day active streak 🔥` : STRINGS.impact.startStreak}
+            {streak > 0 ? `${streak} ${STRINGS.impact.activeStreakSuffix}` : STRINGS.impact.startStreak}
           </span>
         </div>
 
