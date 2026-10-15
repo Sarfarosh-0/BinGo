@@ -191,9 +191,9 @@ export const STRINGS = {
   scanner: {
     dropHere: 'Drop your waste photo here',
     dropSubtitle: 'Our on-device AI will identify the material instantly',
-    trustPrivate: '100% Private',
-    trustZeroLag: 'Zero Server Lag',
-    trustSdg: 'SDG 15 Verified',
+    trustPrivate: 'No image upload',
+    trustZeroLag: 'On-device results',
+    trustSdg: 'SDG 15 aligned',
   },
   a11y: {
     mainNav: 'Main Navigation',
