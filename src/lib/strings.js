@@ -164,6 +164,7 @@ export const STRINGS = {
     sdgHeading: 'SDG 15 Conservation Impact',
     footerCta: 'Got it, thanks',
     closeAria: 'Close guide',
+    loading: 'Loading guide…',
   },
   scanSheet: {
     title: 'Scan an item',

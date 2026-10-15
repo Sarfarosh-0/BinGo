@@ -587,6 +587,7 @@ export default function App() {
         isOpen={isGuideOpen}
         initialCategory={selectedGuideCategory}
         onClose={() => setIsGuideOpen(false)}
+        rules={rules}
       />
 
       {/* Live In-App Camera Modal (foreground camera to avoid mobile tab kills) */}

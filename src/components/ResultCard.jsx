@@ -13,51 +13,6 @@ import { TopBar } from './TopBar'
 import { STRINGS } from '../lib/strings'
 import { getCategoryTheme } from '../lib/categoryTheme'
 
-const DEFAULT_CATEGORY_RULES = {
-  recyclable: {
-    label: 'Recyclable',
-    steps: [
-      'Empty and rinse it.',
-      'Keep it dry.',
-      'Put it in the dry-waste bin or give it to a kabadiwala or recycler.',
-    ],
-    sdgFact: 'Recycling reduces demand for new raw material taken from forests and land.',
-  },
-  organic: {
-    label: 'Organic',
-    steps: [
-      'Put it in the wet-waste bin or a compost pit.',
-      "Don't mix it with plastic.",
-    ],
-    sdgFact: 'Compost returns nutrients to soil instead of rotting in landfills.',
-  },
-  ewaste: {
-    label: 'E-Waste',
-    steps: [
-      "Don't put it in household waste.",
-      'Hand it to an authorised e-waste collector or a take-back counter.',
-    ],
-    sdgFact: 'Toxic metals from dumped electronics can leak into soil and harm land ecosystems.',
-  },
-  hazardous: {
-    label: 'Hazardous',
-    steps: [
-      'Keep it separate and sealed.',
-      "Don't burn, flush or mix it.",
-      'Give it to a hazardous-waste collection point.',
-    ],
-    sdgFact: 'Chemicals and batteries that reach the ground contaminate soil and the life that depends on it.',
-  },
-  general: {
-    label: 'General / Non-recyclable',
-    steps: [
-      'Wrap it and put it in the general dry non-recyclable bin.',
-      "Don't litter.",
-    ],
-    sdgFact: 'Waste left on open land damages soil and habitats, so proper disposal protects them.',
-  },
-}
-
 export function ResultCard({
   result,
   rules,
@@ -70,10 +25,12 @@ export function ResultCard({
 
   const isConfident = result.kind === 'confident'
   const categoryId = result.categoryId || 'general'
+  // rules.json is the single source of truth for category copy. App gates this
+  // view behind `ready` (model + rules loaded), so `categories.general` always exists.
   const categoryRules =
     rules?.categories?.[categoryId] ||
-    DEFAULT_CATEGORY_RULES[categoryId] ||
-    DEFAULT_CATEGORY_RULES.general
+    rules?.categories?.general ||
+    { label: '', steps: [], sdgFact: '' }
   const theme = getCategoryTheme(categoryId)
   const confidencePct = Math.round((result.confidence || 0) * 100)
 

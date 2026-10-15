@@ -1,98 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { X, Check, AlertTriangle, Leaf, Recycle } from 'lucide-react'
+import { X, Check, AlertTriangle, Leaf, Recycle, Loader2 } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
 import { STRINGS } from '../lib/strings'
 
-const CATEGORY_DETAILS = {
-  recyclable: {
-    title: 'Dry Recyclables',
-    binColor: 'Blue Bin',
-    accepted: [
-      'Clean PET bottles & plastic containers (#1-#5)',
-      'Cardboard boxes & paper bags',
-      'Aluminium beverage cans & tin food tins',
-      'Clean glass jars & beverage bottles',
-    ],
-    notAccepted: [
-      'Greasy pizza boxes with melted cheese',
-      'Thin single-use plastic films / grocery pouches',
-      'Broken window panes & heat-proof ceramics',
-    ],
-    tips: 'Rinse with leftover dishwater to remove liquids. Crush cans and flatten boxes to conserve bin volume.',
-    sdgFact: 'Every metric ton of recycled paper preserves 17 mature trees and avoids 4,000 kW·h of electrical energy.',
-  },
-  organic: {
-    title: 'Wet Compostable Organic Waste',
-    binColor: 'Green Bin',
-    accepted: [
-      'Fruit peels, citrus rinds & vegetable trimmings',
-      'Coffee grounds, filter paper & tea bags',
-      'Garden leaves, cut flowers & dead plant stems',
-      'Crushed eggshells & plain wood shavings',
-    ],
-    notAccepted: [
-      'Plastic produce stickers (remove first!)',
-      'Synthetic tea bags with nylon mesh',
-      'Excessive cooking oils or grease',
-    ],
-    tips: 'Composting aerobically halts methane production and creates nutrient-rich humus for urban gardening.',
-    sdgFact: 'Organic soil matter restores subterranean microbiome diversity and increases moisture retention by up to 20%.',
-  },
-  ewaste: {
-    title: 'Electronic & Digital Waste',
-    binColor: 'Designated Take-Back Kiosk',
-    accepted: [
-      'Old smartphones, tablets & e-readers',
-      'Charging cords, USB cables & power adapters',
-      'Keyboards, mice & internal computer parts',
-      'Small kitchen appliances & hair dryers',
-    ],
-    notAccepted: [
-      'Swollen or leaking lithium-ion pouch cells (treat as Hazardous)',
-      'Light bulbs & fluorescent mercury tubes',
-    ],
-    tips: 'Back up and factory reset devices. Never toss e-waste in domestic dumpsters where metals crush and spark fires.',
-    sdgFact: 'Recycling 1 million mobile phones recovers 16,000 kg of copper, 350 kg of silver, and 34 kg of gold.',
-  },
-  hazardous: {
-    title: 'Hazardous & Chemical Waste',
-    binColor: 'Red Hazardous Container',
-    accepted: [
-      'Household batteries (alkaline, button, NiCd)',
-      'Unused paints, varnishes & chemical solvents',
-      'Aerosol spray canisters with propellant',
-      'Pesticides, weedkillers & motor oil containers',
-    ],
-    notAccepted: [
-      'Regular household kitchen trash',
-      'Non-hazardous empty dry glass bottles',
-    ],
-    tips: 'Retain in original marked containers with safety labels visible. Store upright out of reach of children.',
-    sdgFact: 'A single cadmium battery can contaminate 600,000 liters of groundwater—preventing dumping halts toxic soil sterility.',
-  },
-  general: {
-    title: 'General / Non-Recyclable Residuals',
-    binColor: 'Grey / Black Bin',
-    accepted: [
-      'Multi-layer laminated snack wrappers & foil pouches',
-      'Used facial tissues, cotton swabs & sanitary napkins',
-      'Broken porcelain mugs & drinking glass shards (wrapped)',
-      'Worn synthetic cleaning sponges',
-    ],
-    notAccepted: [
-      'Clean recyclable bottles or cans',
-      'Compostable food waste',
-      'Any batteries or electronic devices',
-    ],
-    tips: 'Tie trash liners tightly to prevent lightweight plastic fragments from dispersing onto natural wildlife reserves.',
-    sdgFact: 'Responsible containment shields open grasslands, rivers, and wildlife habitats from fatal microplastic ingestion.',
-  },
-}
-
 const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
-export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onClose }) {
+export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onClose, rules }) {
   const [selectedKey, setSelectedKey] = useState(initialCategory)
 
   useEffect(() => {
@@ -112,7 +26,33 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
 
   if (!isOpen) return null
 
-  const active = CATEGORY_DETAILS[selectedKey] || CATEGORY_DETAILS.recyclable
+  // Guide content is served from public/rules.json so the guide and the scan
+  // result share one source of truth. rules loads on mount; if the user opens
+  // the guide before it resolves, show a brief loading state.
+  if (!rules?.categories) {
+    return (
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="guide-title"
+        className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-5"
+      >
+        <div
+          className="fixed inset-0 bg-[color-mix(in_srgb,var(--color-text)_50%,transparent)] backdrop-blur-sm"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+        <div className="view-enter-fast relative z-10 flex w-full max-w-[620px] items-center justify-center gap-3 rounded-t-[var(--radius-2xl)] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 shadow-[var(--shadow-lg)] sm:rounded-[var(--radius-2xl)]">
+          <Loader2 className="h-5 w-5 shrink-0 animate-spin text-[var(--color-primary-strong)]" />
+          <span id="guide-title" className="text-sm font-semibold text-[var(--color-text-secondary)]">
+            {STRINGS.guide.loading}
+          </span>
+        </div>
+      </div>
+    )
+  }
+
+  const active = rules.categories[selectedKey] || rules.categories.recyclable
   const theme = CATEGORY_THEME[selectedKey] || CATEGORY_THEME.recyclable
 
   return (
@@ -277,7 +217,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
                 {STRINGS.guide.sdgHeading}
               </span>
               <p className="mt-1 text-sm leading-relaxed text-[var(--color-text-secondary)]">
-                {active.sdgFact}
+                {active.guideFact}
               </p>
             </div>
           </div>

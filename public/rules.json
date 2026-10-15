@@ -14,57 +14,130 @@
       "label": "Recyclable",
       "iconName": "Recycle",
       "tone": "accent",
+      "title": "Dry Recyclables",
+      "binColor": "Blue Bin",
       "steps": [
         "Empty and rinse it.",
         "Keep it dry.",
         "Put it in the dry-waste bin or give it to a kabadiwala or recycler."
       ],
-      "sdgFact": "Recycling reduces demand for new raw material taken from forests and land."
+      "accepted": [
+        "Clean PET bottles & plastic containers (#1-#5)",
+        "Cardboard boxes & paper bags",
+        "Aluminium beverage cans & tin food tins",
+        "Clean glass jars & beverage bottles"
+      ],
+      "notAccepted": [
+        "Greasy pizza boxes with melted cheese",
+        "Thin single-use plastic films / grocery pouches",
+        "Broken window panes & heat-proof ceramics"
+      ],
+      "tips": "Rinse with leftover dishwater to remove liquids. Crush cans and flatten boxes to conserve bin volume.",
+      "sdgFact": "Recycling reduces demand for new raw material taken from forests and land.",
+      "guideFact": "Every metric ton of recycled paper preserves 17 mature trees and avoids 4,000 kW·h of electrical energy."
     },
     "organic": {
       "id": "organic",
       "label": "Organic",
       "iconName": "Sprout",
       "tone": "highlight",
+      "title": "Wet Compostable Organic Waste",
+      "binColor": "Green Bin",
       "steps": [
         "Put it in the wet-waste bin or a compost pit.",
         "Don't mix it with plastic."
       ],
-      "sdgFact": "Compost returns nutrients to soil instead of rotting in landfills."
+      "accepted": [
+        "Fruit peels, citrus rinds & vegetable trimmings",
+        "Coffee grounds, filter paper & tea bags",
+        "Garden leaves, cut flowers & dead plant stems",
+        "Crushed eggshells & plain wood shavings"
+      ],
+      "notAccepted": [
+        "Plastic produce stickers (remove first!)",
+        "Synthetic tea bags with nylon mesh",
+        "Excessive cooking oils or grease"
+      ],
+      "tips": "Composting aerobically halts methane production and creates nutrient-rich humus for urban gardening.",
+      "sdgFact": "Compost returns nutrients to soil instead of rotting in landfills.",
+      "guideFact": "Organic soil matter restores subterranean microbiome diversity and increases moisture retention by up to 20%."
     },
     "ewaste": {
       "id": "ewaste",
       "label": "E-Waste",
       "iconName": "Smartphone",
       "tone": "info",
+      "title": "Electronic & Digital Waste",
+      "binColor": "Designated Take-Back Kiosk",
       "steps": [
         "Don't put it in household waste.",
         "Hand it to an authorised e-waste collector or a take-back counter."
       ],
-      "sdgFact": "Toxic metals from dumped electronics can leak into soil and harm land ecosystems."
+      "accepted": [
+        "Old smartphones, tablets & e-readers",
+        "Charging cords, USB cables & power adapters",
+        "Keyboards, mice & internal computer parts",
+        "Small kitchen appliances & hair dryers"
+      ],
+      "notAccepted": [
+        "Swollen or leaking lithium-ion pouch cells (treat as Hazardous)",
+        "Light bulbs & fluorescent mercury tubes"
+      ],
+      "tips": "Back up and factory reset devices. Never toss e-waste in domestic dumpsters where metals crush and spark fires.",
+      "sdgFact": "Toxic metals from dumped electronics can leak into soil and harm land ecosystems.",
+      "guideFact": "Recycling 1 million mobile phones recovers 16,000 kg of copper, 350 kg of silver, and 34 kg of gold."
     },
     "hazardous": {
       "id": "hazardous",
       "label": "Hazardous",
       "iconName": "TriangleAlert",
       "tone": "error",
+      "title": "Hazardous & Chemical Waste",
+      "binColor": "Red Hazardous Container",
       "steps": [
         "Keep it separate and sealed.",
         "Don't burn, flush or mix it.",
         "Give it to a hazardous-waste collection point."
       ],
-      "sdgFact": "Chemicals and batteries that reach the ground contaminate soil and the life that depends on it."
+      "accepted": [
+        "Household batteries (alkaline, button, NiCd)",
+        "Unused paints, varnishes & chemical solvents",
+        "Aerosol spray canisters with propellant",
+        "Pesticides, weedkillers & motor oil containers"
+      ],
+      "notAccepted": [
+        "Regular household kitchen trash",
+        "Non-hazardous empty dry glass bottles"
+      ],
+      "tips": "Retain in original marked containers with safety labels visible. Store upright out of reach of children.",
+      "sdgFact": "Chemicals and batteries that reach the ground contaminate soil and the life that depends on it.",
+      "guideFact": "A single cadmium battery can contaminate 600,000 liters of groundwater—preventing dumping halts toxic soil sterility."
     },
     "general": {
       "id": "general",
       "label": "General / Non-recyclable",
       "iconName": "Trash2",
       "tone": "muted",
+      "title": "General / Non-Recyclable Residuals",
+      "binColor": "Grey / Black Bin",
       "steps": [
         "Wrap it and put it in the general dry non-recyclable bin.",
         "Don't litter."
       ],
-      "sdgFact": "Waste left on open land damages soil and habitats, so proper disposal protects them."
+      "accepted": [
+        "Multi-layer laminated snack wrappers & foil pouches",
+        "Used facial tissues, cotton swabs & sanitary napkins",
+        "Broken porcelain mugs & drinking glass shards (wrapped)",
+        "Worn synthetic cleaning sponges"
+      ],
+      "notAccepted": [
+        "Clean recyclable bottles or cans",
+        "Compostable food waste",
+        "Any batteries or electronic devices"
+      ],
+      "tips": "Tie trash liners tightly to prevent lightweight plastic fragments from dispersing onto natural wildlife reserves.",
+      "sdgFact": "Waste left on open land damages soil and habitats, so proper disposal protects them.",
+      "guideFact": "Responsible containment shields open grasslands, rivers, and wildlife habitats from fatal microplastic ingestion."
     }
   }
 }

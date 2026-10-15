@@ -18,6 +18,18 @@ export async function loadRules() {
     if (!cat || !cat.label || !Array.isArray(cat.steps) || cat.steps.length === 0 || !cat.sdgFact) {
       throw new Error(`rules_category_invalid:${id}`)
     }
+    // Guide content (CategoryGuideModal) is served from the same file so there is one source of truth.
+    if (
+      !cat.title ||
+      !cat.binColor ||
+      !Array.isArray(cat.accepted) ||
+      cat.accepted.length === 0 ||
+      !Array.isArray(cat.notAccepted) ||
+      !cat.tips ||
+      !cat.guideFact
+    ) {
+      throw new Error(`rules_guide_invalid:${id}`)
+    }
   }
 
   return data
