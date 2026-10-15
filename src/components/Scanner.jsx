@@ -10,30 +10,31 @@ import {
   Loader2,
 } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
+import { sampleImageUrl } from '../lib/sampleImages'
 
 // Presentation data for the quick-try tiles. Handler keys are unchanged.
 const SAMPLES = [
   {
     key: 'bottle',
-    emoji: '🥤',
-    label: 'Water Bottle',
-    title: 'Test classification with a plastic water bottle',
+    img: sampleImageUrl('bottle'),
+    label: STRINGS.home.sampleBottleLabel,
+    title: STRINGS.home.sampleBottleTitle,
     border: 'hover:border-[var(--cat-recyclable)]',
     text: 'group-hover:text-[var(--cat-recyclable)]',
   },
   {
     key: 'organic',
-    emoji: '🍌',
-    label: 'Banana Peel',
-    title: 'Test classification with banana peel scraps',
+    img: sampleImageUrl('organic'),
+    label: STRINGS.home.sampleOrganicLabel,
+    title: STRINGS.home.sampleOrganicTitle,
     border: 'hover:border-[var(--cat-organic)]',
     text: 'group-hover:text-[var(--cat-organic)]',
   },
   {
     key: 'battery',
-    emoji: '🔋',
-    label: 'AA Battery',
-    title: 'Test classification with a household battery',
+    img: sampleImageUrl('battery'),
+    label: STRINGS.home.sampleBatteryLabel,
+    title: STRINGS.home.sampleBatteryTitle,
     border: 'hover:border-[var(--cat-hazardous)]',
     text: 'group-hover:text-[var(--cat-hazardous)]',
   },
@@ -156,11 +157,11 @@ export function Scanner({
         <div className="mt-5 w-full border-t border-[var(--color-divider)] pt-4">
           <div className="mb-2.5 flex items-center justify-between gap-2">
             <span className="text-left text-xs font-extrabold uppercase tracking-wider text-[var(--color-text-muted)]">
-              No photo nearby? Try a sample
+              {STRINGS.home.samplesTitle}
             </span>
             <span className="flex shrink-0 items-center gap-1 rounded-full bg-[var(--color-primary-soft)] px-2 py-0.5 text-xs font-semibold text-[var(--color-primary-strong)]">
               <Zap className="h-3.5 w-3.5 shrink-0" />
-              1-Click
+              {STRINGS.home.samplesBadge}
             </span>
           </div>
 
@@ -174,7 +175,17 @@ export function Scanner({
                 title={s.title}
                 className={`group flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-2 py-2.5 text-[var(--color-text)] transition-all duration-150 hover:bg-[var(--color-surface-alt)] active:scale-95 disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] ${s.border}`}
               >
-                <span className="text-xl leading-none" aria-hidden="true">{s.emoji}</span>
+                <span
+                  className="h-9 w-9 shrink-0 overflow-hidden rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+                  aria-hidden="true"
+                >
+                  <img
+                    src={s.img}
+                    alt=""
+                    className="h-full w-full object-cover"
+                    decoding="async"
+                  />
+                </span>
                 <span className={`w-full truncate text-center text-xs font-semibold transition-colors ${s.text}`}>
                   {s.label}
                 </span>
