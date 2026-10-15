@@ -42,6 +42,75 @@ const CATEGORY_COLORS = {
 
 const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
+// Non-colour textures so series stay distinguishable without relying on hue (WCAG 1.4.1).
+// Each category gets a distinct fill pattern (used by bars + legend swatches) and,
+// for the area chart, a distinct stroke dash.
+const CATEGORY_TEXTURE = {
+  recyclable: 'solid',
+  organic: 'dots',
+  ewaste: 'forward',
+  hazardous: 'cross',
+  general: 'horizontal',
+}
+
+const CATEGORY_DASH = {
+  recyclable: undefined,
+  organic: '2 4',
+  ewaste: '7 3',
+  hazardous: '1 3',
+  general: '10 5',
+}
+
+// A single category's fill pattern, kept as a bare <pattern> node so it can be
+// rendered inside whichever <svg> references it (paint servers do not cross SVG boundaries).
+function CategoryPattern({ id, categoryKey }) {
+  const texture = CATEGORY_TEXTURE[categoryKey]
+  return (
+    <pattern id={id} patternUnits="userSpaceOnUse" width="8" height="8">
+      <rect width="8" height="8" style={{ fill: CATEGORY_COLORS[categoryKey] }} />
+      {texture === 'dots' && (
+        <>
+          <circle cx="2" cy="2" r="1.1" fill="rgba(255,255,255,0.6)" />
+          <circle cx="6" cy="6" r="1.1" fill="rgba(255,255,255,0.6)" />
+        </>
+      )}
+      {texture === 'forward' && (
+        <path d="M-2 6 L6 -2 M2 10 L10 2" stroke="rgba(255,255,255,0.55)" strokeWidth="2" />
+      )}
+      {texture === 'cross' && (
+        <path d="M-2 6 L6 -2 M2 10 L10 2 M-2 2 L6 10 M2 -2 L10 6" stroke="rgba(255,255,255,0.55)" strokeWidth="1.4" />
+      )}
+      {texture === 'horizontal' && (
+        <path d="M0 2 H8 M0 6 H8" stroke="rgba(255,255,255,0.55)" strokeWidth="1.6" />
+      )}
+    </pattern>
+  )
+}
+
+// Pattern defs for the bar chart, rendered inside the chart's own <svg>.
+function BarPatternDefs() {
+  return (
+    <defs>
+      {CATEGORY_KEYS.map((k) => (
+        <CategoryPattern key={k} id={`barpat-${k}`} categoryKey={k} />
+      ))}
+    </defs>
+  )
+}
+
+// Self-contained legend swatch: its pattern is defined in the same <svg>.
+function PatternSwatch({ categoryKey }) {
+  const id = `swatch-${categoryKey}`
+  return (
+    <svg width="12" height="12" className="shrink-0" aria-hidden="true" focusable="false">
+      <defs>
+        <CategoryPattern id={id} categoryKey={categoryKey} />
+      </defs>
+      <rect width="12" height="12" rx="3" fill={`url(#${id})`} />
+    </svg>
+  )
+}
+
 // Shared look for chart axes
 const AXIS_TICK = { fontSize: 12, fill: 'var(--color-text-muted)' }
 
@@ -688,6 +757,7 @@ export function WasteAnalyticsChart({
                       name={CATEGORY_THEME[k]?.label}
                       stroke={CATEGORY_COLORS[k]}
                       strokeWidth={1.5}
+                      strokeDasharray={CATEGORY_DASH[k]}
                       fillOpacity={1}
                       fill={`url(#grad-${k})`}
                     />
@@ -699,6 +769,7 @@ export function WasteAnalyticsChart({
                     name={CATEGORY_THEME[categoryFilter]?.label}
                     stroke={CATEGORY_COLORS[categoryFilter]}
                     strokeWidth={2.5}
+                    strokeDasharray={CATEGORY_DASH[categoryFilter]}
                     fillOpacity={1}
                     fill={`url(#grad-${categoryFilter})`}
                   />
@@ -708,6 +779,7 @@ export function WasteAnalyticsChart({
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarPatternDefs />
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-divider)" />
                 <XAxis
                   dataKey="displayDate"
@@ -749,7 +821,7 @@ export function WasteAnalyticsChart({
                       dataKey={k}
                       stackId="a"
                       name={CATEGORY_THEME[k]?.label}
-                      fill={CATEGORY_COLORS[k]}
+                      fill={`url(#barpat-${k})`}
                       radius={i === CATEGORY_KEYS.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                     />
                   ))
@@ -757,7 +829,7 @@ export function WasteAnalyticsChart({
                   <Bar
                     dataKey={categoryFilter}
                     name={CATEGORY_THEME[categoryFilter]?.label}
-                    fill={CATEGORY_COLORS[categoryFilter]}
+                    fill={`url(#barpat-${categoryFilter})`}
                     radius={[6, 6, 0, 0]}
                   />
                 )}
@@ -766,14 +838,11 @@ export function WasteAnalyticsChart({
           )}
         </div>
 
-        {/* Legend */}
+        {/* Legend (swatches reuse the same non-colour patterns as the bars) */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-t border-[var(--color-divider)] pt-4 text-xs text-[var(--color-text-secondary)]">
           {CATEGORY_KEYS.map((k) => (
             <div key={k} className="flex items-center gap-1.5">
-              <span
-                className="h-2.5 w-2.5 shrink-0 rounded-[3px]"
-                style={{ backgroundColor: CATEGORY_COLORS[k] }}
-              />
+              <PatternSwatch categoryKey={k} />
               <span className="font-medium">{CATEGORY_THEME[k]?.label.split('/')[0]}</span>
             </div>
           ))}
