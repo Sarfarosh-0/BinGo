@@ -93,7 +93,7 @@ export const STRINGS = {
     breakdownTitle: 'Category breakdown',
     seeScans: 'See your scans',
     sdgBadge: 'SDG 15 · LIFE ON LAND',
-    activeStreakSuffix: 'day active streak 🔥',
+    activeStreakSuffix: 'day active streak',
     heroEmpty: 'Start sorting today to keep recyclable and compostable materials out of landfills.',
     heroActive:
       'Every item safely sorted prevents landfill expansion, halts toxic leachate, and preserves biodiversity on land.',

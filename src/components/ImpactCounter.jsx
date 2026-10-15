@@ -106,8 +106,19 @@ export function ImpactCounter({
           <h2 className="text-sm font-bold text-[var(--color-text)]">
             {STRINGS.impact.last7Days}
           </h2>
-          <span className="text-xs font-medium text-[var(--color-text-muted)]">
-            {streak > 0 ? `${streak} ${STRINGS.impact.activeStreakSuffix}` : STRINGS.impact.startStreak}
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-text-muted)]">
+            {streak > 0 ? (
+              <>
+                <Flame
+                  className="h-3.5 w-3.5 shrink-0 fill-[var(--color-flame)] text-[var(--color-flame)]"
+                  strokeWidth={0}
+                  aria-hidden="true"
+                />
+                {streak} {STRINGS.impact.activeStreakSuffix}
+              </>
+            ) : (
+              STRINGS.impact.startStreak
+            )}
           </span>
         </div>
 
