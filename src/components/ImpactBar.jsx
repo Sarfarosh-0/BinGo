@@ -1,8 +1,8 @@
 import React from 'react'
-import { Flame, Award, ArrowRight } from 'lucide-react'
+import { Award, ArrowRight } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 
-export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
+export function ImpactBar({ totalSorted = 0, onViewAnalytics }) {
   // Determine next milestone
   const milestones = [5, 10, 25, 50, 100, 250, 500]
   const nextTarget = milestones.find((m) => m > totalSorted) || totalSorted + 50
@@ -26,7 +26,7 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 xs:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3">
         {/* Items sorted */}
         <div className="flex flex-col justify-between rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
           <div className="flex items-center justify-between gap-2">
@@ -59,39 +59,6 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
               />
             </div>
           </div>
-        </div>
-
-        {/* Day streak */}
-        <div className="flex flex-col justify-between rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface-sunken)] p-4">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">
-              {STRINGS.home.dayStreak}
-            </span>
-            <span
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)] ${streak > 0 ? 'bg-[var(--color-flame-soft)]' : 'bg-[var(--color-border)]'
-                }`}
-            >
-              <Flame
-                className={`h-[18px] w-[18px] shrink-0 ${streak > 0 ? 'fill-[var(--color-flame)] text-[var(--color-flame)]' : 'text-[var(--color-text-disabled)]'
-                  }`}
-                strokeWidth={streak > 0 ? 0 : 2}
-              />
-            </span>
-          </div>
-
-          <div className="mt-3 flex items-baseline gap-1.5">
-            <span
-              className={`text-3xl font-extrabold tabular-nums tracking-tight ${streak > 0 ? 'text-[var(--color-primary-strong)]' : 'text-[var(--color-text-disabled)]'
-                }`}
-            >
-              {streak}
-            </span>
-            <span className="text-xs font-semibold text-[var(--color-text-muted)]">{STRINGS.home.daysActive}</span>
-          </div>
-
-          <p className="mt-3 text-xs leading-snug text-[var(--color-text-secondary)]">
-            {streak > 0 ? STRINGS.home.momentumActive : STRINGS.home.startScanning}
-          </p>
         </div>
       </div>
     </div>

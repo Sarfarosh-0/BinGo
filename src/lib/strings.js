@@ -18,7 +18,6 @@ export const STRINGS = {
   home: {
     impactTitle: 'Every scan helps',
     itemsSorted: 'Items sorted',
-    dayStreak: 'Day streak',
     scanTitle: 'Scan an item',
     scanSubtitle: 'Point your camera at one item to see how to dispose of it.',
     hintOneItem: 'Scan one item at a time',
@@ -52,9 +51,6 @@ export const STRINGS = {
     analytics: 'Analytics',
     itemsUnit: 'items',
     goal: 'Goal',
-    daysActive: 'days active',
-    momentumActive: 'Momentum active today!',
-    startScanning: 'Scan an item to start',
   },
   analyzing: {
     title: 'Analyzing',

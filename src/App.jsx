@@ -390,10 +390,9 @@ export default function App() {
 
                 {/* Right Column: Impact Stats, Interactive Guide & Activity (5 cols on desktop) */}
                 <div className="lg:col-span-5 flex flex-col gap-4 sm:gap-5 mt-4 lg:mt-0">
-                  {/* Stat & Streak Bento Tile */}
+                  {/* Impact Bento Tile */}
                   <ImpactBar
                     totalSorted={totalSorted}
-                    streak={streak}
                     onViewAnalytics={() => setView('impact')}
                   />
 
