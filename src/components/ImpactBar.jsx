@@ -68,11 +68,11 @@ export function ImpactBar({ totalSorted = 0, streak = 0, onViewAnalytics }) {
               {STRINGS.home.dayStreak}
             </span>
             <span
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)] ${streak > 0 ? 'bg-orange-100' : 'bg-[var(--color-border)]'
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-xs)] ${streak > 0 ? 'bg-[var(--color-flame-soft)]' : 'bg-[var(--color-border)]'
                 }`}
             >
               <Flame
-                className={`h-[18px] w-[18px] shrink-0 ${streak > 0 ? 'fill-orange-500 text-orange-500' : 'text-[var(--color-text-disabled)]'
+                className={`h-[18px] w-[18px] shrink-0 ${streak > 0 ? 'fill-[var(--color-flame)] text-[var(--color-flame)]' : 'text-[var(--color-text-disabled)]'
                   }`}
                 strokeWidth={streak > 0 ? 0 : 2}
               />

@@ -37,6 +37,9 @@
   --color-error:   #C62828;  --color-error-soft:   #FCEAEA;
   --color-info:    #1769AA;  --color-info-soft:    #E7F1FA;
 
+  /* Gamification: streak flame (warm amber, distinct from warning semantics) */
+  --color-flame: #D97706;  --color-flame-soft: #FEF0DE;
+
   /* Categories */
   --cat-recyclable: #1565C0; --cat-recyclable-soft: #E7F0FB;
   --cat-organic:    #2E7D32; --cat-organic-soft:    #E8F6EA;

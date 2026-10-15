@@ -7,8 +7,6 @@ const CATEGORY_DETAILS = {
   recyclable: {
     title: 'Dry Recyclables',
     binColor: 'Blue Bin',
-    badgeTone: 'bg-blue-50 text-blue-700 border-blue-200',
-    colorHex: '#1565C0',
     accepted: [
       'Clean PET bottles & plastic containers (#1-#5)',
       'Cardboard boxes & paper bags',
@@ -26,8 +24,6 @@ const CATEGORY_DETAILS = {
   organic: {
     title: 'Wet Compostable Organic Waste',
     binColor: 'Green Bin',
-    badgeTone: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    colorHex: '#2E7D32',
     accepted: [
       'Fruit peels, citrus rinds & vegetable trimmings',
       'Coffee grounds, filter paper & tea bags',
@@ -45,8 +41,6 @@ const CATEGORY_DETAILS = {
   ewaste: {
     title: 'Electronic & Digital Waste',
     binColor: 'Designated Take-Back Kiosk',
-    badgeTone: 'bg-purple-50 text-purple-800 border-purple-200',
-    colorHex: '#6A3DB8',
     accepted: [
       'Old smartphones, tablets & e-readers',
       'Charging cords, USB cables & power adapters',
@@ -63,8 +57,6 @@ const CATEGORY_DETAILS = {
   hazardous: {
     title: 'Hazardous & Chemical Waste',
     binColor: 'Red Hazardous Container',
-    badgeTone: 'bg-red-50 text-red-800 border-red-200',
-    colorHex: '#C62828',
     accepted: [
       'Household batteries (alkaline, button, NiCd)',
       'Unused paints, varnishes & chemical solvents',
@@ -81,8 +73,6 @@ const CATEGORY_DETAILS = {
   general: {
     title: 'General / Non-Recyclable Residuals',
     binColor: 'Grey / Black Bin',
-    badgeTone: 'bg-neutral-100 text-neutral-800 border-neutral-300',
-    colorHex: '#5F6B63',
     accepted: [
       'Multi-layer laminated snack wrappers & foil pouches',
       'Used facial tissues, cotton swabs & sanitary napkins',

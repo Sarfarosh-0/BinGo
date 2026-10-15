@@ -65,7 +65,7 @@ export function ImpactCounter({
 
           <div className="flex items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1.5 shadow-[var(--shadow-xs)]">
             <Flame
-              className={`h-4 w-4 shrink-0 ${streak > 0 ? 'fill-orange-500 text-orange-500' : 'text-[var(--color-text-muted)]'
+              className={`h-4 w-4 shrink-0 ${streak > 0 ? 'fill-[var(--color-flame)] text-[var(--color-flame)]' : 'text-[var(--color-text-muted)]'
                 }`}
               strokeWidth={streak > 0 ? 0 : 2}
             />
