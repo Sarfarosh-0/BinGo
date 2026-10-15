@@ -60,7 +60,7 @@
     border-radius: var(--radius-pill);
     border: 1.5px solid transparent;
   }
-  .btn-tonal:hover:not(:disabled) { background: #C9E9D5; }
+  .btn-tonal:hover:not(:disabled) { background: var(--color-primary-soft-hover); }
   .btn-tonal:active:not(:disabled) { transform: scale(0.97); }
 
   .btn-ghost {
