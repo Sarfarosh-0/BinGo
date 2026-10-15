@@ -132,6 +132,10 @@ export const STRINGS = {
     milestoneHeading: 'Milestone Badges',
     unlockedSuffix: 'Unlocked',
     done: 'Done',
+    sampleNotice: 'Example data for preview — these are not your scans.',
+    emptyTitle: 'No scans yet',
+    emptyHint: 'Scan an item to start building your waste trend.',
+    emptyCta: 'Scan an item',
     levels: {
       seedling: 'Seedling Sorter',
       soilGuardian: 'Soil Guardian',

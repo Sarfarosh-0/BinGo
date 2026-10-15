@@ -25,6 +25,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Info,
+  ScanLine,
 } from 'lucide-react'
 import { localDateKey } from '../lib/date'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
@@ -92,14 +93,14 @@ export function WasteAnalyticsChart({
   const [timeRange, setTimeRange] = useState('7d') // '7d' | '30d' | 'cumulative'
   const [chartType, setChartType] = useState('bar') // 'bar' | 'area' | 'pie'
   const [categoryFilter, setCategoryFilter] = useState('all') // 'all' | categoryKey
-  const [useSampleData, setUseSampleData] = useState(() => history.length === 0)
+  const [useSampleData, setUseSampleData] = useState(false)
 
-  const activeHistory = useMemo(() => {
-    if (useSampleData || history.length === 0) {
-      return generateSampleHistory()
-    }
-    return history
-  }, [history, useSampleData])
+  // Live mode reflects only the user's real scans. Sample mode is an explicit,
+  // clearly-labelled preview; fabricate data only when the user opts in.
+  const activeHistory = useMemo(
+    () => (useSampleData ? generateSampleHistory() : history),
+    [history, useSampleData]
+  )
 
   // Gamification: Calculate Eco XP and Player Level
   const { xp, level, nextLevelXp, levelTitle, xpProgressPct } = useMemo(() => {
@@ -377,6 +378,13 @@ export function WasteAnalyticsChart({
           </button>
         </div>
 
+        {useSampleData && (
+          <p className="mt-4 flex items-start gap-1.5 rounded-[var(--radius-sm)] border border-[color-mix(in_srgb,var(--color-warning)_30%,transparent)] bg-[var(--color-warning-soft)] px-3 py-2 text-xs font-semibold text-[var(--color-warning)]">
+            <Info className="mt-px h-3.5 w-3.5 shrink-0" />
+            {STRINGS.analytics.sampleNotice}
+          </p>
+        )}
+
         {/* XP Progress */}
         <div className="mt-5">
           <div className="mb-2 flex items-center justify-between gap-2 text-xs font-semibold">
@@ -547,7 +555,25 @@ export function WasteAnalyticsChart({
 
         {/* Chart Area */}
         <div className="mt-2 h-64 w-full sm:h-72">
-          {chartType === 'pie' ? (
+          {!useSampleData && history.length === 0 ? (
+            <div className="flex h-full w-full flex-col items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-dashed border-[var(--color-border)] bg-[var(--color-surface-sunken)] px-6 text-center">
+              <BarChart3 className="h-8 w-8 text-[var(--color-text-disabled)]" />
+              <p className="text-sm font-semibold text-[var(--color-text-secondary)]">
+                {STRINGS.analytics.emptyTitle}
+              </p>
+              <p className="text-xs text-[var(--color-text-muted)]">{STRINGS.analytics.emptyHint}</p>
+              {onOpenScanSheet && (
+                <button
+                  type="button"
+                  onClick={onOpenScanSheet}
+                  className="btn btn-tonal h-10 gap-2 px-4 text-sm"
+                >
+                  <ScanLine className="h-4 w-4 shrink-0" />
+                  {STRINGS.analytics.emptyCta}
+                </button>
+              )}
+            </div>
+          ) : chartType === 'pie' ? (
             <div className="flex h-full w-full flex-col items-center justify-center gap-4 sm:flex-row">
               <div className="h-48 w-full sm:h-full sm:w-1/2">
                 <ResponsiveContainer width="100%" height="100%">
