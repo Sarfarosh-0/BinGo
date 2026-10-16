@@ -7,7 +7,8 @@
     <meta name="description" content="BinGo — Smart Waste Sorting for SDG 15 (Life on Land). Sort your waste in one scan." />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta property="og:title" content="BinGo — Smart Waste Sorting" />
     <meta property="og:description" content="BinGo — Smart Waste Sorting for SDG 15 (Life on Land). Sort your waste in one scan." />
     <title>BinGo — Smart Waste Sorting</title>
@@ -23,7 +24,13 @@
     -->
     <script src="/vendor/tf.min.js"></script>
   </head>
-  <body class="bg-[#F3F8F4] text-[#0E2A1F] antialiased select-none overflow-x-hidden min-h-screen">
+  <!--
+    The inline background/text colours below are deliberately literal hex, not
+    design tokens: this markup paints before styles/index.css loads, so a
+    var(--color-*) reference would flash unstyled. They mirror --color-bg and
+    --color-text in src/styles/tokens.css — keep them in sync if those change.
+  -->
+  <body class="bg-[#F3F8F4] text-[#0E2A1F] antialiased overflow-x-hidden min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
