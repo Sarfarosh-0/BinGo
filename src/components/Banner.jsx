@@ -1,4 +1,3 @@
-import React from 'react'
 import { RefreshCw, X, TriangleAlert, Info } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import { X, Camera, RefreshCw, AlertCircle, Image as ImageIcon } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 import { useModalA11y } from '../hooks/useModalA11y'

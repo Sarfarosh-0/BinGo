@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { X, Check, AlertTriangle, Leaf, Recycle, Loader2 } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
 import { CATEGORY_THEME } from '../lib/categoryTheme'

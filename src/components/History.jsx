@@ -1,4 +1,3 @@
-import React from 'react'
 import { Recycle, ThumbsUp, ThumbsDown, ChevronRight, Camera } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 import { formatDateDisplay } from '../lib/date'

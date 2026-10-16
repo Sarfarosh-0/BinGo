@@ -1,4 +1,4 @@
-import React, { useMemo, lazy, Suspense } from 'react'
+import { useMemo, lazy, Suspense } from 'react'
 import { Flame, Leaf, ArrowRight, ScanLine, Check, Loader2 } from 'lucide-react'
 import { TopBar } from './TopBar'
 import { CategoryIcon } from './CategoryIcon'
@@ -167,8 +167,6 @@ export function ImpactCounter({
         <WasteAnalyticsChart
           history={history}
           streak={streak}
-          byCategory={byCategory}
-          totalSorted={totalSorted}
           onOpenScanSheet={onOpenScanSheet}
         />
       </Suspense>

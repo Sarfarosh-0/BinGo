@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import { useRef } from 'react'
 import { X, Sparkles, Loader2 } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 import { useModalA11y } from '../hooks/useModalA11y'

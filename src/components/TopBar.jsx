@@ -1,4 +1,3 @@
-import React from 'react'
 import { ArrowLeft, X } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 

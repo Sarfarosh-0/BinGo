@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import {
   ResponsiveContainer,
   BarChart,
@@ -155,8 +155,6 @@ function generateSampleHistory() {
 export function WasteAnalyticsChart({
   history = [],
   streak = 0,
-  byCategory = {},
-  totalSorted = 0,
   onOpenScanSheet,
 }) {
   const [timeRange, setTimeRange] = useState('7d') // '7d' | '30d' | 'cumulative'

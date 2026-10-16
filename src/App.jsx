@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { Backdrop } from './components/Backdrop'
 import { Header } from './components/Header'
 import { TopBar } from './components/TopBar'
@@ -24,7 +24,7 @@ import { classify } from './lib/classify'
 import { createSampleWasteFile } from './lib/sampleImages'
 import { STRINGS } from './lib/strings'
 import { CATEGORY_THEME } from './lib/categoryTheme'
-import { ArrowRight, BookOpen, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 const STATIC_CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 

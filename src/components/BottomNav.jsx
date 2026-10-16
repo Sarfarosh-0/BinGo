@@ -1,4 +1,3 @@
-import React from 'react'
 import { Home, History, ScanLine, TrendingUp } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
 
