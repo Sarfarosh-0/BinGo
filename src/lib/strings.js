@@ -216,6 +216,10 @@ export const STRINGS = {
     impact: 'Impact',
     scan: 'Scan',
   },
+  date: {
+    today: 'Today',
+    yesterday: 'Yesterday',
+  },
   errors: {
     notImage: "That file isn't an image. Please choose a photo.",
     readFail: "Couldn't read that photo.",

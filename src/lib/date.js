@@ -3,6 +3,8 @@
  * Immune to clock shifts, timezone offsets, and DST changes.
  */
 
+import { STRINGS } from './strings.js'
+
 export function localDateKey(date = new Date()) {
   const d = date instanceof Date ? date : new Date(date)
   const y = d.getFullYear()
@@ -47,9 +49,9 @@ export function formatDateDisplay(ts) {
   })
 
   if (diff === 0) {
-    return `Today, ${timeString}`
+    return `${STRINGS.date.today}, ${timeString}`
   } else if (diff === 1) {
-    return `Yesterday, ${timeString}`
+    return `${STRINGS.date.yesterday}, ${timeString}`
   } else {
     const dayMonth = date.toLocaleDateString(undefined, {
       day: 'numeric',
