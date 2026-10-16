@@ -1,11 +1,13 @@
-import React, { useMemo } from 'react'
-import { Flame, Leaf, ArrowRight, ScanLine, Check } from 'lucide-react'
+import React, { useMemo, lazy, Suspense } from 'react'
+import { Flame, Leaf, ArrowRight, ScanLine, Check, Loader2 } from 'lucide-react'
 import { TopBar } from './TopBar'
 import { CategoryIcon } from './CategoryIcon'
-import { WasteAnalyticsChart } from './WasteAnalyticsChart'
 import { STRINGS } from '../lib/strings'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
 import { localDateKey } from '../lib/date'
+
+// Recharts is heavy and only needed on the Impact tab; load it on demand.
+const WasteAnalyticsChart = lazy(() => import('./WasteAnalyticsChart'))
 
 const CATEGORIES = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
@@ -153,14 +155,23 @@ export function ImpactCounter({
         </p>
       </div>
 
-      {/* Analytics (Recharts) */}
-      <WasteAnalyticsChart
-        history={history}
-        streak={streak}
-        byCategory={byCategory}
-        totalSorted={totalSorted}
-        onOpenScanSheet={onOpenScanSheet}
-      />
+      {/* Analytics (Recharts) — lazy-loaded so the charting library stays out of the initial bundle */}
+      <Suspense
+        fallback={
+          <div className="card flex min-h-[18rem] items-center justify-center gap-2 p-5 text-sm font-semibold text-[var(--color-text-muted)]">
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[var(--color-primary-strong)]" />
+            {STRINGS.analytics.loadingChart}
+          </div>
+        }
+      >
+        <WasteAnalyticsChart
+          history={history}
+          streak={streak}
+          byCategory={byCategory}
+          totalSorted={totalSorted}
+          onOpenScanSheet={onOpenScanSheet}
+        />
+      </Suspense>
 
       {/* Category Breakdown */}
       <div className="card p-5">

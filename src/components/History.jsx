@@ -64,6 +64,8 @@ export function History({ items = [], onOpenItem, onScan }) {
                 <img
                   src={item.thumb}
                   alt={theme.label}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                   loading="lazy"
                 />

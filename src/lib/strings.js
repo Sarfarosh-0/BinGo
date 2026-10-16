@@ -136,6 +136,7 @@ export const STRINGS = {
     emptyTitle: 'No scans yet',
     emptyHint: 'Scan an item to start building your waste trend.',
     emptyCta: 'Scan an item',
+    loadingChart: 'Loading charts…',
     levels: {
       seedling: 'Seedling Sorter',
       soilGuardian: 'Soil Guardian',

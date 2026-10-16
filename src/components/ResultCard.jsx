@@ -95,6 +95,8 @@ export function ResultCard({
                     <img
                       src={result.previewUrl}
                       alt={categoryRules.label}
+                      width={96}
+                      height={96}
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--color-primary-strong)] bg-[var(--color-surface)] shadow-[var(--shadow-sm)]">
@@ -211,6 +213,8 @@ export function ResultCard({
                     <img
                       src={result.previewUrl}
                       alt={STRINGS.result.capturedItemAlt}
+                      width={96}
+                      height={96}
                       className="h-full w-full object-cover"
                     />
                   </div>
