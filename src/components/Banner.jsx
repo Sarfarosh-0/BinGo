@@ -11,7 +11,7 @@ export function Banner({ tone = 'error', message, onRetry, onDismiss }) {
 
   return (
     <div
-      role="alert"
+      role={isError ? 'alert' : 'status'}
       className={`view-enter-fast flex items-start gap-3 rounded-[var(--radius-lg)] border py-3 pl-4 pr-2 shadow-[var(--shadow-xs)] ${isError
           ? 'border-[color-mix(in_srgb,var(--color-error)_25%,transparent)] bg-[var(--color-error-soft)] text-[var(--color-error)]'
           : 'border-[color-mix(in_srgb,var(--color-info)_25%,transparent)] bg-[var(--color-info-soft)] text-[var(--color-info)]'

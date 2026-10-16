@@ -1,10 +1,16 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { X, Sparkles, Loader2 } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
+import { useModalA11y } from '../hooks/useModalA11y'
 
 export function AnalyzingView({ previewUrl, onClose }) {
+  const dialogRef = useRef(null)
+  // Mounted only while analysing, so it is effectively always "open".
+  useModalA11y({ isOpen: true, onClose, containerRef: dialogRef })
+
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={STRINGS.a11y.analyzingDialog}

@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useRef } from 'react'
 import { Camera, Image as ImageIcon, X } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
+import { useModalA11y } from '../hooks/useModalA11y'
 
 export function ScanSheet({
   isOpen,
@@ -8,19 +9,14 @@ export function ScanSheet({
   onTakePhoto,
   onChooseGallery,
 }) {
-  useEffect(() => {
-    if (!isOpen) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
+  const dialogRef = useRef(null)
+  useModalA11y({ isOpen, onClose, containerRef: dialogRef })
 
   if (!isOpen) return null
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="scansheet-title"

@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { X, Camera, RefreshCw, AlertCircle, Image as ImageIcon } from 'lucide-react'
 import { STRINGS } from '../lib/strings'
+import { useModalA11y } from '../hooks/useModalA11y'
 
 export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }) {
   const videoRef = useRef(null)
   const streamRef = useRef(null)
+  const dialogRef = useRef(null)
   const [facingMode, setFacingMode] = useState('environment')
   const [cameraError, setCameraError] = useState(null)
   const [isStreaming, setIsStreaming] = useState(false)
@@ -16,6 +18,14 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
     }
     setIsStreaming(false)
   }, [])
+
+  const handleClose = useCallback(() => {
+    stopStream()
+    onClose()
+  }, [stopStream, onClose])
+
+  // Focus management + Escape handled centrally (video keeps the dialog focusable).
+  useModalA11y({ isOpen, onClose: handleClose, containerRef: dialogRef })
 
   const startStream = useCallback(async (mode = facingMode) => {
     stopStream()
@@ -93,6 +103,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={STRINGS.camera.dialogAria}
@@ -102,10 +113,7 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
       <header className="relative z-20 flex items-center justify-between bg-gradient-to-b from-black/80 to-transparent px-4 pb-6 pt-[max(1rem,env(safe-area-inset-top))]">
         <button
           type="button"
-          onClick={() => {
-            stopStream()
-            onClose()
-          }}
+          onClick={handleClose}
           className={`h-11 w-11 ${glassBtn}`}
           aria-label={STRINGS.camera.closeAria}
         >

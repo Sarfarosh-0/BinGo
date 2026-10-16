@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { X, Check, AlertTriangle, Leaf, Recycle, Loader2 } from 'lucide-react'
 import { CategoryIcon } from './CategoryIcon'
 import { CATEGORY_THEME } from '../lib/categoryTheme'
 import { STRINGS } from '../lib/strings'
+import { useModalA11y } from '../hooks/useModalA11y'
 
 const CATEGORY_KEYS = ['recyclable', 'organic', 'ewaste', 'hazardous', 'general']
 
 export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onClose, rules }) {
   const [selectedKey, setSelectedKey] = useState(initialCategory)
+  const dialogRef = useRef(null)
+  useModalA11y({ isOpen, onClose, containerRef: dialogRef })
 
   useEffect(() => {
     if (initialCategory) {
       setSelectedKey(initialCategory)
     }
   }, [initialCategory])
-
-  useEffect(() => {
-    if (!isOpen) return
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -32,6 +26,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
   if (!rules?.categories) {
     return (
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="guide-title"
@@ -57,6 +52,7 @@ export function CategoryGuideModal({ isOpen, initialCategory = 'recyclable', onC
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="guide-title"
