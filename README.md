@@ -156,8 +156,10 @@ BinGo/
 
 ### Prerequisites
 
-- Node.js **≥ 18**
-- npm **≥ 9**
+- Node.js **≥ 22.22** (the test toolchain — jsdom 30 via undici 8 — requires it)
+- npm **≥ 10**
+
+> Use the pinned version with `nvm use` (see `.nvmrc`).
 
 ### Install & run locally
 

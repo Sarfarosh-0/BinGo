@@ -12,7 +12,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Must match .nvmrc. jsdom@30 (via undici@8) needs Node >=22.22, so an
+          # older runtime crashes while importing the jsdom test environment.
+          node-version: 24
           cache: npm
       - run: npm ci
       - name: Lint
