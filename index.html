@@ -13,13 +13,15 @@
     <title>BinGo — Smart Waste Sorting</title>
 
     <!--
-      TensorFlow.js must be a regular (non-defer) script so that window.tf is
-      guaranteed to be defined before any ES module code runs.
-      ES modules (type="module") are always deferred; regular scripts run first
-      in document order, so this CDN tag executes before /src/main.jsx.
-      Pinned to a stable patch version to prevent surprise regressions.
+      TensorFlow.js is self-hosted (vendored from the pinned npm package by
+      `npm run vendor:tf`) rather than pulled from a CDN. It must be a regular
+      (non-defer) script so that window.tf is guaranteed to be defined before
+      any ES module code runs: ES modules (type="module") are always deferred,
+      and regular scripts run first in document order, so this executes before
+      /src/main.jsx. Same-origin means no third-party supply-chain dependency
+      and a strict Content-Security-Policy with no external script-src.
     -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+    <script src="/vendor/tf.min.js"></script>
   </head>
   <body class="bg-[#F3F8F4] text-[#0E2A1F] antialiased select-none overflow-x-hidden min-h-screen">
     <div id="root"></div>

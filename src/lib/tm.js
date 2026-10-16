@@ -1,11 +1,12 @@
 // TensorFlow.js model loader — the ONLY module allowed to touch the tf global (Agent-Rules §4.1)
-// TF.js is loaded via CDN <script> in index.html; we access the global here rather than
-// importing the npm package so Rollup/Vite doesn't try to bundle it.
+// TF.js is loaded via a self-hosted script tag in index.html (public/vendor/tf.min.js,
+// vendored from the pinned npm package). We access the global here instead of importing
+// the npm package so Vite does not bundle a second, redundant copy of the library.
 
 /** @returns {typeof import('@tensorflow/tfjs')} */
 const getTf = () => {
   const t = globalThis.tf
-  if (!t) throw new Error('TensorFlow.js not loaded — check index.html CDN script order')
+  if (!t) throw new Error('TensorFlow.js not loaded — check the /vendor/tf.min.js script tag in index.html')
   return t
 }
 
@@ -27,14 +28,6 @@ export async function loadModel() {
   }
 
   cachedModelPromise = (async () => {
-    if (!globalThis.tf) {
-      try {
-        const tfModule = await import('@tensorflow/tfjs')
-        globalThis.tf = tfModule.default || tfModule
-      } catch (e) {
-        console.warn('Fallback to @tensorflow/tfjs npm import failed:', e)
-      }
-    }
     const tf = getTf()
 
     // 1. Fetch metadata in parallel
