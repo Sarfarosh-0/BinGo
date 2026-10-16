@@ -224,5 +224,9 @@ export const STRINGS = {
     scanFail: 'Something went wrong while scanning.',
     retry: 'Retry',
     dismiss: 'Dismiss',
+    crashTitle: 'Something went wrong',
+    crashBody:
+      'BinGo hit an unexpected error. Reload to keep sorting — your scan history is saved on this device.',
+    crashReload: 'Reload BinGo',
   },
 }
