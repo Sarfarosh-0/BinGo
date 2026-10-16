@@ -9,7 +9,7 @@
 ![TensorFlow.js](https://img.shields.io/badge/TensorFlow.js-4.22-FF6F00?style=flat-square&logo=tensorflow&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)
 ![Deploy](https://img.shields.io/badge/Deploy-Vercel-black?style=flat-square&logo=vercel)
-![Bundle](https://img.shields.io/badge/Bundle-58_kB_gz-22C55E?style=flat-square)
+![Bundle](https://img.shields.io/badge/Entry-70_kB_gz-22C55E?style=flat-square)
 
 Snap a photo of any piece of waste — BinGo tells you exactly how to dispose of it, entirely on-device with no data ever leaving your phone.
 
@@ -30,7 +30,7 @@ Snap a photo of any piece of waste — BinGo tells you exactly how to dispose of
 | 🕘 **Scan history** | Last 50 scans stored locally with thumbnail + category |
 | 👍 **Feedback loop** | Thumbs up/down on every result |
 | 🔒 **100% private** | Zero backend, zero analytics, zero network calls for classification |
-| 📱 **Mobile-first** | Runs offline after first visit; `viewport-fit=cover` safe-area aware |
+| 📱 **Mobile-first** | `viewport-fit=cover` safe-area aware; the model is cached in IndexedDB after the first scan |
 
 ---
 
@@ -43,7 +43,7 @@ Snap a photo of any piece of waste — BinGo tells you exactly how to dispose of
 │                  Browser (Client)               │
 │                                                 │
 │  ┌──────────┐    ┌──────────────────────────┐   │
-│  │ React 18 │    │  TensorFlow.js (CDN)     │   │
+│  │ React 18 │    │  TensorFlow.js (local)   │   │
 │  │  + Vite  │───▶│  MobileNetV2 graph model │   │
 │  └──────────┘    │  224×224 RGB input       │   │
 │       │          │  5-class softmax output  │   │
@@ -66,12 +66,14 @@ Snap a photo of any piece of waste — BinGo tells you exactly how to dispose of
 
 ### Key design decisions
 
-- **No bundled TF.js** — loaded via CDN `<script>` tag (saves ~3 MB from bundle)
+- **Self-hosted TF.js** — vendored to `public/vendor/tf.min.js` (`npm run vendor:tf`) and loaded with a plain `<script>` so `window.tf` exists before any module runs. No third-party origin means a strict CSP can apply.
 - **60% confidence gate** — predictions below threshold return a "Not sure" state
 - **Background class filter** — model trained with a `background` distractor class; if it tops the predictions, "Not sure" is shown
 - **EXIF-aware decoding** — uses `createImageBitmap({ imageOrientation: 'from-image' })` with `<img>` element fallback
 - **Run-ID guard** — every file-select increments a counter; stale async paths self-cancel to prevent race conditions
 - **localStorage quota guard** — auto-drops oldest history entries on `QuotaExceededError`
+- **Error boundary** — a render crash shows a recovery card and a reload button instead of a blank page
+- **Lazy chart** — Recharts is code-split and loads only when the Impact tab needs it
 
 ---
 
@@ -97,49 +99,55 @@ Model weights live in `public/model/` and are **never bundled** — Vercel serve
 ```
 BinGo/
 ├── public/
-│   ├── favicon.svg
+│   ├── favicon-32.png          # 32px tab icon
+│   ├── apple-touch-icon.png    # 180px iOS home-screen icon
+│   ├── logo.png                # In-app logo
 │   ├── rules.json              # Disposal rules & SDG facts (editable, no rebuild needed)
+│   ├── samples/                # Bundled demo photos for the "Try a sample" tiles
+│   ├── vendor/tf.min.js        # Self-hosted TensorFlow.js (npm run vendor:tf)
 │   └── model/
 │       ├── model.json          # TF.js graph model topology
 │       ├── metadata.json       # Labels, input shape, confidence threshold
 │       └── group1-shard*.bin   # Weight shards (~10 MB total)
 │
 ├── src/
-│   ├── main.jsx                # React root mount
+│   ├── main.jsx                # React root + top-level ErrorBoundary
 │   ├── App.jsx                 # View state machine & scan pipeline orchestrator
 │   │
-│   ├── components/
-│   │   ├── Backdrop.jsx        # Animated dark-green gradient background
-│   │   ├── TopBar.jsx          # Screen header (optional back / close button)
-│   │   ├── BottomNav.jsx       # Floating glass nav — Home · Scan · History
-│   │   ├── ImpactBar.jsx       # Items sorted + day streak counters
-│   │   ├── Scanner.jsx         # Viewfinder card + camera & gallery buttons
-│   │   ├── AnalyzingView.jsx   # Full-screen scan overlay with sweep animation
-│   │   ├── ResultCard.jsx      # Confident result or "Not sure" state
-│   │   ├── CategoryIcon.jsx    # Lucide icon mapped from categoryId
-│   │   ├── History.jsx         # FIFO scan history list (max 50)
-│   │   └── Banner.jsx          # Dismissible error / info toast
+│   ├── components/             # Scanner · ResultCard · History · ImpactCounter
+│   │                           # WasteAnalyticsChart · CameraModal · ScanSheet
+│   │                           # CategoryGuideModal · nav · Banner · ErrorBoundary
 │   │
 │   ├── hooks/
 │   │   ├── useModel.js         # TF.js model load + warmup inference + retry logic
 │   │   ├── useStreak.js        # Day streak + totalSorted with localStorage persistence
-│   │   └── useHistory.js       # Scan history CRUD (max 50, FIFO eviction)
+│   │   ├── useHistory.js       # Scan history CRUD (max 50, FIFO eviction)
+│   │   └── useModalA11y.js     # Modal focus trap · Escape · focus restore
 │   │
-│   └── lib/
-│       ├── tm.js               # TF.js wrapper — accesses globalThis.tf (CDN global)
-│       ├── classify.js         # Decision engine: confidence gate + background filter
-│       ├── image.js            # EXIF decode · cover-crop to 224px · thumbnail pipeline
-│       ├── rules.js            # rules.json fetch + schema validation
-│       ├── storage.js          # localStorage wrapper with in-memory quota fallback
-│       ├── date.js             # DST-safe date helpers for streak calculation
-│       ├── config.js           # Tunable constants (threshold, image sizes)
-│       └── strings.js          # Central UI string dictionary
+│   ├── lib/
+│   │   ├── tm.js               # TF.js wrapper — accesses globalThis.tf (vendored global)
+│   │   ├── classify.js         # Decision engine: confidence gate + background filter
+│   │   ├── image.js            # EXIF decode · cover-crop to 224px · thumbnail pipeline
+│   │   ├── rules.js            # rules.json fetch + schema validation
+│   │   ├── storage.js          # localStorage wrapper with in-memory quota fallback
+│   │   ├── date.js             # DST-safe date helpers for streak calculation
+│   │   ├── categoryTheme.js    # Per-category colour + icon mapping
+│   │   ├── sampleImages.js     # Loads the bundled "Try a sample" photos
+│   │   ├── config.js           # Tunable constants (threshold, image sizes)
+│   │   └── strings.js          # Central UI string dictionary
+│   │
+│   ├── styles/                 # tokens.css · components.css · index.css
+│   └── test/setup.js           # Vitest setup (jest-dom matchers)
 │
-├── index.html                  # TF.js CDN script + React module entry point
+├── scripts/vendor-tf.mjs       # Copies the pinned TF.js build into public/vendor
+├── .github/workflows/ci.yml    # lint · test · build
+├── index.html                  # Self-hosted TF.js script + React module entry point
+├── eslint.config.js
+├── vitest.config.js
 ├── vite.config.js
 ├── tailwind.config.js
 ├── postcss.config.js
-└── vercel.json                 # SPA rewrites + cache-control headers
+└── vercel.json                 # SPA rewrites · cache-control · CSP & security headers
 ```
 
 ---
@@ -166,22 +174,28 @@ npm run dev
 # → http://localhost:3000
 ```
 
-> **Note:** The first load takes ~3–5 s while the browser downloads the ~10 MB model weights from `public/model/`. Subsequent loads are fast thanks to HTTP caching.
+> **Note:** The first load takes a few seconds while the browser downloads the ~10 MB model from `public/model/`. It is then cached in IndexedDB, so repeat scans skip the download.
 
-### Production build
+### Checks
 
 ```bash
-npm run build          # Output: dist/  — deploy this folder
-npm run preview        # Preview the production build locally
+npm run lint           # ESLint (react + jsx-a11y)
+npm run test           # Vitest unit tests
+npm run build          # Production build → dist/
+npm run preview        # Serve the production build locally
 ```
 
 **Build output:**
 
-| Asset | Raw | Gzip |
-|---|---|---|
-| `index-[hash].js` | 188 kB | **58 kB** |
-| `index-[hash].css` | 23 kB | 5.8 kB |
-| Model weights | ~10 MB | served separately, never bundled |
+| Asset | Raw | Gzip | When it loads |
+|---|---|---|---|
+| `index-[hash].js` | 245 kB | **70 kB** | immediately |
+| `index-[hash].css` | 58 kB | 13 kB | immediately |
+| `WasteAnalyticsChart-[hash].js` | 431 kB | 123 kB | lazily, on the Impact tab |
+| `vendor/tf.min.js` | 1.4 MB | ~300 kB | immediately (`window.tf`) |
+| Model weights | ~10 MB | — | first scan, then IndexedDB |
+
+Run `npm run vendor:tf` to refresh `public/vendor/tf.min.js` after bumping `@tensorflow/tfjs`.
 
 ---
 
@@ -196,7 +210,8 @@ The included `vercel.json` automatically handles:
 
 - **SPA routing** — all paths rewrite to `index.html`
 - **Immutable asset caching** — `Cache-Control: public, max-age=31536000, immutable` for hashed JS/CSS
-- **No-cache for live content** — `rules.json` and model files are never stale-served
+- **Revalidated live content** — `rules.json` and the model are always revalidated, so an update is picked up immediately without re-downloading unchanged bytes
+- **Security headers** — a first-party `Content-Security-Policy` plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy` and HSTS
 
 ---
 
@@ -246,14 +261,24 @@ BinGo was designed **privacy-first by architecture**:
 
 ---
 
+## 🔐 Security
+
+- **No third-party scripts** — TensorFlow.js is self-hosted at `public/vendor/tf.min.js`, so nothing executes from a CDN.
+- **Strict CSP** — `default-src 'self'` with `connect-src 'self'`: even an injected script could not exfiltrate a photo or your scan history. `'unsafe-eval'` is required only because TF.js compiles kernels from strings.
+- **Camera is opt-in** — `Permissions-Policy: camera=(self)`, and the stream is stopped when the camera sheet closes.
+- **Local-only data** — history and streak live in `localStorage`; images never leave the tab.
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome!
 
 1. Fork this repo and create a branch: `git checkout -b feat/your-feature`
 2. All UI copy must go through `src/lib/strings.js` (no hardcoded strings in components)
-3. Run `npm run build` — the JS bundle must stay **under 350 kB gzipped**
-4. Open a Pull Request with a clear description of the change
+3. Use design tokens only — no raw hex or default Tailwind palette colours outside `src/styles/tokens.css`
+4. Run `npm run lint`, `npm run test` and `npm run build` (CI runs all three on every push)
+5. Open a Pull Request with a clear description of the change
 
 ### Updating the AI model
 
