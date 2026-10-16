@@ -35,6 +35,8 @@
   /* Status */
   --color-success: #16834A;  --color-success-soft: #E4F5EB;
   --color-warning: #9A6700;  --color-warning-soft: #FFF6E0;
+  /* Lighter warning for use on dark surfaces (e.g. the camera error state) */
+  --color-warning-bright: #FBBF24;
   --color-error:   #C62828;  --color-error-soft:   #FCEAEA;
   --color-info:    #1769AA;  --color-info-soft:    #E7F1FA;
 

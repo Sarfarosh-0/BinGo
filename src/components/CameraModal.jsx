@@ -140,8 +140,8 @@ export function CameraModal({ isOpen, onClose, onCapture, onFallbackFilePicker }
       <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
         {cameraError ? (
           <div className="flex max-w-sm flex-col items-center gap-3 p-6 text-center text-white">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-400/15 ring-1 ring-amber-400/30">
-              <AlertCircle className="h-10 w-10 text-amber-400" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[color-mix(in_srgb,var(--color-warning-bright)_15%,transparent)] ring-1 ring-[color-mix(in_srgb,var(--color-warning-bright)_30%,transparent)]">
+              <AlertCircle className="h-10 w-10 text-[var(--color-warning-bright)]" />
             </div>
             <h3 className="mt-1 text-lg font-bold">{STRINGS.camera.unavailableTitle}</h3>
             <p className="text-sm leading-relaxed text-white/80">{cameraError}</p>

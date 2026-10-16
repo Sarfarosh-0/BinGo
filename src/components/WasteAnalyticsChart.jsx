@@ -614,7 +614,7 @@ export function WasteAnalyticsChart({
               >
                 <span
                   className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: isSelected ? '#FFFFFF' : color }}
+                  style={{ backgroundColor: isSelected ? 'var(--color-surface)' : color }}
                 />
                 <span>{theme.label.split('/')[0].trim()}</span>
               </button>
